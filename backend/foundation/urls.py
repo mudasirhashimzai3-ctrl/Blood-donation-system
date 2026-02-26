@@ -23,6 +23,7 @@ urlpatterns = [
     path('api/core/', include('core.urls')),
     path('api/accounts/', include('accounts.urls')),
     path('api/donors/', include('donors.urls')),
+    path('api/recipients/', include('recipients.urls')),
     
 ]
 from django.conf import settings

@@ -11,7 +11,8 @@ import { MISLayout } from "@/components";
 import { Dashboard } from "@/modules/dashboard";
 import { GeneralSettings, SettingsOverview, UserManagement } from "@settings/index";
 import { UserProfile } from "@/modules/profile";
-import { DonorCreatePage, DonorEditPage, DonorFilters, DonorForm, DonorListPage, DonorViewPage } from "@/modules/donors";
+import { DonorCreatePage, DonorEditPage, DonorListPage, DonorViewPage } from "@/modules/donors";
+import { RecipientCreatePage, RecipientEditPage, RecipientListPage, RecipientViewPage } from "@/modules/recipients";
 
 function AppRouterProvider() {
   const router = createBrowserRouter([
@@ -38,6 +39,12 @@ function AppRouterProvider() {
         { path: "donors/new", element: <DonorCreatePage/> },
         { path: "donors/:id", element: <DonorViewPage/> },
         { path: "donors/:id/edit", element: <DonorEditPage/> },
+
+        // Recipients
+        { path: "recipients", element: <RecipientListPage /> },
+        { path: "recipients/new", element: <RecipientCreatePage /> },
+        { path: "recipients/:id", element: <RecipientViewPage /> },
+        { path: "recipients/:id/edit", element: <RecipientEditPage /> },
 
         // Profile
         { path: "profile", element: <UserProfile /> },

@@ -89,6 +89,7 @@ class Permission(models.Model):
         ('reports', 'Reports'),
         ('settings', 'Settings'),
         ('donors', 'Donors'),
+        ('recipients', 'Recipients'),
 
         # ('vendors', 'Vendors'),
         # ("members", "Members"),

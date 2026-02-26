@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'core.apps.CoreConfig',
     'accounts.apps.AccountsConfig',
     'donors.apps.DonorsConfig',
+    'recipients.apps.RecipientsConfig',
 ]
 
 MIDDLEWARE = [
