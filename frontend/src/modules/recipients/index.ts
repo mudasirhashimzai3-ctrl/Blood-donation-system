@@ -10,8 +10,6 @@ export { default as RecipientStatusBadge } from "./components/RecipientStatusBad
 export { default as EmergencyLevelBadge } from "./components/EmergencyLevelBadge";
 export { default as DeleteRecipientDialog } from "./components/DeleteRecipientDialog";
 export { default as BlockUnblockRecipientDialog } from "./components/BlockUnblockRecipientDialog";
-export { default as HospitalQuickCreateModal } from "./components/HospitalQuickCreateModal";
-export { default as HospitalSearchSelect } from "./components/HospitalSearchSelect";
 
 export { useRecipientFilters } from "./hooks/useRecipientFilters";
 export { useRecipientForm } from "./hooks/useRecipientForm";
@@ -19,12 +17,7 @@ export { useRecipientForm } from "./hooks/useRecipientForm";
 export { useRecipientUiStore } from "./stores/useRecipientUiStore";
 
 export * from "./schemas/recipientSchemas";
-export * from "./schemas/hospitalSchemas";
 export * from "./queries/recipientKeys";
-export * from "./queries/hospitalKeys";
 export * from "./queries/useRecipientQueries";
-export * from "./queries/useHospitalQueries";
 export * from "./services/recipientService";
-export * from "./services/hospitalService";
 export * from "./types/recipient.types";
-

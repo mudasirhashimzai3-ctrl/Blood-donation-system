@@ -2,33 +2,7 @@ from django.db import models
 from django.db.models import Q
 
 from core.base_models import BaseModel
-
-
-class Hospital(BaseModel):
-    name = models.CharField(max_length=200)
-    contact_phone = models.CharField(max_length=20, null=True, blank=True)
-    address = models.TextField(null=True, blank=True)
-    city = models.CharField(max_length=100)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
-
-    class Meta:
-        db_table = "hospitals"
-        indexes = [
-            models.Index(fields=["name"]),
-            models.Index(fields=["city"]),
-            models.Index(fields=["contact_phone"]),
-        ]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["name", "city"],
-                condition=Q(deleted_at__isnull=True),
-                name="uniq_hospitals_name_city_active",
-            ),
-        ]
-
-    def __str__(self):
-        return self.name
+from hospitals.models import Hospital
 
 
 class Recipient(BaseModel):
@@ -96,4 +70,3 @@ class Recipient(BaseModel):
 
     def __str__(self):
         return self.full_name
-

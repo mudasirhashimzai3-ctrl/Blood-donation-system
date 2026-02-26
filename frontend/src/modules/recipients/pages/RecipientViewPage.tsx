@@ -127,7 +127,13 @@ export default function RecipientViewPage() {
               <p className="text-xs uppercase text-text-secondary">
                 {t("recipients.form.hospitalContact", "Hospital Contact")}
               </p>
-              <p className="text-sm text-text-primary">{recipient.hospital_contact || "-"}</p>
+              <p className="text-sm text-text-primary">{recipient.hospital_phone || "-"}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase text-text-secondary">
+                {t("recipients.form.hospitalEmail", "Hospital Email")}
+              </p>
+              <p className="text-sm text-text-primary">{recipient.hospital_email || "-"}</p>
             </div>
             <div>
               <p className="text-xs uppercase text-text-secondary">{t("recipients.form.city", "City")}</p>
@@ -201,4 +207,3 @@ export default function RecipientViewPage() {
     </div>
   );
 }
-

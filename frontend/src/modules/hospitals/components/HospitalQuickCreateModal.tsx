@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Button, Input, Modal } from "@components/ui";
 import { hospitalFormSchema, type HospitalFormValues } from "../schemas/hospitalSchemas";
 import { useCreateHospital } from "../queries/useHospitalQueries";
-import type { Hospital } from "../types/recipient.types";
+import type { Hospital } from "../types/hospital.types";
 
 interface HospitalQuickCreateModalProps {
   isOpen: boolean;
@@ -29,11 +29,13 @@ export default function HospitalQuickCreateModal({
     resolver: zodResolver(hospitalFormSchema),
     defaultValues: {
       name: "",
-      contact_phone: "",
+      phone: "",
+      email: "",
       address: "",
       city: "",
       latitude: "",
       longitude: "",
+      is_active: true,
     },
   });
 
@@ -47,11 +49,13 @@ export default function HospitalQuickCreateModal({
   const onSubmit = async (values: HospitalFormValues) => {
     const hospital = await createHospital.mutateAsync({
       name: values.name.trim(),
-      contact_phone: emptyToNull(values.contact_phone),
+      phone: emptyToNull(values.phone),
+      email: emptyToNull(values.email),
       address: emptyToNull(values.address),
       city: values.city.trim(),
       latitude: emptyToNull(values.latitude),
       longitude: emptyToNull(values.longitude),
+      is_active: true,
     });
     onCreated(hospital);
     reset();
@@ -74,7 +78,7 @@ export default function HospitalQuickCreateModal({
             }}
             disabled={createHospital.isPending}
           >
-            {t("recipients.actions.cancel", "Cancel")}
+            {t("hospitals.actions.cancel", "Cancel")}
           </Button>
           <Button onClick={handleSubmit(onSubmit)} loading={createHospital.isPending}>
             {t("hospitals.quickCreate.create", "Create Hospital")}
@@ -84,14 +88,16 @@ export default function HospitalQuickCreateModal({
     >
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <Input label={t("hospitals.form.name", "Hospital Name")} error={errors.name?.message} {...register("name")} />
+        <Input label={t("hospitals.form.phone", "Phone")} error={errors.phone?.message} {...register("phone")} />
         <Input
-          label={t("hospitals.form.contactPhone", "Hospital Contact")}
-          error={errors.contact_phone?.message}
-          {...register("contact_phone")}
+          type="email"
+          label={t("hospitals.form.email", "Email")}
+          error={errors.email?.message}
+          {...register("email")}
         />
         <Input label={t("hospitals.form.city", "City")} error={errors.city?.message} {...register("city")} />
         <Input
-          label={t("hospitals.form.address", "Hospital Address")}
+          label={t("hospitals.form.address", "Address")}
           error={errors.address?.message}
           {...register("address")}
         />

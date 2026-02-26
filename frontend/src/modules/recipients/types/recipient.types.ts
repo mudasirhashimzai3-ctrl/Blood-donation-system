@@ -18,50 +18,6 @@ export type RecipientStatus = (typeof RECIPIENT_STATUS_OPTIONS)[number];
 export type EmergencyLevel = (typeof EMERGENCY_LEVEL_OPTIONS)[number];
 export type Gender = (typeof GENDER_OPTIONS)[number];
 
-export interface Hospital {
-  id: number;
-  name: string;
-  contact_phone: string | null;
-  address: string | null;
-  city: string;
-  latitude: string | null;
-  longitude: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface HospitalListItem {
-  id: number;
-  name: string;
-  contact_phone: string | null;
-  city: string;
-  created_at: string;
-}
-
-export interface HospitalPayload {
-  name: string;
-  contact_phone?: string | null;
-  address?: string | null;
-  city: string;
-  latitude?: string | null;
-  longitude?: string | null;
-}
-
-export interface HospitalQueryParams {
-  page?: number;
-  page_size?: number;
-  search?: string;
-  city?: string;
-  ordering?: string;
-}
-
-export interface PaginatedHospitals {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: HospitalListItem[];
-}
-
 export interface Recipient {
   id: number;
   full_name: string;
@@ -72,11 +28,13 @@ export interface Recipient {
   gender: Gender;
   hospital: number;
   hospital_name: string;
-  hospital_contact: string | null;
+  hospital_phone: string | null;
+  hospital_email: string | null;
   hospital_address: string | null;
   city: string;
   latitude: string | null;
   longitude: string | null;
+  hospital_is_active: boolean;
   emergency_level: EmergencyLevel;
   status: RecipientStatus;
   created_at: string;
@@ -125,4 +83,3 @@ export interface PaginatedRecipients {
   previous: string | null;
   results: RecipientListItem[];
 }
-

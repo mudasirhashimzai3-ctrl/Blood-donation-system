@@ -12,6 +12,7 @@ import { Dashboard } from "@/modules/dashboard";
 import { GeneralSettings, SettingsOverview, UserManagement } from "@settings/index";
 import { UserProfile } from "@/modules/profile";
 import { DonorCreatePage, DonorEditPage, DonorListPage, DonorViewPage } from "@/modules/donors";
+import { HospitalCreatePage, HospitalEditPage, HospitalListPage, HospitalViewPage } from "@/modules/hospitals";
 import { RecipientCreatePage, RecipientEditPage, RecipientListPage, RecipientViewPage } from "@/modules/recipients";
 
 function AppRouterProvider() {
@@ -45,6 +46,12 @@ function AppRouterProvider() {
         { path: "recipients/new", element: <RecipientCreatePage /> },
         { path: "recipients/:id", element: <RecipientViewPage /> },
         { path: "recipients/:id/edit", element: <RecipientEditPage /> },
+
+        // Hospitals
+        { path: "hospitals", element: <HospitalListPage /> },
+        { path: "hospitals/new", element: <HospitalCreatePage /> },
+        { path: "hospitals/:id", element: <HospitalViewPage /> },
+        { path: "hospitals/:id/edit", element: <HospitalEditPage /> },
 
         // Profile
         { path: "profile", element: <UserProfile /> },

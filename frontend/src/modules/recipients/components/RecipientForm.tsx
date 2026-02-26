@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { Button, Input, Select } from "@components/ui";
 import { formatLocalDateTime } from "@/utils/formatLocalDateTime";
-import HospitalSearchSelect from "./HospitalSearchSelect";
+import { HospitalSearchSelect } from "@/modules/hospitals";
 import { type RecipientFormValues } from "../schemas/recipientSchemas";
 import {
   BLOOD_GROUP_OPTIONS,
@@ -149,4 +149,3 @@ export default function RecipientForm({
     </form>
   );
 }
-

@@ -3,12 +3,13 @@ from rest_framework.test import APITestCase
 
 from accounts.models import RolePermission, User
 from core.models import Permission
-from .models import Hospital, Recipient
+from hospitals.models import Hospital
+
+from .models import Recipient
 
 
 class RecipientApiTests(APITestCase):
     base_url = "/api/recipients/"
-    hospitals_url = "/api/recipients/hospitals/"
 
     @classmethod
     def setUpTestData(cls):
@@ -43,11 +44,13 @@ class RecipientApiTests(APITestCase):
     def _create_hospital(self, **kwargs):
         defaults = {
             "name": "City Hospital",
-            "contact_phone": "0700100001",
+            "phone": "0700100001",
+            "email": None,
             "address": "Main Street",
             "city": "Kabul",
             "latitude": "34.555300",
             "longitude": "69.207500",
+            "is_active": True,
         }
         defaults.update(kwargs)
         return Hospital.objects.create(**defaults)
@@ -120,21 +123,7 @@ class RecipientApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("email", response.data)
 
-    def test_create_rejects_invalid_age_and_coordinates(self):
-        bad_hospital_response = self.client.post(
-            self.hospitals_url,
-            {
-                "name": "Bad Hospital",
-                "city": "Kabul",
-                "latitude": "100.000000",
-                "longitude": "200.000000",
-            },
-            format="json",
-        )
-        self.assertEqual(bad_hospital_response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("latitude", bad_hospital_response.data)
-        self.assertIn("longitude", bad_hospital_response.data)
-
+    def test_create_rejects_invalid_age(self):
         hospital = self._create_hospital()
         bad_age_response = self.client.post(
             self.base_url,
@@ -154,7 +143,7 @@ class RecipientApiTests(APITestCase):
 
     def test_list_supports_search_filters_ordering_and_pagination(self):
         kabul_hospital = self._create_hospital(name="Kabul Hospital", city="Kabul")
-        herat_hospital = self._create_hospital(name="Herat Hospital", city="Herat", contact_phone="0700100010")
+        herat_hospital = self._create_hospital(name="Herat Hospital", city="Herat", phone="0700100010")
 
         Recipient.objects.create(
             full_name="Ali Search",
@@ -211,7 +200,7 @@ class RecipientApiTests(APITestCase):
         response = self.client.get(f"{self.base_url}{recipient.id}/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["hospital_name"], "City Hospital")
-        self.assertEqual(response.data["hospital_contact"], "0700100001")
+        self.assertEqual(response.data["hospital_phone"], "0700100001")
         self.assertEqual(response.data["city"], "Kabul")
         self.assertIn("latitude", response.data)
         self.assertIn("longitude", response.data)
@@ -289,37 +278,3 @@ class RecipientApiTests(APITestCase):
 
         block_response = self.client.patch(f"{self.base_url}{recipient.id}/block/", {}, format="json")
         self.assertEqual(block_response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_hospital_quick_create_list_update_delete(self):
-        create_response = self.client.post(
-            self.hospitals_url,
-            {
-                "name": "Quick Hospital",
-                "contact_phone": "0700200001",
-                "address": "Quick Address",
-                "city": "Mazar",
-                "latitude": "36.700000",
-                "longitude": "67.100000",
-            },
-            format="json",
-        )
-        self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
-        hospital_id = create_response.data["id"]
-
-        list_response = self.client.get(self.hospitals_url, {"search": "Quick"})
-        self.assertEqual(list_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(list_response.data["count"], 1)
-
-        update_response = self.client.patch(
-            f"{self.hospitals_url}{hospital_id}/",
-            {"city": "Kandahar"},
-            format="json",
-        )
-        self.assertEqual(update_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(update_response.data["city"], "Kandahar")
-
-        delete_response = self.client.delete(f"{self.hospitals_url}{hospital_id}/")
-        self.assertEqual(delete_response.status_code, status.HTTP_204_NO_CONTENT)
-        hospital = Hospital.all_objects.get(pk=hospital_id)
-        self.assertIsNotNone(hospital.deleted_at)
-

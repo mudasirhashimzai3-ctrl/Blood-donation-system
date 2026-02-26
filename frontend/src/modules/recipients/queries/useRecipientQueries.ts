@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { hospitalKeys } from "@/modules/hospitals";
 import { extractAxiosError } from "@/utils/extractError";
 import type { PaginatedRecipients, RecipientPayload, RecipientQueryParams } from "../types/recipient.types";
-import { hospitalKeys } from "./hospitalKeys";
 import { recipientKeys } from "./recipientKeys";
 import { recipientService } from "../services/recipientService";
 
@@ -100,4 +100,3 @@ export const useUnblockRecipient = () => {
     },
   });
 };
-

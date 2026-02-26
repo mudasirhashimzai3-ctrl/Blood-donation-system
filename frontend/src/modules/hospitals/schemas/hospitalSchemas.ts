@@ -14,12 +14,20 @@ const numericCoordinate = (label: string, min: number, max: number) =>
 
 export const hospitalFormSchema = z.object({
   name: z.string().trim().min(2, "Hospital name must be at least 2 characters"),
-  contact_phone: z.string().trim().optional().or(z.literal("")),
+  phone: z.string().trim().optional().or(z.literal("")),
+  email: z
+    .string()
+    .trim()
+    .optional()
+    .or(z.literal(""))
+    .refine((value) => !value || z.string().email().safeParse(value).success, {
+      message: "Email is invalid",
+    }),
   address: z.string().trim().optional().or(z.literal("")),
   city: z.string().trim().min(2, "City must be at least 2 characters"),
   latitude: numericCoordinate("Latitude", -90, 90),
   longitude: numericCoordinate("Longitude", -180, 180),
+  is_active: z.boolean(),
 });
 
 export type HospitalFormValues = z.infer<typeof hospitalFormSchema>;
-

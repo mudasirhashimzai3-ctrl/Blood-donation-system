@@ -1,64 +1,6 @@
 from rest_framework import serializers
 
-from .models import Hospital, Recipient
-
-
-class HospitalListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Hospital
-        fields = [
-            "id",
-            "name",
-            "contact_phone",
-            "city",
-            "created_at",
-        ]
-
-
-class HospitalDetailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Hospital
-        fields = [
-            "id",
-            "name",
-            "contact_phone",
-            "address",
-            "city",
-            "latitude",
-            "longitude",
-            "created_at",
-            "updated_at",
-        ]
-        read_only_fields = ["id", "created_at", "updated_at"]
-
-    def validate_name(self, value):
-        return value.strip()
-
-    def validate_contact_phone(self, value):
-        if not value:
-            return None
-        return value.strip()
-
-    def validate_city(self, value):
-        return value.strip()
-
-    def validate(self, attrs):
-        attrs = super().validate(attrs)
-        errors = {}
-
-        latitude = attrs.get("latitude", getattr(self.instance, "latitude", None))
-        longitude = attrs.get("longitude", getattr(self.instance, "longitude", None))
-
-        if latitude is not None and (latitude < -90 or latitude > 90):
-            errors["latitude"] = "Latitude must be between -90 and 90."
-
-        if longitude is not None and (longitude < -180 or longitude > 180):
-            errors["longitude"] = "Longitude must be between -180 and 180."
-
-        if errors:
-            raise serializers.ValidationError(errors)
-
-        return attrs
+from .models import Recipient
 
 
 class RecipientListSerializer(serializers.ModelSerializer):
@@ -82,11 +24,13 @@ class RecipientListSerializer(serializers.ModelSerializer):
 
 class RecipientDetailSerializer(serializers.ModelSerializer):
     hospital_name = serializers.CharField(source="hospital.name", read_only=True)
-    hospital_contact = serializers.CharField(source="hospital.contact_phone", read_only=True)
+    hospital_phone = serializers.CharField(source="hospital.phone", read_only=True, allow_null=True)
+    hospital_email = serializers.CharField(source="hospital.email", read_only=True, allow_null=True)
     hospital_address = serializers.CharField(source="hospital.address", read_only=True)
     city = serializers.CharField(source="hospital.city", read_only=True)
     latitude = serializers.DecimalField(source="hospital.latitude", read_only=True, max_digits=9, decimal_places=6)
     longitude = serializers.DecimalField(source="hospital.longitude", read_only=True, max_digits=9, decimal_places=6)
+    hospital_is_active = serializers.BooleanField(source="hospital.is_active", read_only=True)
 
     class Meta:
         model = Recipient
@@ -100,11 +44,13 @@ class RecipientDetailSerializer(serializers.ModelSerializer):
             "gender",
             "hospital",
             "hospital_name",
-            "hospital_contact",
+            "hospital_phone",
+            "hospital_email",
             "hospital_address",
             "city",
             "latitude",
             "longitude",
+            "hospital_is_active",
             "emergency_level",
             "status",
             "created_at",
@@ -115,11 +61,13 @@ class RecipientDetailSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "hospital_name",
-            "hospital_contact",
+            "hospital_phone",
+            "hospital_email",
             "hospital_address",
             "city",
             "latitude",
             "longitude",
+            "hospital_is_active",
         ]
 
     def validate_full_name(self, value):
@@ -153,4 +101,3 @@ class RecipientDetailSerializer(serializers.ModelSerializer):
         if value < 1 or value > 120:
             raise serializers.ValidationError("Age must be between 1 and 120.")
         return value
-

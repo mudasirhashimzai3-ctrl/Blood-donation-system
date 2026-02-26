@@ -22,6 +22,7 @@ export default function HospitalSearchSelect({ value, onChange, error }: Hospita
     {
       page_size: 10,
       search: search || undefined,
+      is_active: true,
     },
     { enabled: isOpen || search.length > 0 }
   );
@@ -85,7 +86,7 @@ export default function HospitalSearchSelect({ value, onChange, error }: Hospita
                   <div>
                     <p className="text-sm font-medium text-text-primary">{hospital.name}</p>
                     <p className="text-xs text-text-secondary">
-                      {hospital.city} {hospital.contact_phone ? `- ${hospital.contact_phone}` : ""}
+                      {hospital.city} {hospital.phone ? `- ${hospital.phone}` : ""}
                     </p>
                   </div>
                 </div>

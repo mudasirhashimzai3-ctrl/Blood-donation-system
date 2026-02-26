@@ -44,9 +44,7 @@ describe("RecipientTable", () => {
     expect(screen.getByText("City Hospital")).toBeInTheDocument();
     expect(screen.getByText("Kabul")).toBeInTheDocument();
 
-    const actionButtons = screen.getAllByRole("button");
-    fireEvent.click(actionButtons[actionButtons.length - 1]);
+    fireEvent.click(screen.getByTitle("Unblock"));
     expect(onToggleBlock).toHaveBeenCalledWith(1, "blocked");
   });
 });
-

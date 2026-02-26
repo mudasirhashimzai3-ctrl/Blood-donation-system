@@ -90,6 +90,7 @@ class Permission(models.Model):
         ('settings', 'Settings'),
         ('donors', 'Donors'),
         ('recipients', 'Recipients'),
+        ('hospitals', 'Hospitals'),
 
         # ('vendors', 'Vendors'),
         # ("members", "Members"),

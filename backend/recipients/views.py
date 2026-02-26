@@ -8,13 +8,8 @@ from rest_framework.response import Response
 from core.pagination import StandardResultsSetPagination
 from core.permissions import PermissionMixin
 
-from .models import Hospital, Recipient
-from .serializers import (
-    HospitalDetailSerializer,
-    HospitalListSerializer,
-    RecipientDetailSerializer,
-    RecipientListSerializer,
-)
+from .models import Recipient
+from .serializers import RecipientDetailSerializer, RecipientListSerializer
 
 
 class RecipientFilter(filterset.FilterSet):
@@ -23,24 +18,6 @@ class RecipientFilter(filterset.FilterSet):
     class Meta:
         model = Recipient
         fields = ["required_blood_group", "emergency_level", "status", "city"]
-
-
-class HospitalViewSet(PermissionMixin, viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
-    permission_module = "recipients"
-    queryset = Hospital.objects.all().order_by("name")
-    serializer_class = HospitalDetailSerializer
-    pagination_class = StandardResultsSetPagination
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["city"]
-    search_fields = ["name", "contact_phone", "city", "address"]
-    ordering_fields = ["name", "city", "created_at", "updated_at"]
-    ordering = ["name"]
-
-    def get_serializer_class(self):
-        if self.action == "list":
-            return HospitalListSerializer
-        return HospitalDetailSerializer
 
 
 class RecipientViewSet(PermissionMixin, viewsets.ModelViewSet):
@@ -75,4 +52,3 @@ class RecipientViewSet(PermissionMixin, viewsets.ModelViewSet):
         recipient.save(update_fields=["status", "updated_at"])
         serializer = self.get_serializer(recipient)
         return Response(serializer.data, status=status.HTTP_200_OK)
-

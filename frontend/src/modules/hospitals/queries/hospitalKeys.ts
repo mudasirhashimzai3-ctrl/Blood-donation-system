@@ -1,4 +1,4 @@
-import type { HospitalQueryParams } from "../types/recipient.types";
+import type { HospitalQueryParams } from "../types/hospital.types";
 
 export const hospitalKeys = {
   all: ["hospitals"] as const,
