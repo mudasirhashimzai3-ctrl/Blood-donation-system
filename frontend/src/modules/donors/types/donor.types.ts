@@ -24,6 +24,8 @@ export interface Donor {
   status: DonorStatus;
   profile_picture: string | null;
   profile_picture_url: string | null;
+  latitude: string | null;
+  longitude: string | null;
   date_of_birth: string | null;
   address: string | null;
   emergency_contact_name: string | null;
@@ -57,6 +59,8 @@ export interface DonorPayload {
   status: DonorStatus;
   profile_picture?: File | null;
   remove_profile_picture?: boolean;
+  latitude?: string | null;
+  longitude?: string | null;
   date_of_birth?: string | null;
   address?: string | null;
   emergency_contact_name?: string | null;

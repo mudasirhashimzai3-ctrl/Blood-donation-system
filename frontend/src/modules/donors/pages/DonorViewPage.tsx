@@ -110,6 +110,14 @@ export default function DonorViewPage() {
               <p className="text-xs uppercase text-text-secondary">{t("donors.form.status", "Status")}</p>
               <p className="text-sm text-text-primary">{t(`donors.status.${donor.status}`, donor.status)}</p>
             </div>
+            <div>
+              <p className="text-xs uppercase text-text-secondary">{t("donors.form.latitude", "Latitude")}</p>
+              <p className="text-sm text-text-primary">{donor.latitude || "-"}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase text-text-secondary">{t("donors.form.longitude", "Longitude")}</p>
+              <p className="text-sm text-text-primary">{donor.longitude || "-"}</p>
+            </div>
             <div className="md:col-span-2">
               <p className="text-xs uppercase text-text-secondary">{t("donors.form.address", "Address")}</p>
               <p className="text-sm text-text-primary">{donor.address || "-"}</p>

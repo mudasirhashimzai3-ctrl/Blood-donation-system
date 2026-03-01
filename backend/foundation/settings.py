@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'donors.apps.DonorsConfig',
     'recipients.apps.RecipientsConfig',
     'hospitals.apps.HospitalsConfig',
+    'blood_requests.apps.BloodRequestsConfig',
 ]
 
 MIDDLEWARE = [

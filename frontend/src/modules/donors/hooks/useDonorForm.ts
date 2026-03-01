@@ -18,6 +18,8 @@ const defaultValues: DonorFormValues = {
   emergency_contact_name: "",
   emergency_contact_phone: "",
   last_donation_date: "",
+  latitude: "",
+  longitude: "",
   notes: "",
 };
 
@@ -38,6 +40,8 @@ export const mapDonorToFormValues = (donor?: Partial<Donor>): DonorFormValues =>
     emergency_contact_name: donor.emergency_contact_name ?? "",
     emergency_contact_phone: donor.emergency_contact_phone ?? "",
     last_donation_date: donor.last_donation_date ?? "",
+    latitude: donor.latitude ?? "",
+    longitude: donor.longitude ?? "",
     notes: donor.notes ?? "",
   };
 };

@@ -158,6 +158,21 @@ export default function DonorForm({
         />
       </div>
 
+      <div className="grid gap-4 md:grid-cols-2">
+        <Input
+          label={t("donors.form.latitude", "Latitude")}
+          placeholder={t("donors.form.latitudePlaceholder", "Enter latitude")}
+          error={errors.latitude?.message}
+          {...register("latitude")}
+        />
+        <Input
+          label={t("donors.form.longitude", "Longitude")}
+          placeholder={t("donors.form.longitudePlaceholder", "Enter longitude")}
+          error={errors.longitude?.message}
+          {...register("longitude")}
+        />
+      </div>
+
       <Textarea
         label={t("donors.form.address", "Address")}
         placeholder={t("donors.form.addressPlaceholder", "Enter address")}

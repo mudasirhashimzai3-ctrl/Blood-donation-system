@@ -14,6 +14,12 @@ import { UserProfile } from "@/modules/profile";
 import { DonorCreatePage, DonorEditPage, DonorListPage, DonorViewPage } from "@/modules/donors";
 import { HospitalCreatePage, HospitalEditPage, HospitalListPage, HospitalViewPage } from "@/modules/hospitals";
 import { RecipientCreatePage, RecipientEditPage, RecipientListPage, RecipientViewPage } from "@/modules/recipients";
+import {
+  BloodRequestCreatePage,
+  BloodRequestEditPage,
+  BloodRequestListPage,
+  BloodRequestViewPage,
+} from "@/modules/blood-requests";
 
 function AppRouterProvider() {
   const router = createBrowserRouter([
@@ -52,6 +58,12 @@ function AppRouterProvider() {
         { path: "hospitals/new", element: <HospitalCreatePage /> },
         { path: "hospitals/:id", element: <HospitalViewPage /> },
         { path: "hospitals/:id/edit", element: <HospitalEditPage /> },
+
+        // Blood Requests
+        { path: "blood-requests", element: <BloodRequestListPage /> },
+        { path: "blood-requests/new", element: <BloodRequestCreatePage /> },
+        { path: "blood-requests/:id", element: <BloodRequestViewPage /> },
+        { path: "blood-requests/:id/edit", element: <BloodRequestEditPage /> },
 
         // Profile
         { path: "profile", element: <UserProfile /> },

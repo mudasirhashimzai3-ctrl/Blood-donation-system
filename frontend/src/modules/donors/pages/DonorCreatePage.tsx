@@ -30,6 +30,8 @@ export default function DonorCreatePage() {
       emergency_contact_name: emptyToNull(values.emergency_contact_name),
       emergency_contact_phone: emptyToNull(values.emergency_contact_phone),
       last_donation_date: emptyToNull(values.last_donation_date),
+      latitude: emptyToNull(values.latitude),
+      longitude: emptyToNull(values.longitude),
       notes: emptyToNull(values.notes),
     });
     navigate("/donors");

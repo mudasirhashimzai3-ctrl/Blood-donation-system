@@ -24,6 +24,8 @@ const buildDonorFormData = (payload: Partial<DonorPayload>) => {
   appendField(formData, "emergency_contact_name", payload.emergency_contact_name ?? "");
   appendField(formData, "emergency_contact_phone", payload.emergency_contact_phone ?? "");
   appendField(formData, "last_donation_date", payload.last_donation_date ?? "");
+  appendField(formData, "latitude", payload.latitude ?? "");
+  appendField(formData, "longitude", payload.longitude ?? "");
   appendField(formData, "notes", payload.notes ?? "");
   appendField(formData, "remove_profile_picture", payload.remove_profile_picture);
 

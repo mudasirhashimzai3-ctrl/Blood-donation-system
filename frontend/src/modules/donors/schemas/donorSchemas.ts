@@ -58,6 +58,24 @@ export const donorFormSchema = z.object({
     .refine((value) => notFutureDate(value || undefined), {
       message: "Last donation date cannot be in the future",
     }),
+  latitude: z
+    .string()
+    .optional()
+    .or(z.literal(""))
+    .refine((value) => {
+      if (!value) return true;
+      const parsed = Number(value);
+      return !Number.isNaN(parsed) && parsed >= -90 && parsed <= 90;
+    }, "Latitude must be between -90 and 90"),
+  longitude: z
+    .string()
+    .optional()
+    .or(z.literal(""))
+    .refine((value) => {
+      if (!value) return true;
+      const parsed = Number(value);
+      return !Number.isNaN(parsed) && parsed >= -180 && parsed <= 180;
+    }, "Longitude must be between -180 and 180"),
   notes: z.string().optional().or(z.literal("")),
 });
 

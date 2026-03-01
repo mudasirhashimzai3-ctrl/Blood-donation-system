@@ -46,6 +46,8 @@ class DonorDetailSerializer(serializers.ModelSerializer):
             "status",
             "profile_picture",
             "profile_picture_url",
+            "latitude",
+            "longitude",
             "date_of_birth",
             "address",
             "emergency_contact_name",
@@ -116,6 +118,13 @@ class DonorDetailSerializer(serializers.ModelSerializer):
 
         if last_donation_date and last_donation_date > today:
             errors["last_donation_date"] = "Last donation date cannot be in the future."
+
+        latitude = attrs.get("latitude", getattr(self.instance, "latitude", None))
+        longitude = attrs.get("longitude", getattr(self.instance, "longitude", None))
+        if latitude is not None and (latitude < -90 or latitude > 90):
+            errors["latitude"] = "Latitude must be between -90 and 90."
+        if longitude is not None and (longitude < -180 or longitude > 180):
+            errors["longitude"] = "Longitude must be between -180 and 180."
 
         if errors:
             raise serializers.ValidationError(errors)

@@ -1,4 +1,4 @@
-import { Building2, HeartPulse, LayoutDashboard, Settings, Users, User } from "lucide-react";
+import { Building2, Droplets, HeartPulse, LayoutDashboard, Settings, Users, User } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { SubNavItem } from "./useSidebarState";
 
@@ -35,6 +35,11 @@ export const sidebarNavigationData: SidebarItemData[] = [
     path: "/hospitals",
     label: "Hospitals",
     icon: Building2,
+  },
+  {
+    path: "/blood-requests",
+    label: "Blood Requests",
+    icon: Droplets,
   },
   {
     path: "/settings",
