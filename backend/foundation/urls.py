@@ -29,6 +29,7 @@ urlpatterns = [
     path('api/donations/', include('donations.urls')),
     path('api/notifications/', include('notifications.urls')),
     path('api/reports/', include('reports.urls')),
+    path('api/system-settings/', include('system_settings.urls')),
     
 ]
 from django.conf import settings

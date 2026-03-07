@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'donations.apps.DonationsConfig',
     'notifications.apps.NotificationsConfig',
     'reports.apps.ReportsConfig',
+    'system_settings.apps.SystemSettingsConfig',
 ]
 
 MIDDLEWARE = [
