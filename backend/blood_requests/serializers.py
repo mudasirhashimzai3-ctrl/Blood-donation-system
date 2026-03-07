@@ -13,6 +13,9 @@ class BloodRequestListSerializer(serializers.ModelSerializer):
     recipient_name = serializers.CharField(source="recipient.full_name", read_only=True)
     hospital_name = serializers.CharField(source="hospital.name", read_only=True)
     assigned_donor_name = serializers.SerializerMethodField()
+    nearby_donors_count_dynamic = serializers.SerializerMethodField()
+    estimated_time_dynamic = serializers.SerializerMethodField()
+    distance_dynamic = serializers.SerializerMethodField()
 
     class Meta:
         model = BloodRequest
@@ -32,6 +35,9 @@ class BloodRequestListSerializer(serializers.ModelSerializer):
             "response_deadline",
             "nearby_donors_count",
             "total_notified_donors",
+            "nearby_donors_count_dynamic",
+            "estimated_time_dynamic",
+            "distance_dynamic",
             "assigned_donor",
             "assigned_donor_name",
             "created_at",
@@ -41,6 +47,44 @@ class BloodRequestListSerializer(serializers.ModelSerializer):
         if not obj.assigned_donor:
             return None
         return str(obj.assigned_donor)
+
+    def get_nearby_donors_count_dynamic(self, obj):
+        from donations.models import Donation
+
+        return Donation.objects.filter(
+            request=obj,
+            deleted_at__isnull=True,
+            status__in=Donation.PRIMARY_ACTIVE_STATUSES,
+        ).count()
+
+    def get_estimated_time_dynamic(self, obj):
+        from donations.models import Donation
+
+        best = (
+            Donation.objects.filter(
+                request=obj,
+                deleted_at__isnull=True,
+                status__in=Donation.PRIMARY_ACTIVE_STATUSES,
+                estimated_arrival_time__isnull=False,
+            )
+            .order_by("estimated_arrival_time")
+            .first()
+        )
+        return best.estimated_arrival_time if best else None
+
+    def get_distance_dynamic(self, obj):
+        from donations.models import Donation
+
+        closest = (
+            Donation.objects.filter(
+                request=obj,
+                deleted_at__isnull=True,
+                status__in=Donation.PRIMARY_ACTIVE_STATUSES,
+            )
+            .order_by("distance_km")
+            .first()
+        )
+        return closest.distance_km if closest else None
 
 
 class BloodRequestDetailSerializer(serializers.ModelSerializer):
@@ -53,6 +97,9 @@ class BloodRequestDetailSerializer(serializers.ModelSerializer):
     medical_report_url = serializers.SerializerMethodField()
     prescription_image_url = serializers.SerializerMethodField()
     emergency_proof_url = serializers.SerializerMethodField()
+    nearby_donors_count_dynamic = serializers.SerializerMethodField()
+    estimated_time_dynamic = serializers.SerializerMethodField()
+    distance_dynamic = serializers.SerializerMethodField()
 
     class Meta:
         model = BloodRequest
@@ -71,6 +118,9 @@ class BloodRequestDetailSerializer(serializers.ModelSerializer):
             "estimated_time_to_fulfill",
             "nearby_donors_count",
             "total_notified_donors",
+            "nearby_donors_count_dynamic",
+            "estimated_time_dynamic",
+            "distance_dynamic",
             "assigned_donor",
             "assigned_donor_name",
             "auto_match_enabled",
@@ -144,6 +194,44 @@ class BloodRequestDetailSerializer(serializers.ModelSerializer):
             if file_value:
                 attachments.append({"type": label, "url": self._build_file_url(file_value)})
         return attachments
+
+    def get_nearby_donors_count_dynamic(self, obj):
+        from donations.models import Donation
+
+        return Donation.objects.filter(
+            request=obj,
+            deleted_at__isnull=True,
+            status__in=Donation.PRIMARY_ACTIVE_STATUSES,
+        ).count()
+
+    def get_estimated_time_dynamic(self, obj):
+        from donations.models import Donation
+
+        best = (
+            Donation.objects.filter(
+                request=obj,
+                deleted_at__isnull=True,
+                status__in=Donation.PRIMARY_ACTIVE_STATUSES,
+                estimated_arrival_time__isnull=False,
+            )
+            .order_by("estimated_arrival_time")
+            .first()
+        )
+        return best.estimated_arrival_time if best else None
+
+    def get_distance_dynamic(self, obj):
+        from donations.models import Donation
+
+        closest = (
+            Donation.objects.filter(
+                request=obj,
+                deleted_at__isnull=True,
+                status__in=Donation.PRIMARY_ACTIVE_STATUSES,
+            )
+            .order_by("distance_km")
+            .first()
+        )
+        return closest.distance_km if closest else None
 
 
 class BloodRequestWriteSerializer(serializers.ModelSerializer):

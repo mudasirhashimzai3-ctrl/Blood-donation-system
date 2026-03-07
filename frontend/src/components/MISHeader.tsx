@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, Link } from "react-router-dom";
 import {
-  Bell,
   Search,
   User,
   Settings,
@@ -16,6 +15,9 @@ import {
 import { toast } from "sonner";
 import { Avatar } from "./ui";
 import { useUserStore } from "@/modules/auth/stores/useUserStore";
+import NotificationBellDropdown from "@/modules/notifications/components/NotificationBellDropdown";
+import { useNotificationsSocket } from "@/modules/notifications/hooks/useNotificationsSocket";
+import useCan from "@/hooks/useCan";
 import { useTheme } from "@/hooks/useTheme";
 import { useSidebarState } from "./sidebar/useSidebarState";
 import i18n from "@/utils/i18n";
@@ -27,28 +29,10 @@ export default function MISHeader() {
   const [showNotifications, setShowNotifications] = useState(false);
 
   const { userProfile, logout } = useUserStore();
+  const { can } = useCan();
   const { toggleMobile } = useSidebarState();
-
-  const notifications = [
-    {
-      id: 1,
-      title: "New student registered",
-      time: "5 min ago",
-      read: false,
-    },
-    {
-      id: 2,
-      title: "Fee payment received",
-      time: "1 hour ago",
-      read: false,
-    },
-    {
-      id: 3,
-      title: "Attendance report ready",
-      time: "2 hours ago",
-      read: true,
-    },
-  ];
+  const canViewNotifications = can("notifications");
+  useNotificationsSocket(canViewNotifications);
   const languages = [
     { code: "en", name: t("language.english"), flag: "🇬🇧" },
     { code: "da", name: t("language.dari"), flag: "🇦🇫" },
@@ -56,7 +40,6 @@ export default function MISHeader() {
   ];
   const [languageDropdownOpen, setLanguageDropdownOpen] = useState(false);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
   const { theme, toggleTheme } = useTheme();
   // Handle logout
   const handleLogout = () => {
@@ -102,65 +85,16 @@ export default function MISHeader() {
 
       {/* Right side */}
       <div className="flex items-center gap-2">
-        {/* Notifications */}
-        <div className="relative">
-          <button
-            onClick={() => {
-              setShowNotifications(!showNotifications);
+        {canViewNotifications ? (
+          <NotificationBellDropdown
+            isOpen={showNotifications}
+            onToggle={() => {
+              setShowNotifications((value) => !value);
               setShowProfileMenu(false);
             }}
-            className="relative rounded-lg p-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
-          >
-            <Bell className="h-5 w-5" />
-            {unreadCount > 0 && (
-              <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-error text-[10px] font-bold text-white">
-                {unreadCount}
-              </span>
-            )}
-          </button>
-
-          {showNotifications && (
-            <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-xl border border-border bg-card shadow-lg">
-              <div className="flex items-center justify-between border-b border-border p-4">
-                <h3 className="font-semibold text-text-primary">
-                  Notifications
-                </h3>
-                <button className="text-sm text-primary hover:underline">
-                  Mark all read
-                </button>
-              </div>
-              <div className="max-h-80 overflow-y-auto">
-                {notifications.map((notification) => (
-                  <div
-                    key={notification.id}
-                    className={`flex items-start gap-3 border-b border-border p-4 last:border-0 ${
-                      !notification.read ? "bg-primary/5" : ""
-                    }`}
-                  >
-                    <div
-                      className={`mt-1 h-2 w-2 rounded-full ${
-                        notification.read ? "bg-muted" : "bg-primary"
-                      }`}
-                    />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-text-primary">
-                        {notification.title}
-                      </p>
-                      <p className="mt-0.5 text-xs text-text-secondary">
-                        {notification.time}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="border-t border-border p-3">
-                <button className="w-full rounded-lg bg-surface py-2 text-sm font-medium text-primary transition-colors hover:bg-surface-hover">
-                  View all notifications
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+            onClose={() => setShowNotifications(false)}
+          />
+        ) : null}
 
         <div className="relative">
           <button

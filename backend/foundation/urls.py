@@ -26,6 +26,9 @@ urlpatterns = [
     path('api/recipients/', include('recipients.urls')),
     path('api/hospitals/', include('hospitals.urls')),
     path('api/blood-requests/', include('blood_requests.urls')),
+    path('api/donations/', include('donations.urls')),
+    path('api/notifications/', include('notifications.urls')),
+    path('api/reports/', include('reports.urls')),
     
 ]
 from django.conf import settings

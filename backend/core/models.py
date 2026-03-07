@@ -92,6 +92,8 @@ class Permission(models.Model):
         ('recipients', 'Recipients'),
         ('hospitals', 'Hospitals'),
         ('blood_requests', 'Blood Requests'),
+        ('donations', 'Donations'),
+        ('notifications', 'Notifications'),
 
         # ('vendors', 'Vendors'),
         # ("members", "Members"),

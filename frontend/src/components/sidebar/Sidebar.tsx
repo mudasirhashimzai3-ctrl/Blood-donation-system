@@ -2,9 +2,21 @@ import SidebarItem from "./SidebarItem";
 import SidebarToggle from "./SidebarToggle";
 import { useSidebarState } from "./useSidebarState";
 import { sidebarNavigationData } from "./sidebarData";
+import useCan from "@/hooks/useCan";
 
 export function Sidebar() {
   const { isCollapsed, isMobileOpen, closeMobile, toggleMobile } = useSidebarState();
+  const { can } = useCan();
+
+  const navigationItems = sidebarNavigationData.filter((item) => {
+    if (item.path === "/notifications") {
+      return can("notifications");
+    }
+    if (item.path === "/reports") {
+      return can("reports");
+    }
+    return true;
+  });
 
   return (
     <>
@@ -66,7 +78,7 @@ export function Sidebar() {
 
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           <ul className="space-y-1">
-            {sidebarNavigationData.map((item) => (
+            {navigationItems.map((item) => (
               <SidebarItem
                 key={item.path}
                 path={item.path}

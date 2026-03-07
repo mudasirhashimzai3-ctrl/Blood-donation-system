@@ -9,6 +9,7 @@ export const useBloodRequestFilters = () => {
     bloodGroup,
     requestType,
     priority,
+    isActive,
     page,
     pageSize,
     setSearch,
@@ -16,6 +17,7 @@ export const useBloodRequestFilters = () => {
     setBloodGroup,
     setRequestType,
     setPriority,
+    setIsActive,
     setPage,
     setPageSize,
     resetFilters,
@@ -30,8 +32,9 @@ export const useBloodRequestFilters = () => {
       blood_group: bloodGroup || undefined,
       request_type: requestType || undefined,
       priority: priority || undefined,
+      is_active: isActive ?? undefined,
     }),
-    [bloodGroup, page, pageSize, priority, requestType, search, status]
+    [bloodGroup, isActive, page, pageSize, priority, requestType, search, status]
   );
 
   return {
@@ -40,6 +43,7 @@ export const useBloodRequestFilters = () => {
     bloodGroup,
     requestType,
     priority,
+    isActive,
     page,
     pageSize,
     setSearch,
@@ -47,6 +51,7 @@ export const useBloodRequestFilters = () => {
     setBloodGroup,
     setRequestType,
     setPriority,
+    setIsActive,
     setPage,
     setPageSize,
     resetFilters,

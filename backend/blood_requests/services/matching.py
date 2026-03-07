@@ -8,6 +8,7 @@ from django.utils import timezone
 from donors.models import Donor
 
 from ..models import BloodRequest, BloodRequestNotification
+from donations.services.sync import sync_donations_for_matches
 
 DONOR_COOLDOWN_DAYS = 56
 MAX_MATCH_RADIUS_KM = Decimal("10")
@@ -139,6 +140,11 @@ def auto_match_blood_request(blood_request: BloodRequest, *, max_notifications: 
             },
         )
         created_or_updated.append(notification)
+
+    sync_donations_for_matches(
+        blood_request=blood_request,
+        selected_candidates=selected_candidates,
+    )
 
     total_notified = (
         BloodRequestNotification.objects.filter(blood_request=blood_request, channel="in_app")

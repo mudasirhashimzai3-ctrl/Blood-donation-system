@@ -29,6 +29,15 @@ from django_filters.rest_framework import DjangoFilterBackend, FilterSet, CharFi
 # views.py or viewsets.py
 
 
+def _create_system_notifications(**kwargs):
+    try:
+        from notifications.services import create_notifications
+
+        create_notifications(**kwargs)
+    except Exception:
+        return
+
+
 class UserViewSet(PermissionMixin, viewsets.ModelViewSet):
     """ViewSet for User management"""
     serializer_class = UserProfileSerializer
@@ -145,6 +154,19 @@ class AuthViewSet(viewsets.ViewSet):
                 if user_check.failed_login_attempts >= 5:
                     user_check.account_locked_until = timezone.now() + timedelta(minutes=30)
                     user_check.save(update_fields=['failed_login_attempts', 'account_locked_until'])
+                    _create_system_notifications(
+                        event_key="account_locked",
+                        type="auth",
+                        title="Account locked",
+                        message="Your account has been locked due to multiple failed login attempts.",
+                        sent_via=["in_app", "email"],
+                        user_ids=[user_check.id],
+                        metadata={
+                            "locked_until": user_check.account_locked_until.isoformat(),
+                            "username": user_check.username,
+                        },
+                        dedupe_key=f"account_locked:{user_check.id}:{user_check.account_locked_until.isoformat()}",
+                    )
                     return Response({
                         "detail": "Account locked due to too many failed login attempts. Try again in 30 minutes.",
                         "locked_until": user_check.account_locked_until.isoformat(),
@@ -305,6 +327,16 @@ class AuthViewSet(viewsets.ViewSet):
                 )
                 email.attach_alternative(html_content, "text/html")
                 email.send(fail_silently=False)
+                _create_system_notifications(
+                    event_key="password_reset_code_sent",
+                    type="auth",
+                    title="Password reset code sent",
+                    message="A password reset verification code has been issued for your account.",
+                    sent_via=["in_app", "email"],
+                    user_ids=[user.id],
+                    metadata={"masked_email": masked_email},
+                    dedupe_key=f"password_reset:{user.id}:{verification_code}",
+                )
 
                 return Response({
                     'success': True,
@@ -474,6 +506,16 @@ class AuthViewSet(viewsets.ViewSet):
         user.email_verification_token = None
         user.email_verification_sent_at = None
         user.save()
+        _create_system_notifications(
+            event_key="email_verified",
+            type="auth",
+            title="Email verified",
+            message="Your email address has been verified successfully.",
+            sent_via=["in_app", "email"],
+            user_ids=[user.id],
+            metadata={"email": user.email},
+            dedupe_key=f"email_verified:{user.id}",
+        )
 
         return Response({
             'message': 'Email verified successfully'

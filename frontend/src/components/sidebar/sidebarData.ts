@@ -1,4 +1,4 @@
-import { Building2, Droplets, HeartPulse, LayoutDashboard, Settings, Users, User } from "lucide-react";
+import { Bell, Building2, ChartColumnIncreasing, Droplets, HandHeart, HeartPulse, LayoutDashboard, Settings, Users, User } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { SubNavItem } from "./useSidebarState";
 
@@ -40,6 +40,21 @@ export const sidebarNavigationData: SidebarItemData[] = [
     path: "/blood-requests",
     label: "Blood Requests",
     icon: Droplets,
+  },
+  {
+    path: "/donations",
+    label: "Donations",
+    icon: HandHeart,
+  },
+  {
+    path: "/reports",
+    label: "Reports",
+    icon: ChartColumnIncreasing,
+  },
+  {
+    path: "/notifications",
+    label: "Notifications",
+    icon: Bell,
   },
   {
     path: "/settings",

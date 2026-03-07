@@ -14,6 +14,7 @@ interface BloodRequestUiState {
   bloodGroup: BloodGroup | "";
   requestType: RequestType | "";
   priority: Priority | "";
+  isActive: boolean | null;
   page: number;
   pageSize: number;
   setSearch: (search: string) => void;
@@ -21,6 +22,7 @@ interface BloodRequestUiState {
   setBloodGroup: (bloodGroup: BloodGroup | "") => void;
   setRequestType: (requestType: RequestType | "") => void;
   setPriority: (priority: Priority | "") => void;
+  setIsActive: (isActive: boolean | null) => void;
   setPage: (page: number) => void;
   setPageSize: (pageSize: number) => void;
   resetFilters: () => void;
@@ -34,6 +36,7 @@ export const useBloodRequestUiStore = create<BloodRequestUiState>()(
       bloodGroup: "",
       requestType: "",
       priority: "",
+      isActive: null,
       page: 1,
       pageSize: 10,
       setSearch: (search) => set({ search, page: 1 }),
@@ -41,6 +44,7 @@ export const useBloodRequestUiStore = create<BloodRequestUiState>()(
       setBloodGroup: (bloodGroup) => set({ bloodGroup, page: 1 }),
       setRequestType: (requestType) => set({ requestType, page: 1 }),
       setPriority: (priority) => set({ priority, page: 1 }),
+      setIsActive: (isActive) => set({ isActive, page: 1 }),
       setPage: (page) => set({ page }),
       setPageSize: (pageSize) => set({ pageSize, page: 1 }),
       resetFilters: () =>
@@ -50,6 +54,7 @@ export const useBloodRequestUiStore = create<BloodRequestUiState>()(
           bloodGroup: "",
           requestType: "",
           priority: "",
+          isActive: null,
           page: 1,
         }),
     }),
@@ -61,6 +66,7 @@ export const useBloodRequestUiStore = create<BloodRequestUiState>()(
         bloodGroup: state.bloodGroup,
         requestType: state.requestType,
         priority: state.priority,
+        isActive: state.isActive,
         pageSize: state.pageSize,
       }),
     }

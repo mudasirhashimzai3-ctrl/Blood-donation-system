@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'rest_framework',
     'rest_framework_simplejwt',
     "rest_framework_simplejwt.token_blacklist",
@@ -49,6 +50,9 @@ INSTALLED_APPS = [
     'recipients.apps.RecipientsConfig',
     'hospitals.apps.HospitalsConfig',
     'blood_requests.apps.BloodRequestsConfig',
+    'donations.apps.DonationsConfig',
+    'notifications.apps.NotificationsConfig',
+    'reports.apps.ReportsConfig',
 ]
 
 MIDDLEWARE = [
@@ -84,6 +88,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'foundation.wsgi.application'
+ASGI_APPLICATION = 'foundation.asgi.application'
 
 
 # Database
@@ -196,3 +201,38 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Celery
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", CELERY_BROKER_URL)
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = TIME_ZONE
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [REDIS_URL],
+        },
+    },
+}
+CELERY_BEAT_SCHEDULE = {
+    "process-donation-reminders-every-5-minutes": {
+        "task": "donations.process_due_reminders",
+        "schedule": 300.0,
+    },
+    "retry-failed-notifications-every-10-minutes": {
+        "task": "notifications.retry_failed_notifications",
+        "schedule": 600.0,
+    },
+    "cleanup-notifications-retention-daily": {
+        "task": "notifications.cleanup_notifications_retention",
+        "schedule": 86400.0,
+    },
+    "cleanup-expired-report-exports-daily": {
+        "task": "reports.cleanup_expired_exports",
+        "schedule": 86400.0,
+    },
+}

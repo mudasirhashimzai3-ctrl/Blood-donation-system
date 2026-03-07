@@ -24,6 +24,7 @@ export default function BloodRequestListPage() {
     bloodGroup,
     requestType,
     priority,
+    isActive,
     page,
     pageSize,
     setSearch,
@@ -31,6 +32,7 @@ export default function BloodRequestListPage() {
     setBloodGroup,
     setRequestType,
     setPriority,
+    setIsActive,
     setPage,
     resetFilters,
     queryParams,
@@ -81,11 +83,13 @@ export default function BloodRequestListPage() {
             bloodGroup={bloodGroup}
             requestType={requestType}
             priority={priority}
+            isActive={isActive}
             onSearchChange={setSearch}
             onStatusChange={setStatus}
             onBloodGroupChange={setBloodGroup}
             onRequestTypeChange={setRequestType}
             onPriorityChange={setPriority}
+            onIsActiveChange={setIsActive}
             onReset={resetFilters}
           />
         </CardContent>

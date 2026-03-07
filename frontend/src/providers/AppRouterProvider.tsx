@@ -11,6 +11,7 @@ import { MISLayout } from "@/components";
 import { Dashboard } from "@/modules/dashboard";
 import { GeneralSettings, SettingsOverview, UserManagement } from "@settings/index";
 import { UserProfile } from "@/modules/profile";
+import { ReportsWorkspacePage } from "@/modules/reports";
 import { DonorCreatePage, DonorEditPage, DonorListPage, DonorViewPage } from "@/modules/donors";
 import { HospitalCreatePage, HospitalEditPage, HospitalListPage, HospitalViewPage } from "@/modules/hospitals";
 import { RecipientCreatePage, RecipientEditPage, RecipientListPage, RecipientViewPage } from "@/modules/recipients";
@@ -20,6 +21,8 @@ import {
   BloodRequestListPage,
   BloodRequestViewPage,
 } from "@/modules/blood-requests";
+import { DonationListPage, DonationViewPage } from "@/modules/donations";
+import { NotificationListPage, NotificationViewPage } from "@/modules/notifications";
 
 function AppRouterProvider() {
   const router = createBrowserRouter([
@@ -64,6 +67,17 @@ function AppRouterProvider() {
         { path: "blood-requests/new", element: <BloodRequestCreatePage /> },
         { path: "blood-requests/:id", element: <BloodRequestViewPage /> },
         { path: "blood-requests/:id/edit", element: <BloodRequestEditPage /> },
+
+        // Donations
+        { path: "donations", element: <DonationListPage /> },
+        { path: "donations/:id", element: <DonationViewPage /> },
+
+        // Reports
+        { path: "reports", element: <ReportsWorkspacePage /> },
+
+        // Notifications
+        { path: "notifications", element: <NotificationListPage /> },
+        { path: "notifications/:id", element: <NotificationViewPage /> },
 
         // Profile
         { path: "profile", element: <UserProfile /> },

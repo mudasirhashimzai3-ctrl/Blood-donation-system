@@ -18,11 +18,13 @@ interface BloodRequestFiltersProps {
   bloodGroup: BloodGroup | "";
   requestType: RequestType | "";
   priority: Priority | "";
+  isActive: boolean | null;
   onSearchChange: (value: string) => void;
   onStatusChange: (value: BloodRequestStatus | "") => void;
   onBloodGroupChange: (value: BloodGroup | "") => void;
   onRequestTypeChange: (value: RequestType | "") => void;
   onPriorityChange: (value: Priority | "") => void;
+  onIsActiveChange: (value: boolean | null) => void;
   onReset: () => void;
 }
 
@@ -32,17 +34,19 @@ export default function BloodRequestFilters({
   bloodGroup,
   requestType,
   priority,
+  isActive,
   onSearchChange,
   onStatusChange,
   onBloodGroupChange,
   onRequestTypeChange,
   onPriorityChange,
+  onIsActiveChange,
   onReset,
 }: BloodRequestFiltersProps) {
   const { t } = useTranslation();
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-7">
       <Input
         value={search}
         onChange={(event) => onSearchChange(event.target.value)}
@@ -87,6 +91,26 @@ export default function BloodRequestFilters({
             value,
             label: t(`bloodRequests.status.${value}`, value),
           })),
+        ]}
+      />
+      <Select
+        value={isActive === null ? "" : isActive ? "true" : "false"}
+        onChange={(event) => {
+          const value = event.target.value;
+          if (value === "true") {
+            onIsActiveChange(true);
+            return;
+          }
+          if (value === "false") {
+            onIsActiveChange(false);
+            return;
+          }
+          onIsActiveChange(null);
+        }}
+        options={[
+          { value: "", label: "All Activity" },
+          { value: "true", label: "Active Only" },
+          { value: "false", label: "Inactive Only" },
         ]}
       />
       <Button variant="outline" onClick={onReset}>
