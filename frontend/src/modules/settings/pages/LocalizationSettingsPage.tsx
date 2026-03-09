@@ -4,62 +4,55 @@ import { useForm } from "react-hook-form";
 
 import { PageHeader } from "@/components";
 import { Card, CardContent } from "@components/ui";
-import GeneralSettingsForm from "../components/GeneralSettingsForm";
+import LocalizationSettingsForm from "../components/LocalizationSettingsForm";
 import ReadOnlyBanner from "../components/ReadOnlyBanner";
 import SettingsSectionNav from "../components/SettingsSectionNav";
 import { useSettingsDirtyGuard } from "../hooks/useSettingsDirtyGuard";
 import { useSettingsSectionAccess } from "../hooks/useSettingsSectionAccess";
 import {
-  useGeneralSettings,
-  useUpdateGeneralSettings,
+  useLocalizationSettings,
+  useUpdateLocalizationSettings,
 } from "../queries/useSettingsQueries";
 import {
-  generalSettingsSchema,
-  type GeneralSettingsFormValues,
-} from "../schemas/generalSettings.schema";
+  localizationSettingsSchema,
+  type LocalizationSettingsFormValues,
+} from "../schemas/localizationSettings.schema";
 import { useSettingsUiStore } from "../stores/useSettingsUiStore";
 
-const defaultValues: GeneralSettingsFormValues = {
-  organization_name: "",
-  support_email: "",
-  support_phone: "",
-  address: "",
-  logo_url: "",
-  maintenance_mode: false,
+const defaultValues: LocalizationSettingsFormValues = {
+  default_language: "en",
+  supported_languages: ["en", "da", "pa"],
+  default_timezone: "UTC",
+  date_format: "yyyy-MM-dd",
+  time_format_24h: true,
+  first_day_of_week: "monday",
 };
 
-export default function GeneralSettingsPage() {
+export default function LocalizationSettingsPage() {
   const { canViewSettings, canEdit } = useSettingsSectionAccess();
   const markSaved = useSettingsUiStore((state) => state.markSaved);
 
-  const query = useGeneralSettings();
-  const mutation = useUpdateGeneralSettings();
+  const query = useLocalizationSettings();
+  const mutation = useUpdateLocalizationSettings();
 
-  const form = useForm<GeneralSettingsFormValues>({
-    resolver: zodResolver(generalSettingsSchema),
+  const form = useForm<LocalizationSettingsFormValues>({
+    resolver: zodResolver(localizationSettingsSchema),
     defaultValues,
   });
 
-  useSettingsDirtyGuard("general", form.formState.isDirty);
+  useSettingsDirtyGuard("localization", form.formState.isDirty);
 
   useEffect(() => {
     if (query.data) {
-      form.reset({
-        organization_name: query.data.organization_name,
-        support_email: query.data.support_email,
-        support_phone: query.data.support_phone,
-        address: query.data.address,
-        logo_url: query.data.logo_url,
-        maintenance_mode: query.data.maintenance_mode,
-      });
+      form.reset(query.data);
     }
   }, [form, query.data]);
 
-  const onSubmit = async (values: GeneralSettingsFormValues) => {
+  const onSubmit = async (values: LocalizationSettingsFormValues) => {
     if (!canEdit) return;
     const updated = await mutation.mutateAsync(values);
     form.reset(updated);
-    markSaved("general");
+    markSaved("localization");
   };
 
   if (!canViewSettings) {
@@ -75,7 +68,7 @@ export default function GeneralSettingsPage() {
   if (query.isLoading && !query.data) {
     return (
       <Card>
-        <CardContent>Loading general settings...</CardContent>
+        <CardContent>Loading localization settings...</CardContent>
       </Card>
     );
   }
@@ -83,14 +76,14 @@ export default function GeneralSettingsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="General Settings"
-        subtitle="Configure organization-level system settings"
+        title="Language & Timezone Settings"
+        subtitle="Manage localization defaults for the application"
       />
       <SettingsSectionNav />
       {!canEdit ? <ReadOnlyBanner /> : null}
       <Card>
         <CardContent>
-          <GeneralSettingsForm
+          <LocalizationSettingsForm
             form={form}
             onSubmit={onSubmit}
             loading={mutation.isPending}

@@ -174,7 +174,7 @@ export default function MISHeader() {
               </div>
               <div className="py-1">
                 <Link
-                  to="/mis/profile"
+                  to="/profile"
                   className="flex w-full items-center gap-3 px-4 py-2 text-sm text-text-primary transition-colors hover:bg-surface-hover"
                   onClick={() => setShowProfileMenu(false)}
                 >
@@ -182,7 +182,7 @@ export default function MISHeader() {
                   {t("auth.profile", "Profile")}
                 </Link>
                 <Link
-                  to="/mis/settings"
+                  to="/settings"
                   className="flex w-full items-center gap-3 px-4 py-2 text-sm text-text-primary transition-colors hover:bg-surface-hover"
                   onClick={() => setShowProfileMenu(false)}
                 >

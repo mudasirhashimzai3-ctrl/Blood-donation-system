@@ -3,11 +3,20 @@ import os
 from django.utils import timezone
 from twilio.rest import Client
 
+from core.services.settings_service import get_runtime_notification_settings
+
 
 def send_sms_notification(notification):
-    account_sid = os.getenv("TWILIO_ACCOUNT_SID")
-    auth_token = os.getenv("TWILIO_AUTH_TOKEN")
-    from_number = os.getenv("TWILIO_FROM_NUMBER")
+    config = get_runtime_notification_settings()
+    if not config.get("sms_enabled", False):
+        notification.status = "failed"
+        notification.error_message = "SMS notifications are disabled."
+        notification.save(update_fields=["status", "error_message", "updated_at"])
+        return {"success": False, "error": notification.error_message}
+
+    account_sid = config.get("sms_account_sid") or os.getenv("TWILIO_ACCOUNT_SID")
+    auth_token = config.get("sms_auth_token") or os.getenv("TWILIO_AUTH_TOKEN")
+    from_number = config.get("sms_from_number") or os.getenv("TWILIO_FROM_NUMBER")
     callback_url = os.getenv("TWILIO_STATUS_CALLBACK_URL")
 
     phone = notification.user.phone

@@ -15,6 +15,9 @@ export function Sidebar() {
     if (item.path === "/reports") {
       return can("reports");
     }
+    if (item.path === "/settings") {
+      return can("settings");
+    }
     return true;
   });
 

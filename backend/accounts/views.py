@@ -13,6 +13,7 @@ from core.permissions import (
     IsSelfOrHasPermission,
     PermissionMixin
 )
+from core.services.settings_service import get_runtime_security_settings
 from .models import (
     ActivityLog, User, UserPermission
 )
@@ -36,6 +37,25 @@ def _create_system_notifications(**kwargs):
         create_notifications(**kwargs)
     except Exception:
         return
+
+
+def _get_security_policy():
+    defaults = {
+        "max_login_attempts": 5,
+        "lockout_minutes": 30,
+    }
+    try:
+        runtime = get_runtime_security_settings()
+    except Exception:
+        return defaults
+
+    max_attempts = runtime.get("max_login_attempts", defaults["max_login_attempts"])
+    lockout_minutes = runtime.get("lockout_minutes", defaults["lockout_minutes"])
+
+    return {
+        "max_login_attempts": int(max_attempts) if str(max_attempts).isdigit() else defaults["max_login_attempts"],
+        "lockout_minutes": int(lockout_minutes) if str(lockout_minutes).isdigit() else defaults["lockout_minutes"],
+    }
 
 
 class UserViewSet(PermissionMixin, viewsets.ModelViewSet):
@@ -124,6 +144,9 @@ class AuthViewSet(viewsets.ViewSet):
     def login(self, request: WSGIRequest):
         """User login with attempt tracking and lockout"""
         from datetime import timedelta
+        security_policy = _get_security_policy()
+        max_login_attempts = security_policy["max_login_attempts"]
+        lockout_minutes = security_policy["lockout_minutes"]
 
         username = request.data.get('username', '')
 
@@ -151,8 +174,8 @@ class AuthViewSet(viewsets.ViewSet):
                 user_check.failed_login_attempts += 1
 
                 # Lock account after 5 failed attempts
-                if user_check.failed_login_attempts >= 5:
-                    user_check.account_locked_until = timezone.now() + timedelta(minutes=30)
+                if user_check.failed_login_attempts >= max_login_attempts:
+                    user_check.account_locked_until = timezone.now() + timedelta(minutes=lockout_minutes)
                     user_check.save(update_fields=['failed_login_attempts', 'account_locked_until'])
                     _create_system_notifications(
                         event_key="account_locked",
@@ -168,13 +191,13 @@ class AuthViewSet(viewsets.ViewSet):
                         dedupe_key=f"account_locked:{user_check.id}:{user_check.account_locked_until.isoformat()}",
                     )
                     return Response({
-                        "detail": "Account locked due to too many failed login attempts. Try again in 30 minutes.",
+                        "detail": f"Account locked due to too many failed login attempts. Try again in {lockout_minutes} minutes.",
                         "locked_until": user_check.account_locked_until.isoformat(),
                         "attempts_remaining": 0
                     }, status=status.HTTP_429_TOO_MANY_REQUESTS)
                 else:
                     user_check.save(update_fields=['failed_login_attempts'])
-                    attempts_remaining = 5 - user_check.failed_login_attempts
+                    attempts_remaining = max(0, max_login_attempts - user_check.failed_login_attempts)
                     return Response({
                         "detail": "Invalid credentials.",
                         "attempts_remaining": attempts_remaining
@@ -588,13 +611,15 @@ class AuthViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['get'], url_path='login-attempts/(?P<username>[^/.]+)')
     def login_attempts(self, request, username=None):
         """Get login attempt information for a user"""
+        security_policy = _get_security_policy()
+        max_login_attempts = security_policy["max_login_attempts"]
         user = User.objects.filter(username=username).first()
 
         if not user:
             return Response({
                 'failed_attempts': 0,
                 'is_locked': False,
-                'attempts_remaining': 5
+                'attempts_remaining': max_login_attempts
             })
 
         is_locked = False
@@ -614,7 +639,7 @@ class AuthViewSet(viewsets.ViewSet):
             'failed_attempts': user.failed_login_attempts,
             'is_locked': is_locked,
             'locked_until': locked_until,
-            'attempts_remaining': max(0, 5 - user.failed_login_attempts)
+            'attempts_remaining': max(0, max_login_attempts - user.failed_login_attempts)
         })
 
 

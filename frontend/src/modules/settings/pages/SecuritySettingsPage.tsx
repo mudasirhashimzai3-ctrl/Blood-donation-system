@@ -4,62 +4,60 @@ import { useForm } from "react-hook-form";
 
 import { PageHeader } from "@/components";
 import { Card, CardContent } from "@components/ui";
-import GeneralSettingsForm from "../components/GeneralSettingsForm";
+import { useSessionStore } from "@/modules/auth/stores/useSessionStore";
 import ReadOnlyBanner from "../components/ReadOnlyBanner";
+import SecuritySettingsForm from "../components/SecuritySettingsForm";
 import SettingsSectionNav from "../components/SettingsSectionNav";
 import { useSettingsDirtyGuard } from "../hooks/useSettingsDirtyGuard";
 import { useSettingsSectionAccess } from "../hooks/useSettingsSectionAccess";
 import {
-  useGeneralSettings,
-  useUpdateGeneralSettings,
+  useSecuritySettings,
+  useUpdateSecuritySettings,
 } from "../queries/useSettingsQueries";
 import {
-  generalSettingsSchema,
-  type GeneralSettingsFormValues,
-} from "../schemas/generalSettings.schema";
+  securitySettingsSchema,
+  type SecuritySettingsFormValues,
+} from "../schemas/securitySettings.schema";
 import { useSettingsUiStore } from "../stores/useSettingsUiStore";
 
-const defaultValues: GeneralSettingsFormValues = {
-  organization_name: "",
-  support_email: "",
-  support_phone: "",
-  address: "",
-  logo_url: "",
-  maintenance_mode: false,
+const defaultValues: SecuritySettingsFormValues = {
+  password_min_length: 8,
+  password_require_uppercase: true,
+  password_require_number: true,
+  password_require_special_char: false,
+  max_login_attempts: 5,
+  lockout_minutes: 30,
+  session_timeout_minutes: 30,
+  force_logout_on_password_change: true,
 };
 
-export default function GeneralSettingsPage() {
+export default function SecuritySettingsPage() {
   const { canViewSettings, canEdit } = useSettingsSectionAccess();
+  const setSessionTimeoutMinutes = useSessionStore((state) => state.setSessionTimeoutMinutes);
   const markSaved = useSettingsUiStore((state) => state.markSaved);
 
-  const query = useGeneralSettings();
-  const mutation = useUpdateGeneralSettings();
+  const query = useSecuritySettings();
+  const mutation = useUpdateSecuritySettings();
 
-  const form = useForm<GeneralSettingsFormValues>({
-    resolver: zodResolver(generalSettingsSchema),
+  const form = useForm<SecuritySettingsFormValues>({
+    resolver: zodResolver(securitySettingsSchema),
     defaultValues,
   });
 
-  useSettingsDirtyGuard("general", form.formState.isDirty);
+  useSettingsDirtyGuard("security", form.formState.isDirty);
 
   useEffect(() => {
     if (query.data) {
-      form.reset({
-        organization_name: query.data.organization_name,
-        support_email: query.data.support_email,
-        support_phone: query.data.support_phone,
-        address: query.data.address,
-        logo_url: query.data.logo_url,
-        maintenance_mode: query.data.maintenance_mode,
-      });
+      form.reset(query.data);
     }
   }, [form, query.data]);
 
-  const onSubmit = async (values: GeneralSettingsFormValues) => {
+  const onSubmit = async (values: SecuritySettingsFormValues) => {
     if (!canEdit) return;
     const updated = await mutation.mutateAsync(values);
     form.reset(updated);
-    markSaved("general");
+    setSessionTimeoutMinutes(updated.session_timeout_minutes);
+    markSaved("security");
   };
 
   if (!canViewSettings) {
@@ -75,7 +73,7 @@ export default function GeneralSettingsPage() {
   if (query.isLoading && !query.data) {
     return (
       <Card>
-        <CardContent>Loading general settings...</CardContent>
+        <CardContent>Loading security settings...</CardContent>
       </Card>
     );
   }
@@ -83,14 +81,14 @@ export default function GeneralSettingsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="General Settings"
-        subtitle="Configure organization-level system settings"
+        title="Security Settings"
+        subtitle="Control password policy, lockout and session behavior"
       />
       <SettingsSectionNav />
       {!canEdit ? <ReadOnlyBanner /> : null}
       <Card>
         <CardContent>
-          <GeneralSettingsForm
+          <SecuritySettingsForm
             form={form}
             onSubmit={onSubmit}
             loading={mutation.isPending}

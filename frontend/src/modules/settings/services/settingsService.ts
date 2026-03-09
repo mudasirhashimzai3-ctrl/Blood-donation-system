@@ -1,71 +1,54 @@
 import apiClient from "@/lib/api";
 
 import type {
-  AutoMatchingSettings,
-  BloodRequestRulesSettings,
-  DonorEligibilitySettings,
-  EmergencyAlertSettings,
   GeneralSettings,
   LocalizationSettings,
   NotificationSettings,
-  PaginatedAuditLogs,
   SecuritySettings,
-  SettingsSection,
-  UserRoleSettings,
 } from "../types/settings.types";
-
-const basePath = "/system-settings";
+import type {
+  PaginatedSettingAuditLogs,
+  SettingsOverviewResponse,
+  TestEmailPayload,
+  TestSmsPayload,
+} from "../types/settings-api.types";
 
 export const settingsService = {
-  getGeneral: () => apiClient.get<GeneralSettings>(`${basePath}/general/`),
+  getOverview: () => apiClient.get<SettingsOverviewResponse>("/core/settings/overview/"),
+
+  getGeneral: () => apiClient.get<GeneralSettings>("/core/settings/general/"),
   updateGeneral: (payload: Partial<GeneralSettings>) =>
-    apiClient.put<GeneralSettings>(`${basePath}/general/`, payload),
+    apiClient.put<GeneralSettings>("/core/settings/general/", payload),
 
-  getUserRoles: () => apiClient.get<UserRoleSettings>(`${basePath}/user-roles/`),
-  updateUserRoles: (payload: Partial<UserRoleSettings>) =>
-    apiClient.put<UserRoleSettings>(`${basePath}/user-roles/`, payload),
-
-  getNotifications: () => apiClient.get<NotificationSettings>(`${basePath}/notifications/`),
+  getNotifications: () => apiClient.get<NotificationSettings>("/core/settings/notifications/"),
   updateNotifications: (payload: Partial<NotificationSettings>) =>
-    apiClient.put<NotificationSettings>(`${basePath}/notifications/`, payload),
+    apiClient.put<NotificationSettings>("/core/settings/notifications/", payload),
+  testEmail: (payload?: TestEmailPayload) =>
+    apiClient.post<{ detail: string }>("/core/settings/notifications/test-email/", payload ?? {}),
+  testSms: (payload?: TestSmsPayload) =>
+    apiClient.post<{ detail: string; sid?: string; status?: string }>(
+      "/core/settings/notifications/test-sms/",
+      payload ?? {}
+    ),
 
-  testEmail: (recipient?: string) =>
-    apiClient.post<{ detail: string }>(`${basePath}/notifications/test-email/`, { recipient }),
-  testSms: (recipient?: string) =>
-    apiClient.post<{ detail: string }>(`${basePath}/notifications/test-sms/`, { recipient }),
-
-  getEmergencyAlerts: () =>
-    apiClient.get<EmergencyAlertSettings>(`${basePath}/emergency-alerts/`),
-  updateEmergencyAlerts: (payload: Partial<EmergencyAlertSettings>) =>
-    apiClient.put<EmergencyAlertSettings>(`${basePath}/emergency-alerts/`, payload),
-
-  getBloodRequestRules: () =>
-    apiClient.get<BloodRequestRulesSettings>(`${basePath}/blood-request-rules/`),
-  updateBloodRequestRules: (payload: Partial<BloodRequestRulesSettings>) =>
-    apiClient.put<BloodRequestRulesSettings>(`${basePath}/blood-request-rules/`, payload),
-
-  getDonorEligibility: () =>
-    apiClient.get<DonorEligibilitySettings>(`${basePath}/donor-eligibility/`),
-  updateDonorEligibility: (payload: Partial<DonorEligibilitySettings>) =>
-    apiClient.put<DonorEligibilitySettings>(`${basePath}/donor-eligibility/`, payload),
-
-  getAutoMatching: () => apiClient.get<AutoMatchingSettings>(`${basePath}/auto-matching/`),
-  updateAutoMatching: (payload: Partial<AutoMatchingSettings>) =>
-    apiClient.put<AutoMatchingSettings>(`${basePath}/auto-matching/`, payload),
-
-  getLocalization: () => apiClient.get<LocalizationSettings>(`${basePath}/localization/`),
+  getLocalization: () => apiClient.get<LocalizationSettings>("/core/settings/localization/"),
   updateLocalization: (payload: Partial<LocalizationSettings>) =>
-    apiClient.put<LocalizationSettings>(`${basePath}/localization/`, payload),
+    apiClient.put<LocalizationSettings>("/core/settings/localization/", payload),
 
-  getSecurity: () => apiClient.get<SecuritySettings>(`${basePath}/security/`),
+  getSecurity: () => apiClient.get<SecuritySettings>("/core/settings/security/"),
   updateSecurity: (payload: Partial<SecuritySettings>) =>
-    apiClient.put<SecuritySettings>(`${basePath}/security/`, payload),
+    apiClient.put<SecuritySettings>("/core/settings/security/", payload),
 
-  getAuditLogs: (section?: SettingsSection) =>
-    apiClient.get<PaginatedAuditLogs>(`${basePath}/audit-logs/`, {
-      params: section ? { section } : undefined,
-    }),
+  getScaffoldSection: (endpoint: string) =>
+    apiClient.get(`/core/settings/${endpoint}/`),
 
-  resetSection: (section: SettingsSection) =>
-    apiClient.post(`${basePath}/reset-section/`, { section }),
+  getAuditLogs: (params?: {
+    section?: string;
+    date_from?: string;
+    date_to?: string;
+    page?: number;
+    page_size?: number;
+  }) => apiClient.get<PaginatedSettingAuditLogs>("/core/settings/audit-logs/", { params }),
 };
+
+export default settingsService;

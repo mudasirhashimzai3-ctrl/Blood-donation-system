@@ -1,12 +1,22 @@
 import { z } from "zod";
 
+const supportedLanguageSchema = z.enum(["en", "da", "pa"]);
+
 export const localizationSettingsSchema = z.object({
-  default_language: z.enum(["en", "da", "pa", "ar", "fr", "de", "es"]),
-  supported_languages: z.array(z.enum(["en", "da", "pa", "ar", "fr", "de", "es"])).min(1),
-  default_timezone: z.string().min(1),
-  date_format: z.enum(["YYYY-MM-DD", "DD/MM/YYYY", "MM/DD/YYYY"]),
+  default_language: supportedLanguageSchema,
+  supported_languages: z.array(supportedLanguageSchema).min(1, "Select at least one language"),
+  default_timezone: z.string().trim().min(1, "Timezone is required"),
+  date_format: z.string().trim().min(1, "Date format is required"),
   time_format_24h: z.boolean(),
-  first_day_of_week: z.enum(["monday", "sunday", "saturday"]),
+  first_day_of_week: z.enum([
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+  ]),
 });
 
 export type LocalizationSettingsFormValues = z.infer<typeof localizationSettingsSchema>;

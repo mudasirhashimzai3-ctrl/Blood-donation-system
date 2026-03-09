@@ -52,8 +52,7 @@ INSTALLED_APPS = [
     'blood_requests.apps.BloodRequestsConfig',
     'donations.apps.DonationsConfig',
     'notifications.apps.NotificationsConfig',
-    'reports.apps.ReportsConfig',
-    'system_settings.apps.SystemSettingsConfig',
+    'reports.apps.ReportsConfig'
 ]
 
 MIDDLEWARE = [

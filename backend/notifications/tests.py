@@ -1,3 +1,4 @@
+import json
 from unittest.mock import patch
 
 from django.utils import timezone
@@ -6,8 +7,10 @@ from rest_framework.test import APITestCase
 
 from accounts.models import RolePermission, User
 from core.models import Permission
+from core.models import Settings
 from notifications.models import Notification
 from notifications.services.factory import create_notifications
+from notifications.services.twilio_service import send_sms_notification
 
 
 class NotificationApiTests(APITestCase):
@@ -137,6 +140,45 @@ class NotificationApiTests(APITestCase):
         notification.refresh_from_db()
         self.assertEqual(notification.status, "delivered")
         self.assertEqual(notification.provider_status, "delivered")
+
+    def test_sms_delivery_respects_settings_toggle(self):
+        Settings.set_setting(
+            key="settings.notifications",
+            value=json.dumps(
+                {
+                    "email_enabled": True,
+                    "smtp_host": "",
+                    "smtp_port": 587,
+                    "smtp_username": "",
+                    "smtp_password": "",
+                    "from_email": "",
+                    "sms_enabled": False,
+                    "sms_account_sid": "",
+                    "sms_auth_token": "",
+                    "sms_from_number": "",
+                    "in_app_enabled": True,
+                    "notification_retention_days": 30,
+                }
+            ),
+            setting_type="json",
+            category="notifications",
+            description="Notification settings",
+        )
+        notification = Notification.objects.create(
+            user=self.admin,
+            user_type="admin",
+            event_key="system_alert",
+            type="system",
+            title="SMS Disabled",
+            message="Should fail",
+            sent_via="sms",
+            status="queued",
+        )
+
+        result = send_sms_notification(notification)
+        self.assertFalse(result["success"])
+        notification.refresh_from_db()
+        self.assertEqual(notification.status, "failed")
 
     @patch("notifications.services.factory._dispatch_async")
     def test_create_notifications_role_expansion_and_channels(self, mock_dispatch):

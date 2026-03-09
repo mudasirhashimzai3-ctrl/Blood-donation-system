@@ -126,6 +126,11 @@ class PermissionMixin:
         """
         Instantiate and return the list of permissions that this view requires.
         """
+        base_permission_module = getattr(self.__class__, "permission_module", None)
+        base_permission_action = getattr(self.__class__, "permission_action", "auto")
+        self.permission_module = base_permission_module
+        self.permission_action = base_permission_action
+
         if hasattr(self, 'action') and self.action:
             action_obj = getattr(self.__class__, self.action, None)
             if action_obj is not None:
@@ -135,6 +140,8 @@ class PermissionMixin:
                 
                 if hasattr(action_obj, 'kwargs') and 'permission_module' in action_obj.kwargs:
                     self.permission_module = action_obj.kwargs['permission_module']
+                if hasattr(action_obj, 'kwargs') and 'permission_action' in action_obj.kwargs:
+                    self.permission_action = action_obj.kwargs['permission_action']
         permission_classes = self.permission_classes.copy()
         
         # Add module permission if specified

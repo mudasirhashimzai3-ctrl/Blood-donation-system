@@ -8,6 +8,9 @@ import type {
   ShopSettings,
 } from "../entities/Setting";
 
+// Deprecated: use `src/modules/settings/*` for all new settings features.
+// This store is kept temporarily for backward compatibility with initialize flow.
+
 interface SettingsState {
   // Data
   shopSettings: ShopSettings | null;

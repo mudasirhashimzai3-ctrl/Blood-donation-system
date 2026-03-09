@@ -1,13 +1,14 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
-const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+const DEFAULT_SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
 const WARNING_BEFORE_MS = 2 * 60 * 1000; // 2 minutes before timeout
 
 interface SessionState {
   lastActivity: number;
   showTimeoutWarning: boolean;
   isSessionActive: boolean;
+  sessionTimeoutMs: number;
 
   // Actions
   updateActivity: () => void;
@@ -16,6 +17,7 @@ interface SessionState {
   hideWarning: () => void;
   endSession: () => void;
   getRemainingTime: () => number;
+  setSessionTimeoutMinutes: (minutes: number) => void;
 }
 
 /**
@@ -28,6 +30,7 @@ export const useSessionStore = create<SessionState>()(
       lastActivity: Date.now(),
       showTimeoutWarning: false,
       isSessionActive: true,
+      sessionTimeoutMs: DEFAULT_SESSION_TIMEOUT_MS,
 
       /**
        * Update last activity timestamp
@@ -78,9 +81,13 @@ export const useSessionStore = create<SessionState>()(
        * @returns Remaining time in milliseconds
        */
       getRemainingTime: () => {
-        const { lastActivity } = get();
+        const { lastActivity, sessionTimeoutMs } = get();
         const elapsed = Date.now() - lastActivity;
-        return Math.max(0, SESSION_TIMEOUT_MS - elapsed);
+        return Math.max(0, sessionTimeoutMs - elapsed);
+      },
+      setSessionTimeoutMinutes: (minutes: number) => {
+        const safeMinutes = Number.isFinite(minutes) ? Math.max(5, Math.floor(minutes)) : 30;
+        set({ sessionTimeoutMs: safeMinutes * 60 * 1000 });
       },
     }),
     { name: "session-store" }
@@ -88,4 +95,4 @@ export const useSessionStore = create<SessionState>()(
 );
 
 // Export constants for use in other modules
-export { SESSION_TIMEOUT_MS, WARNING_BEFORE_MS };
+export { DEFAULT_SESSION_TIMEOUT_MS as SESSION_TIMEOUT_MS, WARNING_BEFORE_MS };
