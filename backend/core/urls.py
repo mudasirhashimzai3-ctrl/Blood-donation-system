@@ -9,5 +9,6 @@ router.register(r'settings', views.SettingsViewSet, basename='settings')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('initialize', views.InitializeView.as_view(), name="initialize")
+    path('initialize', views.InitializeView.as_view(), name="initialize"),
+    path('health/', views.HealthCheckView.as_view(), name="health"),
 ]

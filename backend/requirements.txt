@@ -1,0 +1,16 @@
+Django==5.0.2
+djangorestframework
+djangorestframework-simplejwt
+django-cors-headers
+django-filter
+dj-database-url
+channels
+channels-redis
+celery
+redis
+mysqlclient
+gunicorn
+uvicorn
+whitenoise
+Pillow
+twilio

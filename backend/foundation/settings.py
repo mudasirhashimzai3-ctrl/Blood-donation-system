@@ -14,6 +14,13 @@ from pathlib import Path
 from datetime import timedelta
 import os
 import dj_database_url
+
+
+def _get_env_list(name: str, default: str = "") -> list[str]:
+    value = os.getenv(name, default)
+    if not value:
+        return []
+    return [item.strip() for item in value.split(",") if item.strip()]
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -22,12 +29,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-fs6v95f(_-oq0mbv0&s-dzlpuwwdlail=np=ljj$z0=xw0!dy^'
+SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-secret-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = _get_env_list("ALLOWED_HOSTS")
+if DEBUG and not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -57,17 +66,16 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-     'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'core.middleware.ActivityLogMiddleware',
-   
-
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "core.middleware.ActivityLogMiddleware",
 ]
 
 ROOT_URLCONF = 'foundation.urls'
@@ -97,7 +105,7 @@ ASGI_APPLICATION = 'foundation.asgi.application'
 
 DATABASES = {
     "default": dj_database_url.config(
-        default="mysql://root:Admin%40123@127.0.0.1:3306/blood_donation",
+        default=os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
         conn_max_age=60,
     )
 }
@@ -154,28 +162,25 @@ USE_TZ = True
 
 
 # CORS settings
-CORS_ALLOW_ALL_ORIGINS = True  # Set to True to allow all origins, but not recommended for production
+CORS_ALLOW_ALL_ORIGINS = os.getenv("CORS_ALLOW_ALL_ORIGINS", "False").lower() == "true"
+_cors_default = ""
+if DEBUG:
+    _cors_default = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174"
+CORS_ALLOWED_ORIGINS = [] if CORS_ALLOW_ALL_ORIGINS else _get_env_list("CORS_ALLOWED_ORIGINS", _cors_default)
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://localhost:5174",
-    "http://127.0.0.1:5174",
-]
+default_csrf = ""
+if DEBUG:
+    default_csrf = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174"
+CSRF_TRUSTED_ORIGINS = _get_env_list("CSRF_TRUSTED_ORIGINS", default_csrf)
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',  # React app running on localhost
-    'http://127.0.0.1:5173',  # React app running on 127.0.0.1
-]
-
-CORS_ALLOW_CREDENTIALS = True  # Uncomment if you need to allow credentials
+CORS_ALLOW_CREDENTIALS = True
 
 
 
 # MEDIA
 # The absolute filesystem path to the directory that will hold user-uploaded files.
 # It's a good practice to use os.path.join with your BASE_DIR.
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+MEDIA_ROOT = BASE_DIR / "media"
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # different name from STATIC_URL.
@@ -184,24 +189,40 @@ MEDIA_URL = '/media/'
 
 # Email Settings Configuration
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "mudasirhashimzai3@gmail.com"
-EMAIL_HOST_PASSWORD = "fzeh fqkz mjnm pluo"
-DEFAULT_FROM_EMAIL = 'mudasirhashimzai3@gmail.com'
+EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True").lower() == "true"
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "no-reply@example.com")
 
 # Gmail App Password
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_SSL_REDIRECT = os.getenv(
+    "SECURE_SSL_REDIRECT",
+    "True" if not DEBUG else "False",
+).lower() == "true"
+SESSION_COOKIE_SECURE = os.getenv(
+    "SESSION_COOKIE_SECURE",
+    "True" if not DEBUG else "False",
+).lower() == "true"
+CSRF_COOKIE_SECURE = os.getenv(
+    "CSRF_COOKIE_SECURE",
+    "True" if not DEBUG else "False",
+).lower() == "true"
 
 # Celery
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")

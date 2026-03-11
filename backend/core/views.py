@@ -5,7 +5,7 @@ from django.utils.dateparse import parse_date, parse_datetime
 from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -363,6 +363,14 @@ class InitializeView(PermissionMixin, APIView):
 
     def get(self, request):
         return Response(_get_initial_data(request), status=status.HTTP_200_OK)
+
+
+class HealthCheckView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def get(self, request):
+        return Response({"status": "ok"}, status=status.HTTP_200_OK)
 
 
 def _get_initial_data(request):
