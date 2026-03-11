@@ -9,18 +9,7 @@ import {
 import NotFoundPage from "@/pages/PageNotFounded";
 import { MISLayout } from "@/components";
 import { Dashboard } from "@/modules/dashboard";
-import {
-  AutoMatchingSettingsPage,
-  BloodRequestRulesPage,
-  DonorEligibilityRulesPage,
-  EmergencyAlertSettingsPage,
-  GeneralSettingsPage,
-  LocalizationSettingsPage,
-  NotificationSettingsPage,
-  SecuritySettingsPage,
-  SettingsOverviewPage,
-  UserRoleSettingsPage,
-} from "@settings/index";
+// import { GeneralSettings, SettingsOverview, UserManagement } from "@settings/index";
 import { UserProfile } from "@/modules/profile";
 import { ReportsWorkspacePage } from "@/modules/reports";
 import { DonorCreatePage, DonorEditPage, DonorListPage, DonorViewPage } from "@/modules/donors";
@@ -50,16 +39,9 @@ function AppRouterProvider() {
         // Dashboard
         { index: true, element: <Dashboard /> },
         // Settings
-        { path: "settings", element: <SettingsOverviewPage /> },
-        { path: "settings/general", element: <GeneralSettingsPage /> },
-        { path: "settings/user-roles", element: <UserRoleSettingsPage /> },
-        { path: "settings/notifications", element: <NotificationSettingsPage /> },
-        { path: "settings/emergency-alerts", element: <EmergencyAlertSettingsPage /> },
-        { path: "settings/blood-request-rules", element: <BloodRequestRulesPage /> },
-        { path: "settings/donor-eligibility", element: <DonorEligibilityRulesPage /> },
-        { path: "settings/auto-matching", element: <AutoMatchingSettingsPage /> },
-        { path: "settings/localization", element: <LocalizationSettingsPage /> },
-        { path: "settings/security", element: <SecuritySettingsPage /> },
+        // { path: "settings", element: <SettingsOverview /> },
+        // { path: "settings/general", element: <GeneralSettings /> },
+        // { path: "settings/users", element: <UserManagement /> },
         
         
         // Donors
