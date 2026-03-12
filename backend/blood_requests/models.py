@@ -99,8 +99,8 @@ class BloodRequest(BaseModel):
             models.Index(fields=["status", "is_active", "response_deadline"], name="blood_req_stat_dead_idx"),
         ]
         constraints = [
-            models.CheckConstraint(condition=Q(units_needed__gte=1), name="blood_request_units_min_one"),
-        ]
+             models.CheckConstraint(condition=Q(units_needed__gte=1), name="blood_request_units_min_one"),
+         ]
 
     def __str__(self):
         return f"BloodRequest #{self.pk} ({self.blood_group}, {self.status})"
