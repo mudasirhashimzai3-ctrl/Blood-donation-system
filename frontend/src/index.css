@@ -2,14 +2,132 @@
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
-/* ===============================
-   Animations
-================================ */
+/* =========================================
+   THEME TOKENS (LIGHT)
+========================================= */
+
+ @theme {
+  /* Brand Colors - Rich, trustworthy reds with deep slate for contrast */
+  --color-primary: #dc2626;      /* Strong blood red for primary actions (Donate buttons) */
+  --color-primary-dark: #b91c1c; /* Deep crimson for hover/active states */
+  --color-secondary: #1e293b;    /* Trustworthy slate/navy to balance the intense red */
+  --color-accent: #ef4444;       /* Vibrant lighter red for highlights */
+  --color-danger: #dc2626;       /* Standard danger matching the primary brand color */
+
+  /* Backgrounds - Clean, sterile, and modern (medical feel) */
+  --color-background: #f8fafc;   /* Ultra-light slate/gray for the app background */
+  --color-surface: #ffffff;      /* Pure white for containers/modals */
+  --color-surface-hover: #f1f5f9;/* Subtle interaction state for lists/tables */
+  --color-card: #ffffff;         /* Added missing value: Pure white for cards */
+
+  /* Typography - High contrast, professional readability */
+  --color-text-primary: #0f172a; /* Near black slate for deep contrast */
+  --color-text-secondary: #475569;/* Professional medium gray for body text */
+  --color-text-muted: #64748b;   /* Softer gray for less important text/timestamps */
+  --color-muted: #94a3b8;        /* UI element mute color (disabled icons, etc.) */
+
+  /* Borders & UI Elements */
+  --color-border: #e2e8f0;       /* Soft structural borders to separate content cleanly */
+  --color-border-strong: #cbd5e1;/* Stronger outlines for inputs and dividers */
+  --color-sidebar-hover: #fee2e2;/* Soft red tint for sidebar/menu item hovers */
+
+  /* States - Communicating system feedback */
+  --color-focus: #3b82f6;        /* Medical blue focus ring (avoids red "error" confusion) */
+  --color-success: #16a34a;      /* Clean, reassuring green for successful donations/bookings */
+  --color-warning: #ea580c;      /* Visible amber/orange for alerts */
+  --color-error: #dc2626;        /* Red for hard errors */
+  --color-info: #0284c7;         /* Clear blue for general information */
+
+  /* Soft States - For subtle backgrounds behind state text/icons/banners */
+  --color-success-soft: #dcfce7; /* Very light green */
+  --color-warning-soft: #ffedd5; /* Very light orange */
+  --color-error-soft: #fef2f2;   /* Very light red (softer than hover) */
+  --color-info-soft: #e0f2fe;    /* Very light blue */
+}
+
+/* =========================================
+   THEME TOKENS (DARK)
+========================================= */
+[data-theme="dark"] {
+  /* Brand Colors - Adjusted reds to be luminous but comfortable on dark backgrounds */
+  --color-primary: #ef4444;      /* Lighter, vibrant red for primary buttons in dark mode */
+  --color-primary-dark: #dc2626; /* Slightly deeper red for hover states */
+  --color-secondary: #64748b;    /* Muted slate for secondary actions to balance the red */
+  --color-accent: #f87171;       /* Soft red for subtle highlights or glowing elements */
+  --color-danger: #ef4444;       /* Danger matches primary brand red */
+
+  /* Backgrounds - Midnight slates instead of muddy greens */
+  --color-background: #020617;   /* Extremely dark slate (near black) for deep contrast */
+  --color-surface: #0f172a;      /* Elevated dark slate for modals, navs, and panels */
+  --color-surface-hover: #1e293b;/* Subtle lift for interactive rows/cards */
+  --color-card: #0f172a;         /* Matches surface for a seamless card look */
+
+  /* Typography - Crisp and readable against the dark void */
+  --color-text-primary: #f8fafc; /* Frosty white for maximum readability */
+  --color-text-secondary: #cbd5e1;/* Soft silver for body copy */
+  --color-text-muted: #94a3b8;   /* Deeper gray for timestamps, placeholders, etc. */
+  --color-muted: #475569;        /* Disabled UI element coloring */
+
+  /* Borders & UI Elements - Deep structural lines */
+  --color-border: #1e293b;       /* Blends smoothly into the dark surface */
+  --color-border-strong: #334155;/* Harder lines for input borders and focus boundaries */
+  --color-sidebar-hover: #1e293b;/* Slate hover (prevents overwhelming the user with red) */
+
+  /* States - Brightened slightly for dark mode visibility */
+  --color-focus: #60a5fa;        /* Luminous medical blue focus ring */
+  --color-success: #4ade80;      /* Bright, legible green for success states */
+  --color-warning: #fbbf24;      /* Bright amber for warnings */
+  --color-error: #ef4444;        /* Bright red for errors */
+  --color-info: #38bdf8;         /* Bright sky blue for info bits */
+
+  /* Soft States - Dark, rich tints for background banners and alerts */
+  --color-success-soft: #14532d; /* Deep forest green */
+  --color-warning-soft: #78350f; /* Deep amber/brown */
+  --color-error-soft: #7f1d1d;   /* Deep blood/maroon for error backgrounds */
+  --color-info-soft: #0c4a6e;    /* Deep ocean blue */
+}
+
+/* =========================================
+   BASE + MOTION
+========================================= */
+@layer base {
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+      "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+      "Helvetica Neue", sans-serif;
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  ::-webkit-scrollbar {
+    width: 15px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-surface);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--color-primary) 45%, transparent);
+    border-radius: 9999px;
+    border: 2px solid var(--color-surface);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--color-primary) 70%, transparent);
+  }
+}
 
 @keyframes fade-in {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -17,292 +135,353 @@
   }
 }
 
-.animate-fade-in {
-  animation: fade-in 0.8s ease-out;
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* ===============================
-   THEME — LIGHT MODE (AGRICULTURE)
-================================ */
-
-@theme {
-  /* Brand */
-  --color-primary: #0B7A4B;
-  --color-primary-dark: #064E3B;
-  --color-secondary: #66BB4A;
-  --color-accent: #F4CC0B;
-
-  /* Layout */
-  --color-background: #FFFFFF;
-  --color-surface: #F6FBF8;
-  --color-card: #FFFFFF;
-
-  /* Text */
-  --color-text-primary: #064E3B;
-  --color-text-secondary: #4B6B5F;
-
-  /* Borders */
-  --color-border: #D1E7DD;
-
-  /* Muted / disabled */
-  --color-muted: #9DB5AA;
-
-  /* Hover / active surfaces */
-  --color-surface-hover: #ECF5F0;
-
-  /* Focus / ring */
-  --color-focus: #66BB4A;
-
-  /* Status */
-  --color-success: #66BB4A;
-  --color-warning: #F4CC0B;
-  --color-error: #DC2626;
-  --color-info: #0B7A4B;
-
-  /* Soft status backgrounds */
-  --color-info-soft: #E6F4EF;
-  --color-success-soft: #EDF8E9;
-  --color-warning-soft: #FFF7CC;
-  --color-error-soft: #FEE2E2;
-
-  /* Destructive actions */
-  --color-danger: #DC2626;
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
-
-/* ===============================
-   THEME — DARK MODE (CMS)
-================================ */
-
-[data-theme="dark"] {
-  /* Brand */
-  --color-primary: #66BB4A;
-  --color-primary-dark: #4CAF50;
-  --color-secondary: #81C784;
-  --color-accent: #F4CC0B;
-
-  /* Layout */
-  --color-background: #0F1F17;
-  --color-surface: #132B21;
-  --color-card: #18382C;
-
-  /* Text */
-  --color-text-primary: #E6F4EF;
-  --color-text-secondary: #B7D3C6;
-
-  /* Borders */
-  --color-border: #2F5E4A;
-
-  /* Muted / disabled */
-  --color-muted: #7FA596;
-
-  /* Hover / active surfaces */
-  --color-surface-hover: #1F4A3A;
-
-  /* Focus / ring */
-  --color-focus: #66BB4A;
-
-  /* Status */
-  --color-success: #66BB4A;
-  --color-warning: #F4CC0B;
-  --color-error: #F87171;
-  --color-info: #4ADE80;
-
-  /* Soft status backgrounds */
-  --color-info-soft: #123D2C;
-  --color-success-soft: #14532D;
-  --color-warning-soft: #4A3F12;
-  --color-error-soft: #7F1D1D;
-
-  /* Destructive actions */
-  --color-danger: #F87171;
-}
-
-/* ===============================
-   BASE STYLES
-================================ */
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-    "Helvetica Neue", sans-serif;
-
-  background-color: var(--color-background);
-  color: var(--color-text-primary);
-
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* ===============================
-   SCROLLBAR
-================================ */
-
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--color-primary);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 4px;
-}
-
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-secondary);
-}
-
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
-/* ===============================
-   UTILITIES
-================================ */
 
 @layer utilities {
-  .animate-slide-up {
-    animation: slideUp 0.5s ease-out;
+  .animate-fade-in {
+    animation: fade-in 0.35s ease-out both;
   }
 
-  .animate-slide-down {
-    animation: slideDown 0.5s ease-out;
+  .animate-slide-up {
+    animation: slide-up 0.3s ease-out both;
   }
 
   .animate-scale-in {
-    animation: scaleIn 0.3s ease-out;
+    animation: scale-in 0.24s ease-out both;
   }
 
-  @keyframes slideUp {
-    from {
-      transform: translateY(20px);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 
-  @keyframes slideDown {
-    from {
-      transform: translateY(-20px);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 
-  @keyframes scaleIn {
-    from {
-      transform: scale(0.9);
-      opacity: 0;
-    }
-    to {
-      transform: scale(1);
-      opacity: 1;
-    }
+  .sidebar-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--color-primary) 40%, transparent)
+      transparent;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--color-primary) 40%, transparent);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--color-primary) 55%, transparent);
   }
 }
 
-/* ===============================
-   COMPONENTS
-================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
+/* =========================================
+   COMPONENT SYSTEM + COMPATIBILITY BRIDGE
+========================================= */
 @layer components {
-  /* Card */
+  /* 1) CARD */
+  .blood-card,
   .card {
-    background-color: var(--color-card);
-    border: 1px solid var(--color-border);
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    transition: box-shadow 0.3s ease;
+    @apply relative flex flex-col gap-4 overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-300;
   }
+
+  .blood-card:hover,
   .card:hover {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    @apply border-border-strong shadow-md;
+    transform: translateY(-1px);
   }
 
-  /* Buttons */
+  .blood-card-accent::before {
+    content: "";
+    @apply absolute left-0 top-0 h-1 w-full bg-gradient-to-r from-primary to-accent;
+  }
+
+  /* 2) TABLE */
+  .table-container {
+    @apply w-full overflow-x-auto rounded-2xl border border-border bg-card shadow-sm;
+  }
+
+  .blood-table,
+  .table {
+    @apply w-full whitespace-nowrap text-left text-sm text-text-secondary;
+  }
+
+  .table-header,
+  .blood-table thead {
+    @apply bg-surface;
+  }
+
+  .blood-table th,
+  .table-header th {
+    @apply border-b border-border px-5 py-4 text-xs font-semibold uppercase tracking-wider text-text-secondary;
+  }
+
+  .blood-table td,
+  .table-cell {
+    @apply border-b border-border/50 px-5 py-4 align-middle text-text-primary transition-colors duration-150;
+  }
+
+  .blood-table tbody tr,
+  .table-row {
+    @apply transition-colors duration-200 hover:bg-surface/70;
+  }
+
+  .blood-table tbody tr:last-child td,
+  .table-row:last-child .table-cell {
+    @apply border-b-0;
+  }
+
+  /* 3) BUTTON */
+  .btn,
+  .btn-base {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2;
+  }
+
   .btn-primary {
-    background-color: var(--color-primary);
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.75rem;
-    font-weight: 500;
-    transition: background-color 0.2s ease;
-  }
-
-  .btn-primary:hover {
-    background-color: var(--color-primary-dark);
+    @apply bg-primary text-white shadow-sm shadow-primary/20 hover:bg-primary-dark hover:shadow-md hover:shadow-primary/30;
   }
 
   .btn-secondary {
-    background-color: var(--color-secondary);
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.75rem;
-    font-weight: 500;
+    @apply bg-surface text-text-primary hover:bg-surface-hover;
   }
 
-  .btn-accent {
-    background-color: var(--color-accent);
-    color: var(--color-text-primary);
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.75rem;
-    font-weight: 600;
+  .btn-outline {
+    @apply border-2 border-border bg-transparent text-text-primary hover:border-primary/40 hover:bg-primary/10 hover:text-primary;
   }
 
-  /* Inputs */
+  .btn-ghost {
+    @apply bg-transparent text-text-primary hover:bg-surface-hover;
+  }
+
+  .btn-danger {
+    @apply bg-danger text-white shadow-sm shadow-danger/20 hover:bg-danger/90 hover:shadow-md hover:shadow-danger/30;
+  }
+
+  .btn-icon {
+    @apply rounded-xl p-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-primary;
+  }
+
+  /* 4) FORM + INPUT */
+  .form-group {
+    @apply mb-5 flex w-full flex-col gap-1.5;
+  }
+
+  .form-label {
+    @apply ml-0.5 text-sm font-medium text-text-secondary;
+  }
+
+  .form-input,
   .input-field {
-    background-color: var(--color-background);
-    border: 1px solid var(--color-border);
-    color: var(--color-text-primary);
-    padding: 0.75rem 1rem;
-    border-radius: 0.75rem;
-    width: 100%;
+    @apply w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-text-primary placeholder:text-text-muted transition-all duration-200 hover:border-border-strong focus:border-primary focus:bg-card focus:outline-none focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60;
   }
 
-  .input-field:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(11, 122, 75, 0.2);
+  .form-textarea {
+    @apply min-h-[100px] resize-y;
   }
 
-  /* Badges */
+  /* 5) BADGE */
   .badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.875rem;
-    font-weight: 500;
+    @apply inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold uppercase tracking-wide transition-all duration-200;
   }
 
+  .badge-blood,
   .badge-primary {
-    background-color: var(--color-primary);
-    color: white;
+    @apply border-danger/25 bg-danger/10 text-danger;
   }
 
+  .badge-success,
   .badge-secondary {
-    background-color: var(--color-secondary);
-    color: white;
+    @apply border-success/25 bg-success-soft text-success;
   }
 
-  .badge-accent {
-    background-color: var(--color-accent);
-    color: var(--color-text-primary);
+  .badge-warning {
+    @apply border-warning/25 bg-warning-soft text-warning;
+  }
+
+  .badge-neutral {
+    @apply border-border bg-surface text-text-secondary;
+  }
+
+  /* 6) MODAL */
+  .modal-overlay,
+  .modal-backdrop {
+    @apply fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm;
+  }
+
+  .modal-content,
+  .modal-panel {
+    @apply flex w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-2xl;
+  }
+
+  .modal-header {
+    @apply flex items-center justify-between border-b border-border px-6 py-5;
+  }
+
+  .modal-body {
+    @apply max-h-[70vh] overflow-y-auto p-6;
+  }
+
+  .modal-footer {
+    @apply flex justify-end gap-3 rounded-b-3xl border-t border-border bg-surface px-6 py-5;
+  }
+
+  /* 7) AVATAR */
+  .avatar {
+    @apply relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface ring-2 ring-card shadow-sm;
+  }
+
+  .avatar-sm {
+    @apply h-8 w-8;
+  }
+
+  .avatar-md {
+    @apply h-10 w-10;
+  }
+
+  .avatar-lg {
+    @apply h-14 w-14;
+  }
+
+  .avatar-img {
+    @apply h-full w-full object-cover;
+  }
+
+  .avatar-badge {
+    @apply absolute bottom-0 right-0 flex h-4 w-4 items-center justify-center rounded-full border-2 border-card bg-danger text-[8px] font-bold text-white;
+  }
+
+  /* 8) TOGGLE */
+  .toggle-container {
+    @apply inline-flex items-center gap-3;
+  }
+
+  .toggle-input {
+    @apply sr-only;
+  }
+
+  .toggle-switch {
+    @apply relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent bg-muted transition-colors duration-300 ease-in-out focus-within:outline-none focus-within:ring-2 focus-within:ring-focus focus-within:ring-offset-2;
+  }
+
+  .toggle-thumb,
+  .toggle-slider {
+    @apply inline-block h-5 w-5 translate-x-0 rounded-full bg-white shadow-sm transition duration-300 ease-in-out;
+  }
+
+  .toggle-input:checked + .toggle-switch {
+    @apply bg-primary;
+  }
+
+  .toggle-input:checked + .toggle-switch .toggle-thumb,
+  .toggle-input:checked + .toggle-switch .toggle-slider {
+    @apply translate-x-5;
+  }
+
+  .toggle-switch[aria-checked="true"] {
+    @apply bg-primary;
+  }
+
+  .toggle-switch[aria-checked="true"] .toggle-thumb {
+    @apply translate-x-5;
+  }
+
+  /* 9) CHART */
+  .chart-container {
+    @apply relative flex h-72 w-full flex-col gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm transition-all hover:shadow-md;
+  }
+
+  .chart-header {
+    @apply mb-2 flex items-center justify-between;
+  }
+
+  .chart-title {
+    @apply text-base font-semibold text-text-primary;
+  }
+
+  /* 10) NOTIFICATION */
+  .notification-container {
+    @apply fixed bottom-4 right-4 z-50 flex w-full max-w-sm flex-col gap-3;
+  }
+
+  .notification-item {
+    @apply relative flex items-start gap-4 overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-lg transition-all duration-300 ease-out;
+  }
+
+  .notification-urgent {
+    @apply border-l-4 border-l-danger bg-danger/5;
+  }
+
+  .notification-success {
+    @apply border-l-4 border-l-success;
+  }
+
+  /* 11) ICON */
+  .icon {
+    @apply shrink-0 fill-none stroke-[1.5] transition-colors duration-200;
+  }
+
+  .icon-sm {
+    @apply h-4 w-4;
+  }
+
+  .icon-md {
+    @apply h-5 w-5;
+  }
+
+  .icon-lg {
+    @apply h-6 w-6;
+  }
+
+  .icon-xl {
+    @apply h-8 w-8;
+  }
+
+  .icon-rose {
+    @apply text-danger;
+  }
+
+  .icon-slate {
+    @apply text-text-muted group-hover:text-text-secondary;
   }
 }

@@ -9,6 +9,7 @@ export { default as PasswordStrengthMeter } from "./components/PasswordStrengthM
 export { default as SessionTimeoutModal } from "./components/SessionTimeoutModal";
 export { default as AccountLockedMessage } from "./components/AccountLockedMessage";
 export { default as OTPInput } from "./components/OTPInput";
+export { default as AuthShell } from "./components/AuthShell";
 
 // Hooks
 export { usePasswordStrength } from "./hooks/usePasswordStrength";

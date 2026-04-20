@@ -1,6 +1,6 @@
 from core.utils import upload_image_path
 
-
+# when uploading file where and with which name file be stored
 def donor_profile_picture_upload_path(instance, filename):
     donor_name = f"{getattr(instance, 'first_name', '')} {getattr(instance, 'last_name', '')}".strip()
     return upload_image_path(

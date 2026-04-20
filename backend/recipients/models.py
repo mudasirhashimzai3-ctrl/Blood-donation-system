@@ -18,7 +18,6 @@ class Recipient(BaseModel):
     ]
 
     STATUS_CHOICES = [
-        ("pending", "Pending"),
         ("active", "Active"),
         ("blocked", "Blocked"),
     ]
@@ -29,21 +28,13 @@ class Recipient(BaseModel):
         ("critical", "Critical"),
     ]
 
-    GENDER_CHOICES = [
-        ("male", "Male"),
-        ("female", "Female"),
-        ("other", "Other"),
-    ]
-
     full_name = models.CharField(max_length=200)
     email = models.EmailField(null=True, blank=True)
     phone = models.CharField(max_length=20)
     required_blood_group = models.CharField(max_length=3, choices=BLOOD_GROUP_CHOICES)
-    age = models.PositiveSmallIntegerField()
-    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
     hospital = models.ForeignKey(Hospital, on_delete=models.PROTECT, related_name="recipients")
     emergency_level = models.CharField(max_length=20, choices=EMERGENCY_LEVEL_CHOICES, default="normal")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="active")
 
     class Meta:
         db_table = "recipients"

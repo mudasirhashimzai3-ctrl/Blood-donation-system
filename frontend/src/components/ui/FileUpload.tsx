@@ -1,6 +1,5 @@
 import { useRef, useState, type ChangeEvent } from "react";
 import { Upload, X, File } from "lucide-react";
-import Button from "./Button";
 
 export interface FileUploadProps {
   accept?: string;

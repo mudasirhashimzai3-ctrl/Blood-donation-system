@@ -2,7 +2,9 @@ from zoneinfo import ZoneInfo
 
 from rest_framework import serializers
 
-from core.models import SettingAuditLog
+from accounts.models import ROLE_CHOICES
+from core.models import Permission, SettingAuditLog
+from core.services.role_permission_service import MATRIX_ACTIONS
 
 SUPPORTED_LANGUAGES = ("en", "da", "pa")
 WEEK_DAYS = (
@@ -85,6 +87,36 @@ class SecuritySettingsSerializer(serializers.Serializer):
     lockout_minutes = serializers.IntegerField(required=False, min_value=1, max_value=1440)
     session_timeout_minutes = serializers.IntegerField(required=False, min_value=5, max_value=1440)
     force_logout_on_password_change = serializers.BooleanField(required=False)
+
+
+class UserRoleSettingsSerializer(serializers.Serializer):
+    allow_user_invite = serializers.BooleanField(required=False)
+    default_new_user_role = serializers.ChoiceField(
+        required=False,
+        choices=[role for role, _ in ROLE_CHOICES],
+    )
+    allow_role_editing = serializers.BooleanField(required=False)
+    allow_self_profile_edit = serializers.BooleanField(required=False)
+    enforce_2fa_for_admin = serializers.BooleanField(required=False)
+
+
+class RolePermissionMatrixRowSerializer(serializers.Serializer):
+    role_name = serializers.ChoiceField(choices=[role for role, _ in ROLE_CHOICES])
+    module = serializers.ChoiceField(choices=[module for module, _ in Permission.MODULES])
+    actions = serializers.ListField(
+        child=serializers.ChoiceField(choices=MATRIX_ACTIONS),
+        allow_empty=True,
+    )
+
+    def validate_actions(self, value):
+        return sorted(set(value))
+
+
+class RolePermissionMatrixSerializer(serializers.Serializer):
+    matrix = serializers.ListField(
+        child=RolePermissionMatrixRowSerializer(),
+        allow_empty=False,
+    )
 
 
 class SettingsSectionSerializer(serializers.Serializer):

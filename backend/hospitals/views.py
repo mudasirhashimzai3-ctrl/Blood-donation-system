@@ -19,9 +19,9 @@ class HospitalViewSet(PermissionMixin, viewsets.ModelViewSet):
     serializer_class = HospitalDetailSerializer
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["city", "is_active"]
-    search_fields = ["name", "phone", "email", "city", "address"]
-    ordering_fields = ["name", "city", "is_active", "created_at", "updated_at"]
+    filterset_fields = ["province", "city", "is_active"]
+    search_fields = ["name", "phone", "email", "province", "city", "address"]
+    ordering_fields = ["name", "province", "city", "is_active", "created_at", "updated_at"]
     ordering = ["name"]
 
     def get_serializer_class(self):

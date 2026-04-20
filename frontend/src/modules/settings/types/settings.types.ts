@@ -9,6 +9,19 @@ export type SettingsSection =
   | "localization"
   | "security";
 
+export type AdminSettingsTab =
+  | "system_settings"
+  | "manage_roles"
+  | "change_password";
+
+export type SystemSettingsSection =
+  | "general"
+  | "notifications"
+  | "localization"
+  | "security";
+
+export type RoleName = "admin" | "receptionist" | "viewer";
+
 export interface GeneralSettings {
   organization_name: string;
   support_email: string;
@@ -68,10 +81,26 @@ export interface SecuritySettings {
 
 export interface UserRoleSettings {
   allow_user_invite: boolean;
-  default_new_user_role: string;
+  default_new_user_role: RoleName;
   allow_role_editing: boolean;
   allow_self_profile_edit: boolean;
   enforce_2fa_for_admin: boolean;
+}
+
+export interface RolePermissionMatrixRow {
+  role_name: RoleName;
+  module: string;
+  actions: string[];
+}
+
+export interface RolePermissionMatrixPayload {
+  matrix: RolePermissionMatrixRow[];
+}
+
+export interface ChangePasswordPayload {
+  old_password: string;
+  new_password: string;
+  confirm_password: string;
 }
 
 export interface EmergencyAlertSettings {

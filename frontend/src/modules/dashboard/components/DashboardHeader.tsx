@@ -1,4 +1,5 @@
 import { RefreshCw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { PageHeader } from "@/components";
 
@@ -8,13 +9,18 @@ interface DashboardHeaderProps {
 }
 
 export default function DashboardHeader({ onRefresh, refreshing = false }: DashboardHeaderProps) {
+  const { t } = useTranslation();
+
   return (
     <PageHeader
-      title="Dashboard"
-      subtitle="Live operational overview of donors, recipients, requests, and donation workflow"
+      title={t("dashboard.title", "Operations Dashboard")}
+      subtitle={t(
+        "dashboard.subtitle",
+        "Real-time view of donor availability, active requests, and donation outcomes"
+      )}
       actions={[
         {
-          label: refreshing ? "Refreshing..." : "Refresh",
+          label: refreshing ? t("common.refreshing", "Refreshing...") : t("common.refresh", "Refresh Data"),
           icon: <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />,
           onClick: onRefresh,
           variant: "outline",

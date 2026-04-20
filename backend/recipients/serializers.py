@@ -40,8 +40,6 @@ class RecipientDetailSerializer(serializers.ModelSerializer):
             "email",
             "phone",
             "required_blood_group",
-            "age",
-            "gender",
             "hospital",
             "hospital_name",
             "hospital_phone",
@@ -96,8 +94,3 @@ class RecipientDetailSerializer(serializers.ModelSerializer):
         if queryset.exists():
             raise serializers.ValidationError("Email already exists.")
         return normalized_email
-
-    def validate_age(self, value):
-        if value < 1 or value > 120:
-            raise serializers.ValidationError("Age must be between 1 and 120.")
-        return value

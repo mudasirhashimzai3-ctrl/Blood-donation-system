@@ -41,6 +41,16 @@ export const donorFormSchema = z.object({
       message: "Profile picture size must be 5MB or less",
     }),
   remove_profile_picture: z.boolean(),
+  age: z
+    .string()
+    .trim()
+    .min(1, "Age is required")
+    .refine((value) => {
+      const parsed = Number(value);
+      return Number.isInteger(parsed) && parsed > 0 && parsed <= 150;
+    }, {
+      message: "Age must be a valid positive number",
+    }),
   date_of_birth: z
     .string()
     .optional()
@@ -48,9 +58,8 @@ export const donorFormSchema = z.object({
     .refine((value) => notFutureDate(value || undefined), {
       message: "Date of birth cannot be in the future",
     }),
-  address: z.string().optional().or(z.literal("")),
-  emergency_contact_name: z.string().optional().or(z.literal("")),
-  emergency_contact_phone: z.string().optional().or(z.literal("")),
+  permanent_address: z.string().optional().or(z.literal("")),
+  local_address: z.string().optional().or(z.literal("")),
   last_donation_date: z
     .string()
     .optional()
@@ -76,7 +85,6 @@ export const donorFormSchema = z.object({
       const parsed = Number(value);
       return !Number.isNaN(parsed) && parsed >= -180 && parsed <= 180;
     }, "Longitude must be between -180 and 180"),
-  notes: z.string().optional().or(z.literal("")),
 });
 
 export type DonorFormValues = z.infer<typeof donorFormSchema>;

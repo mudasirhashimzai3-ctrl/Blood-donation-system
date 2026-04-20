@@ -167,8 +167,7 @@ class DonorApiTests(APITestCase):
             phone="0700000011",
             blood_group="A+",
             status="pending",
-            emergency_contact_name="Brother",
-            emergency_contact_phone="0700900001",
+            permanent_address="Zia Street",
         )
         Donor.objects.create(
             first_name="Aman",
@@ -190,9 +189,9 @@ class DonorApiTests(APITestCase):
         self.assertEqual(pending_response.status_code, status.HTTP_200_OK)
         self.assertEqual(pending_response.data["count"], 1)
 
-        emergency_search = self.client.get(self.base_url, {"search": "0700900001"})
-        self.assertEqual(emergency_search.status_code, status.HTTP_200_OK)
-        self.assertEqual(emergency_search.data["count"], 1)
+        address_search = self.client.get(self.base_url, {"search": "Zia Street"})
+        self.assertEqual(address_search.status_code, status.HTTP_200_OK)
+        self.assertEqual(address_search.data["count"], 1)
 
         page_response = self.client.get(self.base_url, {"page_size": 1})
         self.assertEqual(page_response.status_code, status.HTTP_200_OK)
@@ -206,17 +205,16 @@ class DonorApiTests(APITestCase):
             email="detail@example.com",
             blood_group="B-",
             status="active",
-            address="Address",
-            emergency_contact_name="Contact Name",
-            emergency_contact_phone="0711111111",
-            notes="Note",
+            age=28,
+            permanent_address="Permanent Address",
+            local_address="Local Address",
         )
         response = self.client.get(f"{self.base_url}{donor.id}/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["email"], "detail@example.com")
-        self.assertEqual(response.data["address"], "Address")
-        self.assertEqual(response.data["emergency_contact_name"], "Contact Name")
-        self.assertEqual(response.data["emergency_contact_phone"], "0711111111")
+        self.assertEqual(response.data["age"], 28)
+        self.assertEqual(response.data["permanent_address"], "Permanent Address")
+        self.assertEqual(response.data["local_address"], "Local Address")
         self.assertIn("profile_picture_url", response.data)
 
     def test_update_pending_donor_is_allowed(self):

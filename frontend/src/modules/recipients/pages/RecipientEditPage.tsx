@@ -34,42 +34,50 @@ export default function RecipientEditPage() {
 
   if (!can("recipients")) {
     return (
-      <Card>
-        <CardContent className="text-sm text-error">
-          {t("recipients.errors.noPermission", "You do not have permission to access recipients.")}
-        </CardContent>
-      </Card>
+      <div className="recipient-theme" data-testid="recipient-page-root">
+        <Card>
+          <CardContent className="text-sm text-error">
+            {t("recipients.errors.noPermission", "You do not have permission to access recipients.")}
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   if (!Number.isFinite(recipientId)) {
     return (
-      <Card>
-        <CardContent className="text-sm text-error">{t("recipients.errors.notFound", "Recipient not found")}</CardContent>
-      </Card>
+      <div className="recipient-theme" data-testid="recipient-page-root">
+        <Card>
+          <CardContent className="text-sm text-error">{t("recipients.errors.notFound", "Recipient not found")}</CardContent>
+        </Card>
+      </div>
     );
   }
 
   if (isLoading) {
     return (
-      <Card>
-        <CardContent>{t("recipients.loading", "Loading recipient details...")}</CardContent>
-      </Card>
+      <div className="recipient-theme" data-testid="recipient-page-root">
+        <Card>
+          <CardContent>{t("recipients.loading", "Loading recipient details...")}</CardContent>
+        </Card>
+      </div>
     );
   }
 
   if (error || !recipient) {
     return (
-      <Card>
-        <CardContent className="text-sm text-error">
-          {t("recipients.errors.loadFailed", "Failed to load recipient details")}
-        </CardContent>
-      </Card>
+      <div className="recipient-theme" data-testid="recipient-page-root">
+        <Card>
+          <CardContent className="text-sm text-error">
+            {t("recipients.errors.loadFailed", "Failed to load recipient details")}
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="recipient-theme space-y-6" data-testid="recipient-page-root">
       <PageHeader
         title={t("recipients.edit.title", "Edit Recipient")}
         subtitle={t("recipients.edit.subtitle", "Update recipient information")}
@@ -91,4 +99,3 @@ export default function RecipientEditPage() {
     </div>
   );
 }
-

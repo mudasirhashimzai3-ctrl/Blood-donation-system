@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui";
+﻿import { Card, CardContent } from "@/components/ui";
 
 export default function DashboardSkeleton() {
   return (
@@ -9,7 +9,7 @@ export default function DashboardSkeleton() {
             <CardContent className="mt-0 animate-pulse space-y-2">
               <div className="h-3 w-24 rounded bg-surface-hover" />
               <div className="h-8 w-20 rounded bg-surface-hover" />
-              <div className="h-3 w-16 rounded bg-surface-hover" />
+              <div className="h-3 w-20 rounded bg-surface-hover" />
             </CardContent>
           </Card>
         ))}
@@ -18,10 +18,11 @@ export default function DashboardSkeleton() {
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         {Array.from({ length: 3 }).map((_, index) => (
           <Card key={index}>
-            <CardContent className="mt-0 h-72 animate-pulse rounded bg-surface-hover" />
+            <CardContent className="mt-0 h-72 animate-pulse rounded-xl bg-surface-hover" />
           </Card>
         ))}
       </div>
     </div>
   );
 }
+

@@ -78,7 +78,7 @@ export default function HospitalTable({
                       {t("hospitals.table.email", "Email")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-text-secondary">
-                      {t("hospitals.table.city", "City")}
+                      {t("hospitals.table.province", "Province")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-text-secondary">
                       {t("hospitals.table.status", "Status")}
@@ -94,7 +94,7 @@ export default function HospitalTable({
                       <td className="px-4 py-3 text-sm text-text-primary">{hospital.name}</td>
                       <td className="px-4 py-3 text-sm text-text-primary">{hospital.phone || "-"}</td>
                       <td className="px-4 py-3 text-sm text-text-primary">{hospital.email || "-"}</td>
-                      <td className="px-4 py-3 text-sm text-text-primary">{hospital.city}</td>
+                      <td className="px-4 py-3 text-sm text-text-primary">{hospital.province}</td>
                       <td className="px-4 py-3 text-sm">
                         <HospitalStatusBadge isActive={hospital.is_active} />
                       </td>
@@ -154,4 +154,3 @@ export default function HospitalTable({
     </Card>
   );
 }
-

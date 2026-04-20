@@ -2,7 +2,7 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { Spinner } from "../components/Loader";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "@/modules/auth/hooks/useAuth";
 
 interface PrivateRouteProps {
   children: React.ReactNode;

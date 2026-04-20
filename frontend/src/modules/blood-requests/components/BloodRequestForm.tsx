@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
 import { Controller, type UseFormReturn } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
-import { useHospitalsList } from "@/modules/hospitals";
+import { AFGHANISTAN_PROVINCES, useHospital, useHospitalsList } from "@/modules/hospitals";
+import type { Province } from "@/modules/hospitals";
 import { useRecipientsList } from "@/modules/recipients";
 import { Button, Input, Select, Switch } from "@components/ui";
 import { type BloodRequestFormValues } from "../schemas/bloodRequestSchemas";
@@ -51,14 +53,39 @@ export default function BloodRequestForm({
   } = form;
 
   const responseDeadline = watch("response_deadline");
+  const selectedHospitalId = watch("hospital");
+  const [province, setProvince] = useState<Province | "">("");
   const { data: recipientsData } = useRecipientsList({ page_size: 100 });
-  const { data: hospitalsData } = useHospitalsList({ page_size: 100, is_active: true });
+  const { data: selectedHospital } = useHospital(selectedHospitalId, { enabled: selectedHospitalId > 0 });
+  const { data: hospitalsData } = useHospitalsList(
+    { page_size: 100, is_active: true, province: province || undefined },
+    { enabled: Boolean(province) }
+  );
 
   const recipients = recipientsData?.results ?? [];
   const hospitals = hospitalsData?.results ?? [];
 
+  useEffect(() => {
+    if (!province && selectedHospital?.province) {
+      setProvince(selectedHospital.province);
+    }
+  }, [province, selectedHospital]);
+
   return (
     <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
+      <Select
+        label={t("bloodRequests.form.province", "Province")}
+        value={province}
+        options={[
+          { value: "", label: t("bloodRequests.form.provincePlaceholder", "Select province") },
+          ...AFGHANISTAN_PROVINCES.map((value) => ({ value, label: value })),
+        ]}
+        onChange={(event) => {
+          setProvince(event.target.value as Province | "");
+          setValue("hospital", 0, { shouldDirty: true, shouldValidate: true });
+        }}
+      />
+
       <div className="grid gap-4 md:grid-cols-2">
         <Controller
           control={control}
@@ -89,13 +116,19 @@ export default function BloodRequestForm({
               error={errors.hospital?.message}
               value={String(field.value || "")}
               options={[
-                { value: "", label: t("bloodRequests.form.hospitalPlaceholder", "Select hospital") },
+                {
+                  value: "",
+                  label: province
+                    ? t("bloodRequests.form.hospitalPlaceholder", "Select hospital")
+                    : t("bloodRequests.form.selectProvinceFirst", "Select province first"),
+                },
                 ...hospitals.map((hospital) => ({
                   value: String(hospital.id),
-                  label: `${hospital.name} (${hospital.city})`,
+                  label: `${hospital.name} (${hospital.province})`,
                 })),
               ]}
               onChange={(event) => field.onChange(Number(event.target.value))}
+              disabled={!province}
             />
           )}
         />

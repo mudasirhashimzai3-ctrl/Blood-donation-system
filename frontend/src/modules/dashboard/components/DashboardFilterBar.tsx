@@ -1,4 +1,4 @@
-import { CalendarDays, Filter, RefreshCw } from "lucide-react";
+﻿import { CalendarDays, Filter, RefreshCw } from "lucide-react";
 
 import { Button, Card, CardContent, Input, Select } from "@/components/ui";
 import type { DashboardGroupBy } from "../types/dashboard.types";
@@ -23,11 +23,17 @@ export default function DashboardFilterBar({
   onReset,
 }: DashboardFilterBarProps) {
   return (
-    <Card variant="outlined" className="bg-surface/40">
+    <Card className="blood-card-accent">
       <CardContent className="mt-0 space-y-4">
-        <div className="flex items-center gap-2 text-sm font-medium text-text-primary">
-          <Filter className="h-4 w-4" />
-          Dashboard Filters
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-sm font-semibold text-text-primary">
+            <Filter className="h-4 w-4 text-primary" />
+            Time and Aggregation Filters
+          </div>
+
+          <Button variant="ghost" size="sm" leftIcon={<RefreshCw className="h-4 w-4" />} onClick={onReset}>
+            Reset
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -56,13 +62,8 @@ export default function DashboardFilterBar({
             ]}
           />
         </div>
-
-        <div className="flex justify-end">
-          <Button variant="ghost" size="sm" leftIcon={<RefreshCw className="h-4 w-4" />} onClick={onReset}>
-            Reset Filters
-          </Button>
-        </div>
       </CardContent>
     </Card>
   );
 }
+

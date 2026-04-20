@@ -5,6 +5,17 @@ from django.conf import settings
 from django.db import migrations, models
 
 
+def clear_legacy_role_permissions(apps, schema_editor):
+    """
+    Clear legacy rows created before permission/user foreign keys existed.
+    This prevents NOT NULL failures when adding the new FK columns.
+    """
+    RolePermission = apps.get_model("accounts", "RolePermission")
+    UserPermission = apps.get_model("accounts", "UserPermission")
+    RolePermission.objects.all().delete()
+    UserPermission.objects.all().delete()
+
+
 class Migration(migrations.Migration):
 
     initial = True
@@ -15,6 +26,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(clear_legacy_role_permissions, migrations.RunPython.noop),
         migrations.AddField(
             model_name='rolepermission',
             name='permission',

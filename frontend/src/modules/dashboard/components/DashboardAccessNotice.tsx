@@ -1,4 +1,4 @@
-import { ShieldAlert } from "lucide-react";
+﻿import { ShieldAlert } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui";
 
@@ -10,7 +10,7 @@ export default function DashboardAccessNotice({
   message = "Access restricted for this dashboard section.",
 }: DashboardAccessNoticeProps) {
   return (
-    <Card variant="outlined" className="border-warning/50 bg-warning-soft/40">
+    <Card className="border-warning/40 bg-warning-soft/60">
       <CardContent className="mt-0 flex items-center gap-2 text-sm text-text-secondary">
         <ShieldAlert className="h-4 w-4 text-warning" />
         <span>{message}</span>
@@ -18,3 +18,4 @@ export default function DashboardAccessNotice({
     </Card>
   );
 }
+

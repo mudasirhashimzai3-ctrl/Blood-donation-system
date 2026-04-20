@@ -94,113 +94,131 @@ export default function DonorForm({
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Input
-          label={t("donors.form.firstName", "First Name")}
-          placeholder={t("donors.form.firstNamePlaceholder", "Enter first name")}
-          error={errors.first_name?.message}
-          {...register("first_name")}
-        />
-        <Input
-          label={t("donors.form.lastName", "Last Name")}
-          placeholder={t("donors.form.lastNamePlaceholder", "Enter last name")}
-          error={errors.last_name?.message}
-          {...register("last_name")}
-        />
+      <div className="rounded-xl border border-border bg-surface p-4 space-y-4">
+        <div>
+          <p className="text-sm font-medium text-text-primary">
+            {t("donors.form.sections.basicInfo", "Basic Information")}
+          </p>
+          <p className="text-xs text-text-secondary">
+            {t("donors.form.sections.basicInfoHint", "Name, contact details, and donor status")}
+          </p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Input
+            label={t("donors.form.firstName", "First Name")}
+            placeholder={t("donors.form.firstNamePlaceholder", "Enter first name")}
+            error={errors.first_name?.message}
+            {...register("first_name")}
+          />
+          <Input
+            label={t("donors.form.lastName", "Last Name")}
+            placeholder={t("donors.form.lastNamePlaceholder", "Enter last name")}
+            error={errors.last_name?.message}
+            {...register("last_name")}
+          />
+          <Input
+            label={t("donors.form.phone", "Phone")}
+            placeholder={t("donors.form.phonePlaceholder", "Enter phone number")}
+            error={errors.phone?.message}
+            {...register("phone")}
+          />
+          <Input
+            type="email"
+            label={t("donors.form.email", "Email")}
+            placeholder={t("donors.form.emailPlaceholder", "Enter email")}
+            error={errors.email?.message}
+            {...register("email")}
+          />
+          <Select
+            label={t("donors.form.bloodGroup", "Blood Group")}
+            error={errors.blood_group?.message}
+            options={BLOOD_GROUP_OPTIONS.map((group) => ({ value: group, label: group }))}
+            {...register("blood_group")}
+          />
+          <Select
+            label={t("donors.form.status", "Status")}
+            error={errors.status?.message}
+            options={DONOR_STATUS_OPTIONS.map((status) => ({
+              value: status,
+              label: t(`donors.status.${status}`, status),
+            }))}
+            {...register("status")}
+          />
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Input
-          label={t("donors.form.phone", "Phone")}
-          placeholder={t("donors.form.phonePlaceholder", "Enter phone number")}
-          error={errors.phone?.message}
-          {...register("phone")}
-        />
-        <Input
-          type="email"
-          label={t("donors.form.email", "Email")}
-          placeholder={t("donors.form.emailPlaceholder", "Enter email")}
-          error={errors.email?.message}
-          {...register("email")}
-        />
+      <div className="rounded-xl border border-border bg-surface p-4 space-y-4">
+        <div>
+          <p className="text-sm font-medium text-text-primary">
+            {t("donors.form.sections.profileInfo", "Profile Information")}
+          </p>
+          <p className="text-xs text-text-secondary">
+            {t("donors.form.sections.profileInfoHint", "Age, birth date, and donation history")}
+          </p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Input
+            type="number"
+            min={1}
+            max={150}
+            label={t("donors.form.age", "Age")}
+            placeholder={t("donors.form.agePlaceholder", "Enter age")}
+            error={errors.age?.message}
+            {...register("age")}
+          />
+          <Input
+            type="date"
+            label={t("donors.form.dateOfBirth", "Date of Birth")}
+            error={errors.date_of_birth?.message}
+            {...register("date_of_birth")}
+          />
+          <div className="md:col-span-2">
+            <Input
+              type="date"
+              label={t("donors.form.lastDonationDate", "Last Donation Date")}
+              error={errors.last_donation_date?.message}
+              {...register("last_donation_date")}
+            />
+          </div>
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Select
-          label={t("donors.form.bloodGroup", "Blood Group")}
-          error={errors.blood_group?.message}
-          options={BLOOD_GROUP_OPTIONS.map((group) => ({ value: group, label: group }))}
-          {...register("blood_group")}
+      <div className="rounded-xl border border-border bg-surface p-4 space-y-4">
+        <div>
+          <p className="text-sm font-medium text-text-primary">
+            {t("donors.form.sections.location", "Location Details")}
+          </p>
+          <p className="text-xs text-text-secondary">
+            {t("donors.form.sections.locationHint", "Coordinates and address information")}
+          </p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Input
+            label={t("donors.form.latitude", "Latitude")}
+            placeholder={t("donors.form.latitudePlaceholder", "Enter latitude")}
+            error={errors.latitude?.message}
+            {...register("latitude")}
+          />
+          <Input
+            label={t("donors.form.longitude", "Longitude")}
+            placeholder={t("donors.form.longitudePlaceholder", "Enter longitude")}
+            error={errors.longitude?.message}
+            {...register("longitude")}
+          />
+        </div>
+        <Textarea
+          label={t("donors.form.permanentAddress", "Permanent Address")}
+          placeholder={t("donors.form.permanentAddressPlaceholder", "Enter permanent address")}
+          error={errors.permanent_address?.message}
+          {...register("permanent_address")}
         />
-        <Select
-          label={t("donors.form.status", "Status")}
-          error={errors.status?.message}
-          options={DONOR_STATUS_OPTIONS.map((status) => ({
-            value: status,
-            label: t(`donors.status.${status}`, status),
-          }))}
-          {...register("status")}
-        />
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <Input
-          type="date"
-          label={t("donors.form.dateOfBirth", "Date of Birth")}
-          error={errors.date_of_birth?.message}
-          {...register("date_of_birth")}
-        />
-        <Input
-          type="date"
-          label={t("donors.form.lastDonationDate", "Last Donation Date")}
-          error={errors.last_donation_date?.message}
-          {...register("last_donation_date")}
-        />
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <Input
-          label={t("donors.form.latitude", "Latitude")}
-          placeholder={t("donors.form.latitudePlaceholder", "Enter latitude")}
-          error={errors.latitude?.message}
-          {...register("latitude")}
-        />
-        <Input
-          label={t("donors.form.longitude", "Longitude")}
-          placeholder={t("donors.form.longitudePlaceholder", "Enter longitude")}
-          error={errors.longitude?.message}
-          {...register("longitude")}
+        <Textarea
+          label={t("donors.form.localAddress", "Local Address")}
+          placeholder={t("donors.form.localAddressPlaceholder", "Enter local address")}
+          error={errors.local_address?.message}
+          {...register("local_address")}
         />
       </div>
-
-      <Textarea
-        label={t("donors.form.address", "Address")}
-        placeholder={t("donors.form.addressPlaceholder", "Enter address")}
-        error={errors.address?.message}
-        {...register("address")}
-      />
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <Input
-          label={t("donors.form.emergencyContactName", "Emergency Contact Name")}
-          placeholder={t("donors.form.emergencyContactNamePlaceholder", "Enter emergency contact name")}
-          error={errors.emergency_contact_name?.message}
-          {...register("emergency_contact_name")}
-        />
-        <Input
-          label={t("donors.form.emergencyContactPhone", "Emergency Contact Phone")}
-          placeholder={t("donors.form.emergencyContactPhonePlaceholder", "Enter emergency contact phone")}
-          error={errors.emergency_contact_phone?.message}
-          {...register("emergency_contact_phone")}
-        />
-      </div>
-
-      <Textarea
-        label={t("donors.form.notes", "Notes")}
-        placeholder={t("donors.form.notesPlaceholder", "Optional notes")}
-        error={errors.notes?.message}
-        {...register("notes")}
-      />
 
       <div className="flex items-center justify-end gap-3">
         <Button type="button" variant="outline" onClick={onCancel}>

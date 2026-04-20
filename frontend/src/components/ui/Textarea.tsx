@@ -28,7 +28,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         {label && (
           <label
             htmlFor={textareaId}
-            className="mb-1.5 block text-sm font-medium text-text-primary"
+            className="form-label mb-1 block"
           >
             {label}
           </label>
@@ -38,12 +38,8 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           id={textareaId}
           rows={rows}
           className={`
-            w-full resize-none rounded-lg border bg-background px-4 py-2.5 text-sm text-text-primary
-            placeholder:text-muted
-            transition-all duration-200
-            focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20
-            disabled:cursor-not-allowed disabled:bg-surface disabled:opacity-50
-            ${error ? "border-error focus:border-error focus:ring-error/20" : "border-border"}
+            form-input form-textarea
+            ${error ? "border-error focus:border-error focus:ring-error/20" : ""}
             ${className}
           `}
           {...props}
@@ -52,7 +48,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           <p className="mt-1.5 text-sm text-error">{error}</p>
         )}
         {hint && !error && (
-          <p className="mt-1.5 text-sm text-muted">{hint}</p>
+          <p className="mt-1.5 text-sm text-text-muted">{hint}</p>
         )}
       </div>
     );

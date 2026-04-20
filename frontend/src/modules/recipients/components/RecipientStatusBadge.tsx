@@ -12,7 +12,12 @@ export default function RecipientStatusBadge({ status }: RecipientStatusBadgePro
 
   if (status === "active") {
     return (
-      <Badge variant="success" dot>
+      <Badge
+        variant="success"
+        dot
+        className="border-success/25 bg-success-soft text-success"
+        data-testid="recipient-status-active"
+      >
         {t("recipients.status.active", "Active")}
       </Badge>
     );
@@ -20,16 +25,20 @@ export default function RecipientStatusBadge({ status }: RecipientStatusBadgePro
 
   if (status === "blocked") {
     return (
-      <Badge variant="warning" dot>
+      <Badge
+        variant="outline"
+        icon={<span className="h-1.5 w-1.5 rounded-full bg-error" />}
+        className="border-error/30 bg-error-soft text-error"
+        data-testid="recipient-status-blocked"
+      >
         {t("recipients.status.blocked", "Blocked")}
       </Badge>
     );
   }
 
   return (
-    <Badge variant="info" dot>
-      {t("recipients.status.pending", "Pending")}
+    <Badge variant="success" dot className="border-success/25 bg-success-soft text-success" data-testid="recipient-status-active">
+      {t("recipients.status.active", "Active")}
     </Badge>
   );
 }
-

@@ -9,10 +9,10 @@ class DonorAdmin(admin.ModelAdmin):
         "id",
         "first_name",
         "last_name",
+        "age",
         "blood_group",
         "status",
         "phone",
-        "emergency_contact_phone",
     )
     list_filter = ("status", "blood_group")
-    search_fields = ("first_name", "last_name", "phone", "email", "emergency_contact_name", "emergency_contact_phone")
+    search_fields = ("first_name", "last_name", "phone", "email", "permanent_address", "local_address")

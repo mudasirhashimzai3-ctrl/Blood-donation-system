@@ -123,6 +123,9 @@ describe("DashboardOverviewPage", () => {
     };
 
     const { container } = render(<DashboardOverviewPage />);
+    expect(screen.getByText("Total Donors")).toBeInTheDocument();
+    expect(screen.getByText("Request Status Distribution")).toBeInTheDocument();
+    expect(screen.getAllByText("Loading metrics...").length).toBeGreaterThan(0);
     expect(container.querySelectorAll(".animate-pulse").length).toBeGreaterThan(0);
   });
 
@@ -136,8 +139,11 @@ describe("DashboardOverviewPage", () => {
     };
 
     render(<DashboardOverviewPage />);
-    expect(screen.getByText("Dashboard data could not be loaded.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
+    expect(screen.getByText("Total Donors")).toBeInTheDocument();
+    expect(screen.getByText("Request Status Distribution")).toBeInTheDocument();
+    expect(screen.getAllByText("Data unavailable").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Data unavailable. Please refresh and try again.").length).toBe(3);
+    expect(screen.queryByRole("button", { name: "Retry" })).not.toBeInTheDocument();
   });
 
   it("shows restricted state for unauthorized widgets", () => {
@@ -155,8 +161,32 @@ describe("DashboardOverviewPage", () => {
     };
 
     render(<DashboardOverviewPage />);
-    expect(screen.getByText("Donor metrics are unavailable for your current permissions.")).toBeInTheDocument();
+    expect(screen.getByText("Total Donors")).toBeInTheDocument();
+    expect(screen.getAllByText("Restricted").length).toBeGreaterThan(0);
     expect(screen.getByText("Supply and demand chart is restricted for your account.")).toBeInTheDocument();
+  });
+
+  it("shows empty chart messages while preserving panel layout", () => {
+    const payload = buildResponse();
+    payload.charts.requests_status_distribution = [];
+    payload.charts.donations_trend = [];
+    payload.charts.blood_group_supply_vs_demand = [];
+
+    queryStateRef.current = {
+      data: payload,
+      isLoading: false,
+      error: null,
+      isFetching: false,
+      refetch: vi.fn(),
+    };
+
+    render(<DashboardOverviewPage />);
+    expect(screen.getByText("Request Status Distribution")).toBeInTheDocument();
+    expect(screen.getByText("Donations Trend")).toBeInTheDocument();
+    expect(screen.getByText("Blood Group Supply vs Demand")).toBeInTheDocument();
+    expect(screen.getByText("No request status data in selected range.")).toBeInTheDocument();
+    expect(screen.getByText("No donation trend data in selected range.")).toBeInTheDocument();
+    expect(screen.getByText("No supply and demand data available.")).toBeInTheDocument();
   });
 
   it("navigates when KPI card is clicked", async () => {

@@ -1,13 +1,17 @@
 import apiClient from "@/lib/api";
 
 import type {
+  ChangePasswordPayload,
   GeneralSettings,
   LocalizationSettings,
   NotificationSettings,
+  RolePermissionMatrixPayload,
   SecuritySettings,
+  UserRoleSettings,
 } from "../types/settings.types";
 import type {
   PaginatedSettingAuditLogs,
+  RolePermissionMatrixResponse,
   SettingsOverviewResponse,
   TestEmailPayload,
   TestSmsPayload,
@@ -38,6 +42,18 @@ export const settingsService = {
   getSecurity: () => apiClient.get<SecuritySettings>("/core/settings/security/"),
   updateSecurity: (payload: Partial<SecuritySettings>) =>
     apiClient.put<SecuritySettings>("/core/settings/security/", payload),
+
+  getUserRoles: () => apiClient.get<UserRoleSettings>("/core/settings/user-roles/"),
+  updateUserRoles: (payload: Partial<UserRoleSettings>) =>
+    apiClient.put<UserRoleSettings>("/core/settings/user-roles/", payload),
+
+  getUserRolePermissions: () =>
+    apiClient.get<RolePermissionMatrixResponse>("/core/settings/user-roles/permissions/"),
+  updateUserRolePermissions: (payload: RolePermissionMatrixPayload) =>
+    apiClient.put<RolePermissionMatrixResponse>("/core/settings/user-roles/permissions/", payload),
+
+  changeMyPassword: (payload: ChangePasswordPayload) =>
+    apiClient.post<{ message: string }>("/accounts/auth/change-password/", payload),
 
   getScaffoldSection: (endpoint: string) =>
     apiClient.get(`/core/settings/${endpoint}/`),

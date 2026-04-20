@@ -9,11 +9,9 @@ const defaultValues: RecipientFormValues = {
   email: "",
   phone: "",
   required_blood_group: "A+",
-  age: 18,
-  gender: "male",
   hospital: 0,
   emergency_level: "normal",
-  status: "pending",
+  status: "active",
 };
 
 export const mapRecipientToFormValues = (recipient?: Partial<Recipient>): RecipientFormValues => {
@@ -24,11 +22,9 @@ export const mapRecipientToFormValues = (recipient?: Partial<Recipient>): Recipi
     email: recipient.email ?? "",
     phone: recipient.phone ?? "",
     required_blood_group: recipient.required_blood_group ?? "A+",
-    age: recipient.age ?? 18,
-    gender: recipient.gender ?? "male",
     hospital: recipient.hospital ?? 0,
     emergency_level: recipient.emergency_level ?? "normal",
-    status: recipient.status ?? "pending",
+    status: recipient.status ?? "active",
   };
 };
 
@@ -50,4 +46,3 @@ export const useRecipientForm = (recipient?: Partial<Recipient>) => {
     defaultValues: mapRecipientToFormValues(recipient),
   });
 };
-

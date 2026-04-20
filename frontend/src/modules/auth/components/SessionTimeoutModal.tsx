@@ -61,11 +61,10 @@ export default function SessionTimeoutModal({
       closeOnOverlayClick={false}
       showCloseButton={false}
     >
-      <div className="space-y-6 p-6">
-        {/* Header */}
+      <div className="space-y-6">
         <div className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-warning/10">
-            <Clock className="h-8 w-8 text-warning" />
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-warning-soft text-warning">
+            <Clock className="h-8 w-8" />
           </div>
           <h3 className="text-xl font-semibold text-text-primary">
             {t("auth.sessionTimeout", "Session Timeout")}
@@ -79,16 +78,15 @@ export default function SessionTimeoutModal({
         </div>
 
         {/* Countdown */}
-        <div className="rounded-lg bg-surface p-6 text-center">
+        <div className="rounded-xl border border-border bg-surface p-6 text-center">
           <div className="text-4xl font-bold text-warning">
             {formatTime(countdown)}
           </div>
-          <p className="mt-2 text-sm text-text-muted">
+          <p className="mt-2 text-sm text-text-secondary">
             {t("auth.timeRemaining", "Time Remaining")}
           </p>
         </div>
 
-        {/* Actions */}
         <div className="flex flex-col gap-3">
           <Button
             variant="primary"

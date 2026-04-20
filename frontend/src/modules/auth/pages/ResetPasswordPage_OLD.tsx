@@ -54,7 +54,8 @@ export default function ResetPasswordPage() {
 
     try {
       await resetPasswordMutation.mutateAsync({
-        token,
+        email_or_username: token,
+        code: token,
         new_password: data.newPassword,
         confirm_password: data.confirmPassword,
       });

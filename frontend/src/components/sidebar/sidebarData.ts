@@ -60,6 +60,7 @@ export const sidebarNavigationData: SidebarItemData[] = [
     path: "/settings",
     label: "Settings",
     icon: Settings,
+    divider: true,
   },
   {
     path: "/profile",

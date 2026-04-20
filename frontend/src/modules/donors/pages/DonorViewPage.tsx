@@ -101,6 +101,10 @@ export default function DonorViewPage() {
               <p className="text-sm text-text-primary">{donor.date_of_birth || "-"}</p>
             </div>
             <div>
+              <p className="text-xs uppercase text-text-secondary">{t("donors.form.age", "Age")}</p>
+              <p className="text-sm text-text-primary">{donor.age ?? "-"}</p>
+            </div>
+            <div>
               <p className="text-xs uppercase text-text-secondary">
                 {t("donors.form.lastDonationDate", "Last Donation Date")}
               </p>
@@ -119,24 +123,16 @@ export default function DonorViewPage() {
               <p className="text-sm text-text-primary">{donor.longitude || "-"}</p>
             </div>
             <div className="md:col-span-2">
-              <p className="text-xs uppercase text-text-secondary">{t("donors.form.address", "Address")}</p>
-              <p className="text-sm text-text-primary">{donor.address || "-"}</p>
-            </div>
-            <div>
               <p className="text-xs uppercase text-text-secondary">
-                {t("donors.form.emergencyContactName", "Emergency Contact Name")}
+                {t("donors.form.permanentAddress", "Permanent Address")}
               </p>
-              <p className="text-sm text-text-primary">{donor.emergency_contact_name || "-"}</p>
-            </div>
-            <div>
-              <p className="text-xs uppercase text-text-secondary">
-                {t("donors.form.emergencyContactPhone", "Emergency Contact Phone")}
-              </p>
-              <p className="text-sm text-text-primary">{donor.emergency_contact_phone || "-"}</p>
+              <p className="text-sm text-text-primary">{donor.permanent_address || "-"}</p>
             </div>
             <div className="md:col-span-2">
-              <p className="text-xs uppercase text-text-secondary">{t("donors.form.notes", "Notes")}</p>
-              <p className="text-sm text-text-primary">{donor.notes || "-"}</p>
+              <p className="text-xs uppercase text-text-secondary">
+                {t("donors.form.localAddress", "Local Address")}
+              </p>
+              <p className="text-sm text-text-primary">{donor.local_address || "-"}</p>
             </div>
           </div>
 

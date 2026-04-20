@@ -355,7 +355,7 @@ export default function UserProfile() {
                     value={userProfile.email}
                     disabled
                     leftIcon={<Mail className="h-4 w-4" />}
-                    helperText={t("profile.emailReadonly", "Contact admin to change email")}
+                    hint={t("profile.emailReadonly", "Contact admin to change email")}
                   />
 
                   <Input
@@ -371,7 +371,7 @@ export default function UserProfile() {
                     value={userProfile.username}
                     disabled
                     leftIcon={<User className="h-4 w-4" />}
-                    helperText={t("profile.usernameReadonly", "Username cannot be changed")}
+                    hint={t("profile.usernameReadonly", "Username cannot be changed")}
                   />
 
                   <Input
@@ -379,7 +379,7 @@ export default function UserProfile() {
                     value={getRoleNameDisplay(userProfile.role) || userProfile.role}
                     disabled
                     leftIcon={<Shield className="h-4 w-4" />}
-                    helperText={t("profile.roleReadonly", "Contact admin to change role")}
+                    hint={t("profile.roleReadonly", "Contact admin to change role")}
                   />
                 </div>
 
@@ -435,7 +435,7 @@ export default function UserProfile() {
                     </button>
                   }
                   error={passwordErrors.new_password?.message}
-                  helperText={t("profile.passwordHint", "Min 8 chars, include uppercase, lowercase, and number")}
+                  hint={t("profile.passwordHint", "Min 8 chars, include uppercase, lowercase, and number")}
                   {...registerPassword("new_password")}
                 />
 

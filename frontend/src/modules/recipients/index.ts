@@ -1,3 +1,5 @@
+import "./styles/recipientTheme.css";
+
 export { default as RecipientListPage } from "./pages/RecipientListPage";
 export { default as RecipientCreatePage } from "./pages/RecipientCreatePage";
 export { default as RecipientViewPage } from "./pages/RecipientViewPage";

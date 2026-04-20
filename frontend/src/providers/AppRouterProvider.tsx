@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Navigate, createBrowserRouter, RouterProvider } from "react-router-dom";
 import { AuthGuard } from "@/providers";
 import {
   LoginPage,
@@ -23,6 +23,7 @@ import {
 } from "@/modules/blood-requests";
 import { DonationListPage, DonationViewPage } from "@/modules/donations";
 import { NotificationListPage, NotificationViewPage } from "@/modules/notifications";
+import { AdminSettingsPage } from "@/modules/settings";
 
 function AppRouterProvider() {
   const router = createBrowserRouter([
@@ -39,9 +40,28 @@ function AppRouterProvider() {
         // Dashboard
         { index: true, element: <Dashboard /> },
         // Settings
-        // { path: "settings", element: <SettingsOverview /> },
-        // { path: "settings/general", element: <GeneralSettings /> },
-        // { path: "settings/users", element: <UserManagement /> },
+        { path: "settings", element: <AdminSettingsPage /> },
+        { path: "settings/general", element: <Navigate to="/settings?tab=system_settings&section=general" replace /> },
+        {
+          path: "settings/notifications",
+          element: <Navigate to="/settings?tab=system_settings&section=notifications" replace />,
+        },
+        {
+          path: "settings/localization",
+          element: <Navigate to="/settings?tab=system_settings&section=localization" replace />,
+        },
+        { path: "settings/security", element: <Navigate to="/settings?tab=system_settings&section=security" replace /> },
+        { path: "settings/user-roles", element: <Navigate to="/settings?tab=manage_roles" replace /> },
+        { path: "settings/emergency-alerts", element: <Navigate to="/settings?tab=system_settings&section=general" replace /> },
+        {
+          path: "settings/blood-request-rules",
+          element: <Navigate to="/settings?tab=system_settings&section=general" replace />,
+        },
+        {
+          path: "settings/donor-eligibility",
+          element: <Navigate to="/settings?tab=system_settings&section=general" replace />,
+        },
+        { path: "settings/auto-matching", element: <Navigate to="/settings?tab=system_settings&section=general" replace /> },
         
         
         // Donors

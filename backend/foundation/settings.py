@@ -14,6 +14,7 @@ from pathlib import Path
 from datetime import timedelta
 import os
 import dj_database_url
+from dotenv import load_dotenv
 
 
 def _get_env_list(name: str, default: str = "") -> list[str]:
@@ -23,6 +24,12 @@ def _get_env_list(name: str, default: str = "") -> list[str]:
     return [item.strip() for item in value.split(",") if item.strip()]
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from backend/.env if present.
+# In DEBUG, prefer .env values to avoid stale system-wide env vars.
+load_dotenv(BASE_DIR / ".env")
+if os.getenv("DEBUG", "true").lower() == "true":
+    load_dotenv(BASE_DIR / ".env", override=True)
 
 
 # Quick-start development settings - unsuitable for production
@@ -109,6 +116,11 @@ DATABASES = {
         conn_max_age=60,
     )
 }
+
+# MySQL does not support partial (conditional) unique constraints.
+# Django emits models.W036 warnings for these; silence them for MySQL.
+if DATABASES["default"].get("ENGINE", "").endswith("mysql"):
+    SILENCED_SYSTEM_CHECKS = ["models.W036"]
 
 
 # Custom user model

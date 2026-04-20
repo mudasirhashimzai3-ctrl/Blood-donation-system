@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { AFGHANISTAN_PROVINCES } from "../types/hospital.types";
+
 const numericCoordinate = (label: string, min: number, max: number) =>
   z
     .string()
@@ -24,7 +26,7 @@ export const hospitalFormSchema = z.object({
       message: "Email is invalid",
     }),
   address: z.string().trim().optional().or(z.literal("")),
-  city: z.string().trim().min(2, "City must be at least 2 characters"),
+  province: z.enum(AFGHANISTAN_PROVINCES),
   latitude: numericCoordinate("Latitude", -90, 90),
   longitude: numericCoordinate("Longitude", -180, 180),
   is_active: z.boolean(),

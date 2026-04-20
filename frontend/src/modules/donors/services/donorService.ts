@@ -19,14 +19,13 @@ const buildDonorFormData = (payload: Partial<DonorPayload>) => {
   appendField(formData, "email", payload.email ?? "");
   appendField(formData, "blood_group", payload.blood_group);
   appendField(formData, "status", payload.status);
+  appendField(formData, "age", payload.age);
   appendField(formData, "date_of_birth", payload.date_of_birth ?? "");
-  appendField(formData, "address", payload.address ?? "");
-  appendField(formData, "emergency_contact_name", payload.emergency_contact_name ?? "");
-  appendField(formData, "emergency_contact_phone", payload.emergency_contact_phone ?? "");
+  appendField(formData, "permanent_address", payload.permanent_address ?? "");
+  appendField(formData, "local_address", payload.local_address ?? "");
   appendField(formData, "last_donation_date", payload.last_donation_date ?? "");
   appendField(formData, "latitude", payload.latitude ?? "");
   appendField(formData, "longitude", payload.longitude ?? "");
-  appendField(formData, "notes", payload.notes ?? "");
   appendField(formData, "remove_profile_picture", payload.remove_profile_picture);
 
   if (payload.profile_picture) {

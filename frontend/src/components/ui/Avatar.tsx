@@ -20,9 +20,9 @@ export default function Avatar({
 }: AvatarProps) {
   const sizes = {
     xs: "h-6 w-6 text-xs",
-    sm: "h-8 w-8 text-sm",
-    md: "h-10 w-10 text-base",
-    lg: "h-12 w-12 text-lg",
+    sm: "avatar-sm",
+    md: "avatar-md",
+    lg: "avatar-lg",
     xl: "h-16 w-16 text-xl",
   };
 
@@ -61,13 +61,13 @@ export default function Avatar({
   return (
     <div className={`relative inline-block ${className}`} {...props}>
       <div
-        className={`${sizes[size]} flex items-center justify-center overflow-hidden rounded-full bg-primary/10 text-primary ring-2 ring-background`}
+        className={`avatar ${sizes[size]} text-text-primary`}
       >
         {src ? (
           <img
             src={src}
             alt={alt || name || "Avatar"}
-            className="h-full w-full object-cover"
+            className="avatar-img"
           />
         ) : name ? (
           <span className="font-semibold">{getInitials(name)}</span>

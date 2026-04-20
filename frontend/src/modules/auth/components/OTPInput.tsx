@@ -193,15 +193,15 @@ export default function OTPInput({
             onFocus={() => handleFocus(index)}
             disabled={disabled}
             className={`
-              h-12 w-12 rounded-lg border-2 text-center text-2xl font-semibold
+              h-12 w-12 rounded-xl border-2 text-center text-2xl font-semibold
               transition-all duration-200
-              focus:outline-none focus:ring-2 focus:ring-primary/50
+              focus:outline-none focus:ring-4 focus:ring-primary/20
               ${
                 error
-                  ? "border-error bg-error/5 text-error"
+                  ? "border-error bg-error-soft text-error"
                   : digit
-                  ? "border-primary bg-primary/5 text-text-primary"
-                  : "border-border bg-background text-text-primary hover:border-primary/50"
+                  ? "border-primary bg-primary/10 text-text-primary"
+                  : "border-border bg-card text-text-primary hover:border-primary/40"
               }
               ${disabled ? "cursor-not-allowed opacity-50" : "cursor-text"}
             `}

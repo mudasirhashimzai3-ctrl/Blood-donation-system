@@ -27,12 +27,12 @@ export default function HospitalListPage() {
 
   const {
     search,
-    city,
+    province,
     isActive,
     page,
     pageSize,
     setSearch,
-    setCity,
+    setProvince,
     setIsActive,
     setPage,
     resetFilters,
@@ -91,10 +91,10 @@ export default function HospitalListPage() {
         <CardContent>
           <HospitalFilters
             search={search}
-            city={city}
+            province={province}
             isActive={isActive}
             onSearchChange={setSearch}
-            onCityChange={setCity}
+            onProvinceChange={setProvince}
             onIsActiveChange={setIsActive}
             onReset={resetFilters}
           />
@@ -139,4 +139,3 @@ export default function HospitalListPage() {
     </div>
   );
 }
-

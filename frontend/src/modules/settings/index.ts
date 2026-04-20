@@ -1,3 +1,4 @@
+export { default as AdminSettingsPage } from "./pages/AdminSettingsPage";
 export { default as SettingsOverviewPage } from "./pages/SettingsOverviewPage";
 export { default as GeneralSettingsPage } from "./pages/GeneralSettingsPage";
 export { default as NotificationSettingsPage } from "./pages/NotificationSettingsPage";
@@ -13,6 +14,8 @@ export { default as AutoMatchingSettingsPage } from "./pages/AutoMatchingSetting
 export { useSettingsSectionAccess } from "./hooks/useSettingsSectionAccess";
 export { useSettingsDirtyGuard } from "./hooks/useSettingsDirtyGuard";
 export { useSettingsNavigation } from "./hooks/useSettingsNavigation";
+export { useAdminSettingsRouting } from "./hooks/useAdminSettingsRouting";
+export { useRoleMatrixDraft } from "./hooks/useRoleMatrixDraft";
 
 export { useSettingsUiStore } from "./stores/useSettingsUiStore";
 
@@ -20,6 +23,9 @@ export * from "./schemas/generalSettings.schema";
 export * from "./schemas/notificationSettings.schema";
 export * from "./schemas/localizationSettings.schema";
 export * from "./schemas/securitySettings.schema";
+export * from "./schemas/changePassword.schema";
+export * from "./schemas/userRolePolicy.schema";
+export * from "./schemas/rolePermissionMatrix.schema";
 
 export * from "./queries/settingsKeys";
 export * from "./queries/useSettingsQueries";

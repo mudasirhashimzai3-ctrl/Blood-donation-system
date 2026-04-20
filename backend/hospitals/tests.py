@@ -47,6 +47,7 @@ class HospitalApiTests(APITestCase):
             "phone": "0700100001",
             "email": "contact@cityhospital.com",
             "address": "Main Street",
+            "province": "Kabul",
             "city": "Kabul",
             "latitude": "34.555300",
             "longitude": "69.207500",
@@ -61,18 +62,20 @@ class HospitalApiTests(APITestCase):
         hospital_id = create_response.data["id"]
         self.assertEqual(create_response.data["phone"], "0700100001")
         self.assertEqual(create_response.data["email"], "contact@cityhospital.com")
+        self.assertEqual(create_response.data["province"], "Kabul")
         self.assertTrue(create_response.data["is_active"])
 
-        list_response = self.client.get(self.base_url, {"search": "City", "city": "Kabul"})
+        list_response = self.client.get(self.base_url, {"search": "City", "province": "Kabul"})
         self.assertEqual(list_response.status_code, status.HTTP_200_OK)
         self.assertEqual(list_response.data["count"], 1)
 
         update_response = self.client.patch(
             f"{self.base_url}{hospital_id}/",
-            {"city": "Herat", "is_active": False},
+            {"province": "Herat", "is_active": False},
             format="json",
         )
         self.assertEqual(update_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(update_response.data["province"], "Herat")
         self.assertEqual(update_response.data["city"], "Herat")
         self.assertFalse(update_response.data["is_active"])
 
@@ -96,6 +99,7 @@ class HospitalApiTests(APITestCase):
         hospital = Hospital.objects.create(
             name="Action Hospital",
             phone="0700111111",
+            province="Kabul",
             city="Kabul",
             is_active=True,
         )
@@ -118,6 +122,7 @@ class HospitalApiTests(APITestCase):
         hospital = Hospital.objects.create(
             name="Linked Hospital",
             phone="0700999999",
+            province="Kabul",
             city="Kabul",
             is_active=True,
         )
@@ -125,8 +130,6 @@ class HospitalApiTests(APITestCase):
             full_name="Linked Recipient",
             phone="0710000001",
             required_blood_group="A+",
-            age=30,
-            gender="male",
             hospital=hospital,
         )
 

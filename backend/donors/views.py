@@ -23,8 +23,8 @@ class DonorViewSet(PermissionMixin, viewsets.ModelViewSet):
         "last_name",
         "phone",
         "email",
-        "emergency_contact_name",
-        "emergency_contact_phone",
+        "permanent_address",
+        "local_address",
     ]
     ordering_fields = ["first_name", "last_name", "created_at", "updated_at", "last_donation_date"]
     ordering = ["-created_at"]

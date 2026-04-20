@@ -46,6 +46,7 @@ export default function RecipientFilters({
         value={search}
         onChange={(event) => onSearchChange(event.target.value)}
         leftIcon={<Search className="h-4 w-4" />}
+        className="recipient-neon-focus"
       />
 
       <Select
@@ -80,7 +81,6 @@ export default function RecipientFilters({
         onChange={(event) => onStatusChange(event.target.value as RecipientStatus | "")}
         options={[
           { value: "", label: t("recipients.filters.allStatuses", "All Statuses") },
-          { value: "pending", label: t("recipients.status.pending", "Pending") },
           { value: "active", label: t("recipients.status.active", "Active") },
           { value: "blocked", label: t("recipients.status.blocked", "Blocked") },
         ]}
@@ -94,4 +94,3 @@ export default function RecipientFilters({
     </div>
   );
 }
-

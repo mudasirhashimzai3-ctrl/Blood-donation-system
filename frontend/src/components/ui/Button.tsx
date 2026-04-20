@@ -26,26 +26,20 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const baseStyles =
-      "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+    const baseStyles = "btn";
 
     const variants = {
-      primary:
-        "bg-primary text-white hover:bg-primary-dark focus:ring-primary shadow-sm",
-      secondary:
-        "bg-secondary text-white hover:opacity-90 focus:ring-secondary shadow-sm",
-      outline:
-        "border-2 border-primary text-primary hover:bg-primary hover:text-white focus:ring-primary",
-      ghost:
-        "text-text-primary hover:bg-surface-hover focus:ring-primary",
-      danger:
-        "bg-danger text-white hover:opacity-90 focus:ring-danger shadow-sm",
+      primary: "btn-primary",
+      secondary: "btn-secondary",
+      outline: "btn-outline",
+      ghost: "btn-ghost",
+      danger: "btn-danger",
     };
 
     const sizes = {
-      sm: "px-3 py-1.5 text-sm",
-      md: "px-4 py-2 text-sm",
-      lg: "px-6 py-3 text-base",
+      sm: "px-3 py-2 text-xs",
+      md: "",
+      lg: "px-5 py-3 text-base",
     };
 
     return (

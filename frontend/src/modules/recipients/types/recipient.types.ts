@@ -9,14 +9,12 @@ export const BLOOD_GROUP_OPTIONS = [
   "O-",
 ] as const;
 
-export const RECIPIENT_STATUS_OPTIONS = ["pending", "active", "blocked"] as const;
+export const RECIPIENT_STATUS_OPTIONS = ["active", "blocked"] as const;
 export const EMERGENCY_LEVEL_OPTIONS = ["normal", "urgent", "critical"] as const;
-export const GENDER_OPTIONS = ["male", "female", "other"] as const;
 
 export type BloodGroup = (typeof BLOOD_GROUP_OPTIONS)[number];
 export type RecipientStatus = (typeof RECIPIENT_STATUS_OPTIONS)[number];
 export type EmergencyLevel = (typeof EMERGENCY_LEVEL_OPTIONS)[number];
-export type Gender = (typeof GENDER_OPTIONS)[number];
 
 export interface Recipient {
   id: number;
@@ -24,8 +22,6 @@ export interface Recipient {
   email: string | null;
   phone: string;
   required_blood_group: BloodGroup;
-  age: number;
-  gender: Gender;
   hospital: number;
   hospital_name: string;
   hospital_phone: string | null;
@@ -59,8 +55,6 @@ export interface RecipientPayload {
   email?: string | null;
   phone: string;
   required_blood_group: BloodGroup;
-  age: number;
-  gender: Gender;
   hospital: number;
   emergency_level: EmergencyLevel;
   status: RecipientStatus;

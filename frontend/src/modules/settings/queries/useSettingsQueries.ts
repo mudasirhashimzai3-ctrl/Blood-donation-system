@@ -4,11 +4,14 @@ import { toast } from "sonner";
 import { extractAxiosError } from "@/utils/extractError";
 import { settingsService } from "../services/settingsService";
 import type {
+  ChangePasswordPayload,
   GeneralSettings,
   LocalizationSettings,
   NotificationSettings,
+  RolePermissionMatrixPayload,
   SecuritySettings,
   SettingsSection,
+  UserRoleSettings,
 } from "../types/settings.types";
 import { settingsKeys } from "./settingsKeys";
 
@@ -40,6 +43,18 @@ export const useSecuritySettings = () =>
   useQuery({
     queryKey: settingsKeys.section("security"),
     queryFn: () => settingsService.getSecurity().then((res) => res.data),
+  });
+
+export const useUserRoleSettings = () =>
+  useQuery({
+    queryKey: settingsKeys.section("user_roles"),
+    queryFn: () => settingsService.getUserRoles().then((res) => res.data),
+  });
+
+export const useRolePermissionMatrix = () =>
+  useQuery({
+    queryKey: settingsKeys.rolePermissions(),
+    queryFn: () => settingsService.getUserRolePermissions().then((res) => res.data),
   });
 
 export const useScaffoldSettingsSection = (section: SettingsSection, endpoint: string) =>
@@ -143,6 +158,52 @@ export const useUpdateSecuritySettings = () => {
     },
   });
 };
+
+export const useUpdateUserRoleSettings = () => {
+  const invalidate = useInvalidateSettings();
+
+  return useMutation({
+    mutationFn: (payload: Partial<UserRoleSettings>) =>
+      settingsService.updateUserRoles(payload).then((res) => res.data),
+    onSuccess: () => {
+      toast.success("Role policy settings saved");
+      invalidate("user_roles");
+    },
+    onError: (error) => {
+      toast.error(extractAxiosError(error, "Failed to save role policy settings"));
+    },
+  });
+};
+
+export const useUpdateRolePermissionMatrix = () => {
+  const queryClient = useQueryClient();
+  const invalidate = useInvalidateSettings();
+
+  return useMutation({
+    mutationFn: (payload: RolePermissionMatrixPayload) =>
+      settingsService.updateUserRolePermissions(payload).then((res) => res.data),
+    onSuccess: () => {
+      toast.success("Role permission matrix saved");
+      queryClient.invalidateQueries({ queryKey: settingsKeys.rolePermissions() });
+      invalidate("user_roles");
+    },
+    onError: (error) => {
+      toast.error(extractAxiosError(error, "Failed to save role permission matrix"));
+    },
+  });
+};
+
+export const useChangeMyPassword = () =>
+  useMutation({
+    mutationFn: (payload: ChangePasswordPayload) =>
+      settingsService.changeMyPassword(payload).then((res) => res.data),
+    onSuccess: () => {
+      toast.success("Password changed successfully");
+    },
+    onError: (error) => {
+      toast.error(extractAxiosError(error, "Failed to change password"));
+    },
+  });
 
 export const useSettingsAuditLogs = (params?: {
   section?: string;

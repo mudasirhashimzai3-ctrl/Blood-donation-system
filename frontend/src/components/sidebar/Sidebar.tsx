@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { HeartPulse, X } from "lucide-react";
 import SidebarItem from "./SidebarItem";
 import SidebarToggle from "./SidebarToggle";
 import { useSidebarState } from "./useSidebarState";
@@ -5,8 +7,19 @@ import { sidebarNavigationData } from "./sidebarData";
 import useCan from "@/hooks/useCan";
 
 export function Sidebar() {
-  const { isCollapsed, isMobileOpen, closeMobile, toggleMobile } = useSidebarState();
+  const { isCollapsed, isMobileOpen, closeMobile } = useSidebarState();
   const { can } = useCan();
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        closeMobile();
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [closeMobile]);
 
   const navigationItems = sidebarNavigationData.filter((item) => {
     if (item.path === "/notifications") {
@@ -23,63 +36,57 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile hamburger button - visible only on mobile/tablet */}
-      <button
-        onClick={toggleMobile}
-        className={`fixed left-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900 text-white shadow-lg lg:hidden transition-transform duration-300 ${
-          isMobileOpen ? "translate-x-64" : "translate-x-0"
-        }`}
-        aria-label="Open menu"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M4 6h16M4 12h16M4 18h16"
-          />
-        </svg>
-      </button>
-
-      {/* Mobile sidebar backdrop */}
-      {isMobileOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+      {isMobileOpen ? (
+        <button
+          type="button"
+          className="fixed inset-0 z-40 bg-slate-950/45 backdrop-blur-[1px] lg:hidden"
           onClick={closeMobile}
+          aria-label="Close sidebar backdrop"
         />
-      )}
+      ) : null}
 
-      {/* Sidebar */}
       <aside
-        className={`
-           left-0 top-0 z-50 h-full bg-slate-900 border-r border-white/10 transition-all duration-300 ease-in-out
-          ${isCollapsed ? "w-16" : "w-64"}
-          ${isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-        `}
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen shrink-0 flex-col border-r border-border/90 bg-[linear-gradient(135deg,rgba(249,226,231,0.97)_0%,rgba(230,235,250,0.96)_50%,rgba(219,242,236,0.95)_100%)] shadow-[0_24px_48px_-20px_rgba(15,23,42,0.55)] backdrop-blur transition-all duration-300 dark:bg-[linear-gradient(135deg,rgba(7,14,27,0.995)_0%,rgba(11,24,44,0.985)_52%,rgba(16,38,66,0.97)_100%)] lg:sticky lg:top-0 lg:z-30 lg:translate-x-0 ${
+          isCollapsed ? "w-25" : "w-67"
+        } ${isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
       >
-        {/* Header with logo and toggle */}
-        <div className="flex h-16 items-center justify-between border-b border-white/10 px-3">
-          {!isCollapsed && (
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <span className="text-white font-bold text-sm">BD</span>
-              </div>
-              <span className="text-white font-semibold text-sm">BloodDonate</span>
+        <div className="flex h-16 items-center justify-between border-b border-border/90 px-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary shadow-sm shadow-primary/20">
+              <HeartPulse className="h-5 w-5" />
             </div>
-          )}
-          {/* Desktop toggle - hidden on mobile */}
-          <div className="hidden lg:block">
-            <SidebarToggle />
+            {!isCollapsed && (
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-text-primary">
+                  Blood Donation
+                </p>
+                <p className="truncate text-xs text-text-secondary">
+                  Management System
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={closeMobile}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary lg:hidden"
+              aria-label="Close sidebar"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <SidebarToggle className="hidden lg:inline-flex" />
           </div>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-3 py-4">
+        <nav className="sidebar-scrollbar flex-1 overflow-y-auto px-3 py-4">
+          {!isCollapsed && (
+            <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-text-muted">
+              Navigation
+            </p>
+          )}
+
           <ul className="space-y-1">
             {navigationItems.map((item) => (
               <SidebarItem
@@ -95,27 +102,6 @@ export function Sidebar() {
           </ul>
         </nav>
 
-        {/* Mobile close button - visible only on mobile */}
-        <button
-          onClick={closeMobile}
-          className="absolute -right-10 top-4 flex h-8 w-8 items-center justify-center rounded-r-lg bg-slate-800 text-white lg:hidden"
-          aria-label="Close menu"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
       </aside>
     </>
   );

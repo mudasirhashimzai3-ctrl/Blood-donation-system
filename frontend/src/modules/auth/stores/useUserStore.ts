@@ -7,6 +7,7 @@ import type { Theme } from "@/services/theme";
 import { extractAxiosError } from "@/utils/extractError";
 import type { Permission } from "@/data/permissions";
 import type { RoleName } from "@/data/roles";
+import { normalizeLanguageCode } from "@/utils/language";
 
 export type Branch = {
   id: string;
@@ -76,6 +77,14 @@ export type LoginCredentials = {
   password: string;
 };
 
+const normalizeUserProfileLanguage = (profile: UserProfile): UserProfile => ({
+  ...profile,
+  preferences: {
+    ...profile.preferences,
+    language: normalizeLanguageCode(profile.preferences?.language),
+  },
+});
+
 interface UserState {
   userProfile: UserProfile | null;
   loading: boolean;
@@ -141,7 +150,7 @@ export const useUserStore = create<UserState>()(
 
           // Reset login attempts on successful login
           set({
-            userProfile: response.data.user,
+            userProfile: normalizeUserProfileLanguage(response.data.user),
             loading: false,
             failedLoginAttempts: 0,
             accountLocked: false,
@@ -199,7 +208,10 @@ export const useUserStore = create<UserState>()(
         set({ loading: true, error: null });
         try {
           const response = await apiClient.get("/accounts/users/me");
-          set({ userProfile: response.data, loading: false });
+          set({
+            userProfile: normalizeUserProfileLanguage(response.data),
+            loading: false,
+          });
         } catch (error) {
           const errorMessage = extractAxiosError(
             error,
@@ -214,7 +226,10 @@ export const useUserStore = create<UserState>()(
         set({ loading: true, error: null });
         try {
           const response = await apiClient.patch("/accounts/users/me/", data);
-          set({ userProfile: response.data, loading: false });
+          set({
+            userProfile: normalizeUserProfileLanguage(response.data),
+            loading: false,
+          });
         } catch (error) {
           const errorMessage = extractAxiosError(
             error,

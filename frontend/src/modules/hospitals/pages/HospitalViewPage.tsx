@@ -91,7 +91,7 @@ export default function HospitalViewPage() {
           <div className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-xl font-semibold text-text-primary">{hospital.name}</h2>
-              <p className="text-sm text-text-secondary">{hospital.city}</p>
+              <p className="text-sm text-text-secondary">{hospital.province}</p>
             </div>
             <HospitalStatusBadge isActive={hospital.is_active} />
           </div>
@@ -171,4 +171,3 @@ export default function HospitalViewPage() {
     </div>
   );
 }
-

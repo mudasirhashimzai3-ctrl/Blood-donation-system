@@ -36,14 +36,13 @@ export default function DonorEditPage() {
     await updateMutation.mutateAsync({
       ...values,
       email: emptyToNull(values.email),
+      age: emptyToNull(values.age),
       date_of_birth: emptyToNull(values.date_of_birth),
-      address: emptyToNull(values.address),
-      emergency_contact_name: emptyToNull(values.emergency_contact_name),
-      emergency_contact_phone: emptyToNull(values.emergency_contact_phone),
+      permanent_address: emptyToNull(values.permanent_address),
+      local_address: emptyToNull(values.local_address),
       last_donation_date: emptyToNull(values.last_donation_date),
       latitude: emptyToNull(values.latitude),
       longitude: emptyToNull(values.longitude),
-      notes: emptyToNull(values.notes),
     });
     navigate(`/donors/${donorId}`);
   };

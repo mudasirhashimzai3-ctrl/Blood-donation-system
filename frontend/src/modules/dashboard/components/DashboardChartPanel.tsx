@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
+﻿import type { ReactNode } from "react";
 
-import { Card, CardContent, CardHeader } from "@/components/ui";
+import { Card } from "@/components/ui";
 
 interface DashboardChartPanelProps {
   title: string;
@@ -10,9 +10,15 @@ interface DashboardChartPanelProps {
 
 export default function DashboardChartPanel({ title, subtitle, children }: DashboardChartPanelProps) {
   return (
-    <Card>
-      <CardHeader title={title} subtitle={subtitle} />
-      <CardContent className="h-72">{children}</CardContent>
+    <Card className="chart-container p-5">
+      <div className="chart-header mb-0">
+        <div>
+          <h3 className="chart-title">{title}</h3>
+          {subtitle ? <p className="mt-1 text-sm text-text-secondary">{subtitle}</p> : null}
+        </div>
+      </div>
+      <div className="min-h-0 flex-1">{children}</div>
     </Card>
   );
 }
+

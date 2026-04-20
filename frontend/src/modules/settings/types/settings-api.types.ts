@@ -9,6 +9,8 @@ import type {
   SecuritySettings,
   SettingsSection,
   UserRoleSettings,
+  RolePermissionMatrixRow,
+  RoleName,
 } from "./settings.types";
 
 export interface SectionEnvelope<TData> {
@@ -65,3 +67,10 @@ export type TestEmailPayload = {
 export type TestSmsPayload = {
   phone?: string;
 };
+
+export interface RolePermissionMatrixResponse {
+  roles: RoleName[];
+  modules: string[];
+  actions: string[];
+  matrix: RolePermissionMatrixRow[];
+}

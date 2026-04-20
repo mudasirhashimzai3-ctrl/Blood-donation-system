@@ -24,14 +24,13 @@ export interface Donor {
   status: DonorStatus;
   profile_picture: string | null;
   profile_picture_url: string | null;
+  age: number | null;
   latitude: string | null;
   longitude: string | null;
   date_of_birth: string | null;
-  address: string | null;
-  emergency_contact_name: string | null;
-  emergency_contact_phone: string | null;
+  permanent_address: string | null;
+  local_address: string | null;
   last_donation_date: string | null;
-  notes: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -59,14 +58,13 @@ export interface DonorPayload {
   status: DonorStatus;
   profile_picture?: File | null;
   remove_profile_picture?: boolean;
+  age?: number | string | null;
   latitude?: string | null;
   longitude?: string | null;
   date_of_birth?: string | null;
-  address?: string | null;
-  emergency_contact_name?: string | null;
-  emergency_contact_phone?: string | null;
+  permanent_address?: string | null;
+  local_address?: string | null;
   last_donation_date?: string | null;
-  notes?: string | null;
 }
 
 export interface DonorQueryParams {

@@ -63,23 +63,22 @@ export default function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4"
+      className="modal-overlay"
+      data-state="open"
       onClick={handleOverlayClick}
     >
-      {/* Overlay */}
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" />
-
       {/* Modal */}
       <div
         ref={modalRef}
-        className={`relative w-full ${sizes[size]} animate-scale-in rounded-xl bg-card shadow-2xl`}
+        className={`modal-content relative ${sizes[size]} animate-scale-in`}
+        data-state="open"
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? "modal-title" : undefined}
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-start justify-between border-b border-border p-6">
+          <div className="modal-header">
             <div>
               {title && (
                 <h2
@@ -95,8 +94,9 @@ export default function Modal({
             </div>
             {showCloseButton && (
               <button
+                type="button"
                 onClick={onClose}
-                className="rounded-lg p-1 text-muted transition-colors hover:bg-surface-hover hover:text-text-primary"
+                className="btn-icon"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -105,11 +105,11 @@ export default function Modal({
         )}
 
         {/* Content */}
-        <div className="p-6">{children}</div>
+        <div className="modal-body">{children}</div>
 
         {/* Footer */}
         {footer && (
-          <div className="flex items-center justify-end gap-3 border-t border-border p-6">
+          <div className="modal-footer">
             {footer}
           </div>
         )}

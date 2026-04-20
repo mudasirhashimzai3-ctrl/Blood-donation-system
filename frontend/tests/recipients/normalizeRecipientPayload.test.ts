@@ -9,11 +9,9 @@ describe("normalizeRecipientPayload", () => {
       email: "  ",
       phone: " 0700000001 ",
       required_blood_group: "O+",
-      age: 22,
-      gender: "male",
       hospital: 2,
       emergency_level: "normal",
-      status: "pending",
+      status: "active",
     });
 
     expect(payload.full_name).toBe("Ahmad Khan");
@@ -21,4 +19,3 @@ describe("normalizeRecipientPayload", () => {
     expect(payload.email).toBeNull();
   });
 });
-

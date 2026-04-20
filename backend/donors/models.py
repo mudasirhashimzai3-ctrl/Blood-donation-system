@@ -25,10 +25,11 @@ class Donor(BaseModel):
 
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    phone = models.CharField(max_length=20)
+    phone = models.CharField(max_length=10)
     email = models.EmailField(null=True, blank=True)
     blood_group = models.CharField(max_length=3, choices=BLOOD_GROUP_CHOICES)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    age = models.PositiveSmallIntegerField(null=True, blank=True)
     profile_picture = models.ImageField(
         upload_to=donor_profile_picture_upload_path,
         null=True,
@@ -37,11 +38,9 @@ class Donor(BaseModel):
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
-    address = models.TextField(null=True, blank=True)
-    emergency_contact_name = models.CharField(max_length=150, null=True, blank=True)
-    emergency_contact_phone = models.CharField(max_length=20, null=True, blank=True)
+    permanent_address = models.TextField(null=True, blank=True)
+    local_address = models.TextField(null=True, blank=True)
     last_donation_date = models.DateField(null=True, blank=True)
-    notes = models.TextField(null=True, blank=True)
 
     class Meta:
         db_table = "donors"
@@ -50,7 +49,7 @@ class Donor(BaseModel):
             models.Index(fields=["blood_group"]),
             models.Index(fields=["last_name"]),
             models.Index(fields=["phone"]),
-            models.Index(fields=["emergency_contact_phone"], name="donors_emergency_phone_idx"),
+            models.Index(fields=["age"]),
             models.Index(fields=["latitude"]),
             models.Index(fields=["longitude"]),
         ]

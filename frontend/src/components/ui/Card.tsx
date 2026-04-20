@@ -14,23 +14,23 @@ export function Card({
   children,
   ...props
 }: CardProps) {
-  const baseStyles = "rounded-xl transition-all duration-200";
+  const baseStyles = "blood-card";
 
   const variants = {
-    default: "bg-card border border-border",
-    outlined: "bg-transparent border-2 border-border",
-    elevated: "bg-card shadow-lg",
+    default: "",
+    outlined: "bg-transparent border border-border shadow-none",
+    elevated: "shadow-lg",
   };
 
   const paddings = {
-    none: "",
+    none: "p-0",
     sm: "p-4",
     md: "p-6",
     lg: "p-8",
   };
 
   const hoverStyles = hover
-    ? "hover:shadow-lg hover:border-primary/30 cursor-pointer"
+    ? "cursor-pointer hover:border-border-strong hover:shadow-md"
     : "";
 
   return (

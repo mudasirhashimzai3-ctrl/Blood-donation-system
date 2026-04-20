@@ -26,9 +26,9 @@ export default function PageHeader({
       {breadcrumb && <div className="mb-2">{breadcrumb}</div>}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">{title}</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-text-primary">{title}</h1>
           {subtitle && (
-            <p className="mt-1 text-sm text-text-secondary">{subtitle}</p>
+            <p className="mt-1 max-w-2xl text-sm text-text-secondary">{subtitle}</p>
           )}
         </div>
         {actions && actions.length > 0 && (

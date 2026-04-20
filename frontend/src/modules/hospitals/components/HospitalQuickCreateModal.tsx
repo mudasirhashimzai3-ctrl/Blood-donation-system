@@ -1,16 +1,18 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
-import { Button, Input, Modal } from "@components/ui";
+import { Button, Input, Modal, Select } from "@components/ui";
 import { hospitalFormSchema, type HospitalFormValues } from "../schemas/hospitalSchemas";
 import { useCreateHospital } from "../queries/useHospitalQueries";
-import type { Hospital } from "../types/hospital.types";
+import { AFGHANISTAN_PROVINCES, type Hospital, type Province } from "../types/hospital.types";
 
 interface HospitalQuickCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreated: (hospital: Hospital) => void;
+  province?: Province | "";
 }
 
 const emptyToNull = (value?: string) => {
@@ -22,6 +24,7 @@ export default function HospitalQuickCreateModal({
   isOpen,
   onClose,
   onCreated,
+  province = "",
 }: HospitalQuickCreateModalProps) {
   const { t } = useTranslation();
   const createHospital = useCreateHospital();
@@ -32,7 +35,7 @@ export default function HospitalQuickCreateModal({
       phone: "",
       email: "",
       address: "",
-      city: "",
+      province: province || "Kabul",
       latitude: "",
       longitude: "",
       is_active: true,
@@ -46,13 +49,28 @@ export default function HospitalQuickCreateModal({
     formState: { errors },
   } = form;
 
+  useEffect(() => {
+    if (!isOpen) return;
+    reset({
+      name: "",
+      phone: "",
+      email: "",
+      address: "",
+      province: province || "Kabul",
+      latitude: "",
+      longitude: "",
+      is_active: true,
+    });
+  }, [isOpen, province, reset]);
+
   const onSubmit = async (values: HospitalFormValues) => {
     const hospital = await createHospital.mutateAsync({
       name: values.name.trim(),
       phone: emptyToNull(values.phone),
       email: emptyToNull(values.email),
       address: emptyToNull(values.address),
-      city: values.city.trim(),
+      province: values.province,
+      city: values.province,
       latitude: emptyToNull(values.latitude),
       longitude: emptyToNull(values.longitude),
       is_active: true,
@@ -95,7 +113,12 @@ export default function HospitalQuickCreateModal({
           error={errors.email?.message}
           {...register("email")}
         />
-        <Input label={t("hospitals.form.city", "City")} error={errors.city?.message} {...register("city")} />
+        <Select
+          label={t("hospitals.form.province", "Province")}
+          error={errors.province?.message}
+          options={AFGHANISTAN_PROVINCES.map((value) => ({ value, label: value }))}
+          {...register("province")}
+        />
         <Input
           label={t("hospitals.form.address", "Address")}
           error={errors.address?.message}
@@ -113,4 +136,3 @@ export default function HospitalQuickCreateModal({
     </Modal>
   );
 }
-

@@ -1,11 +1,13 @@
-import { Droplets, HandHeart, HeartPulse, Users } from "lucide-react";
+﻿import { Droplets, HandHeart, HeartPulse, Users } from "lucide-react";
 
 import { DashboardCard } from "@/components";
-import { Card, CardContent } from "@/components/ui";
 import type { DashboardKpis } from "../types/dashboard.types";
+
+type DashboardKpiGridState = "ready" | "loading" | "error";
 
 interface DashboardKpiGridProps {
   kpis: DashboardKpis;
+  state?: DashboardKpiGridState;
   onTotalDonorsClick: () => void;
   onTotalRecipientsClick: () => void;
   onActiveRequestsClick: () => void;
@@ -16,6 +18,7 @@ const formatValue = (value: number) => new Intl.NumberFormat().format(value);
 
 export default function DashboardKpiGrid({
   kpis,
+  state = "ready",
   onTotalDonorsClick,
   onTotalRecipientsClick,
   onActiveRequestsClick,
@@ -28,7 +31,6 @@ export default function DashboardKpiGrid({
       icon: Users,
       color: "primary" as const,
       onClick: onTotalDonorsClick,
-      emptyHint: "Donor metrics are unavailable for your current permissions.",
     },
     {
       title: "Total Recipients",
@@ -36,7 +38,6 @@ export default function DashboardKpiGrid({
       icon: HeartPulse,
       color: "info" as const,
       onClick: onTotalRecipientsClick,
-      emptyHint: "Recipient metrics are unavailable for your current permissions.",
     },
     {
       title: "Active Requests",
@@ -44,7 +45,6 @@ export default function DashboardKpiGrid({
       icon: Droplets,
       color: "warning" as const,
       onClick: onActiveRequestsClick,
-      emptyHint: "Active request metrics are unavailable for your current permissions.",
     },
     {
       title: "Completed Donations",
@@ -52,32 +52,38 @@ export default function DashboardKpiGrid({
       icon: HandHeart,
       color: "success" as const,
       onClick: onCompletedDonationsClick,
-      emptyHint: "Donation metrics are unavailable for your current permissions.",
     },
   ];
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {items.map((item) =>
-        item.data ? (
-          <button key={item.title} type="button" className="text-left" onClick={item.onClick}>
-            <DashboardCard
-              title={item.title}
-              value={formatValue(item.data.value)}
-              icon={item.icon}
-              color={item.color}
-              subtitle="Click to view details"
-            />
+      {items.map((item) => {
+        const hasData = item.data !== null;
+        const isAvailable = hasData && state === "ready";
+        const subtitle =
+          state === "loading"
+            ? "Loading metrics..."
+            : state === "error"
+              ? "Data unavailable"
+              : isAvailable
+                ? "Click to view details"
+                : "Restricted";
+        const value = isAvailable && item.data ? formatValue(item.data.value) : "-";
+
+        return (
+          <button
+            key={item.title}
+            type="button"
+            className="text-left disabled:cursor-default disabled:opacity-100"
+            onClick={item.onClick}
+            disabled={!isAvailable}
+            aria-disabled={!isAvailable}
+          >
+            <DashboardCard title={item.title} value={value} icon={item.icon} color={item.color} subtitle={subtitle} />
           </button>
-        ) : (
-          <Card key={item.title} variant="outlined" className="border-warning/40 bg-warning-soft/30">
-            <CardContent className="mt-0 space-y-2">
-              <p className="text-sm font-semibold text-text-primary">{item.title}</p>
-              <p className="text-xs text-text-secondary">{item.emptyHint}</p>
-            </CardContent>
-          </Card>
-        )
-      )}
+        );
+      })}
     </div>
   );
 }
+

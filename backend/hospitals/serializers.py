@@ -11,6 +11,7 @@ class HospitalListSerializer(serializers.ModelSerializer):
             "name",
             "phone",
             "email",
+            "province",
             "city",
             "is_active",
             "created_at",
@@ -26,6 +27,7 @@ class HospitalDetailSerializer(serializers.ModelSerializer):
             "phone",
             "email",
             "address",
+            "province",
             "city",
             "latitude",
             "longitude",
@@ -33,6 +35,10 @@ class HospitalDetailSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+        extra_kwargs = {
+            "province": {"required": False},
+            "city": {"required": False, "allow_blank": True},
+        }
         read_only_fields = ["id", "created_at", "updated_at"]
 
     def validate_name(self, value):
@@ -51,7 +57,17 @@ class HospitalDetailSerializer(serializers.ModelSerializer):
             return None
         return value.strip().lower()
 
+    def validate_province(self, value):
+        if not value:
+            return value
+        normalized = value.strip()
+        if len(normalized) < 2:
+            raise serializers.ValidationError("Province must be at least 2 characters.")
+        return normalized
+
     def validate_city(self, value):
+        if not value:
+            return value
         normalized = value.strip()
         if len(normalized) < 2:
             raise serializers.ValidationError("City must be at least 2 characters.")
@@ -66,6 +82,19 @@ class HospitalDetailSerializer(serializers.ModelSerializer):
         attrs = super().validate(attrs)
         errors = {}
 
+        province = attrs.get("province")
+        city = attrs.get("city")
+        province_provided = bool(province)
+        city_provided = bool(city)
+
+        if province_provided:
+            attrs["city"] = province
+        elif city_provided:
+            attrs["province"] = city
+        elif self.instance is None:
+            attrs["province"] = "Kabul"
+            attrs["city"] = "Kabul"
+
         latitude = attrs.get("latitude", getattr(self.instance, "latitude", None))
         longitude = attrs.get("longitude", getattr(self.instance, "longitude", None))
 
@@ -79,4 +108,3 @@ class HospitalDetailSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(errors)
 
         return attrs
-

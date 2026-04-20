@@ -88,10 +88,10 @@ export const useSidebarState = create<SidebarState>()(
         })),
     }),
     {
-      name: "sidebar-state",
-      // Persist collapse and expanded state
+      // v2 key intentionally resets historical collapsed state so desktop starts expanded
+      name: "sidebar-state-v2",
+      // Persist only expanded sub-menu sections
       partialize: (state) => ({
-        isCollapsed: state.isCollapsed,
         expandedItems: state.expandedItems,
       }),
     }

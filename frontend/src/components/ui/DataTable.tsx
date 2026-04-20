@@ -162,7 +162,7 @@ export default function DataTable<T extends Record<string, any>>({
 
   if (loading) {
     return (
-      <div className={`rounded-xl border border-border bg-card ${className}`}>
+      <div className={`table-container ${className}`}>
         <div className="space-y-4 p-6">
           <Skeleton height={40} />
           {Array.from({ length: 5 }).map((_, i) => (
@@ -180,7 +180,7 @@ export default function DataTable<T extends Record<string, any>>({
   }
 
   return (
-    <div className={`rounded-xl border border-border bg-card ${className}`}>
+    <div className={`table-container ${className}`}>
       {/* Search */}
       {searchable && (
         <div className="border-b border-border p-4">
@@ -199,12 +199,11 @@ export default function DataTable<T extends Record<string, any>>({
       )}
 
       {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-border bg-surface">
+      <table className="blood-table">
+        <thead className="table-header">
+          <tr>
               {selectable && (
-                <th className="w-12 px-4 py-3">
+                <th className="w-12">
                   <input
                     type="checkbox"
                     checked={
@@ -219,7 +218,7 @@ export default function DataTable<T extends Record<string, any>>({
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className={`px-4 py-3 text-left text-sm font-semibold text-text-primary ${
+                  className={`${
                     column.sortable ? "cursor-pointer select-none" : ""
                   }`}
                   style={{ width: column.width }}
@@ -231,56 +230,55 @@ export default function DataTable<T extends Record<string, any>>({
                   </div>
                 </th>
               ))}
+          </tr>
+        </thead>
+        <tbody>
+          {paginatedData.length === 0 ? (
+            <tr className="table-row">
+              <td
+                colSpan={columns.length + (selectable ? 1 : 0)}
+                className="table-cell py-12 text-center text-text-secondary"
+              >
+                {emptyMessage}
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {paginatedData.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={columns.length + (selectable ? 1 : 0)}
-                  className="px-4 py-12 text-center text-text-secondary"
-                >
-                  {emptyMessage}
-                </td>
+          ) : (
+            paginatedData.map((row, index) => (
+              <tr
+                key={getRowKey ? getRowKey(row) : index}
+                className={`table-row ${
+                  onRowClick ? "cursor-pointer" : ""
+                } ${isRowSelected(row) ? "bg-primary/10" : ""}`}
+                onClick={() => onRowClick?.(row)}
+              >
+                {selectable && (
+                  <td
+                    className="table-cell"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isRowSelected(row)}
+                      onChange={() => handleSelectRow(row)}
+                      className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                    />
+                  </td>
+                )}
+                {columns.map((column) => (
+                  <td
+                    key={column.key}
+                    className="table-cell"
+                  >
+                    {column.render
+                      ? column.render(row, index)
+                      : (row[column.key] as ReactNode)}
+                  </td>
+                ))}
               </tr>
-            ) : (
-              paginatedData.map((row, index) => (
-                <tr
-                  key={getRowKey ? getRowKey(row) : index}
-                  className={`border-b border-border transition-colors last:border-0 ${
-                    onRowClick ? "cursor-pointer hover:bg-surface-hover" : ""
-                  } ${isRowSelected(row) ? "bg-primary/5" : ""}`}
-                  onClick={() => onRowClick?.(row)}
-                >
-                  {selectable && (
-                    <td
-                      className="px-4 py-3"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isRowSelected(row)}
-                        onChange={() => handleSelectRow(row)}
-                        className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
-                      />
-                    </td>
-                  )}
-                  {columns.map((column) => (
-                    <td
-                      key={column.key}
-                      className="px-4 py-3 text-sm text-text-primary"
-                    >
-                      {column.render
-                        ? column.render(row, index)
-                        : (row[column.key] as ReactNode)}
-                    </td>
-                  ))}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+            ))
+          )}
+        </tbody>
+      </table>
 
       {/* Pagination */}
       {pagination && totalPages > 1 && (
@@ -294,7 +292,7 @@ export default function DataTable<T extends Record<string, any>>({
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-icon disabled:cursor-not-allowed disabled:opacity-50"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -317,7 +315,7 @@ export default function DataTable<T extends Record<string, any>>({
                   className={`h-8 w-8 rounded-lg text-sm font-medium transition-colors ${
                     currentPage === pageNum
                       ? "bg-primary text-white"
-                      : "text-text-secondary hover:bg-surface-hover"
+                      : "text-text-secondary hover:bg-surface"
                   }`}
                 >
                   {pageNum}
@@ -327,7 +325,7 @@ export default function DataTable<T extends Record<string, any>>({
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-icon disabled:cursor-not-allowed disabled:opacity-50"
             >
               <ChevronRight className="h-4 w-4" />
             </button>

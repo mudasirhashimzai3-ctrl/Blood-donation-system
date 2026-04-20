@@ -5,6 +5,8 @@ export const settingsKeys = {
   overview: () => [...settingsKeys.all, "overview"] as const,
   sections: () => [...settingsKeys.all, "sections"] as const,
   section: (section: SettingsSection) => [...settingsKeys.sections(), section] as const,
+  rolePermissions: () => [...settingsKeys.all, "rolePermissions"] as const,
+  changePassword: () => [...settingsKeys.all, "changePassword"] as const,
   audit: () => [...settingsKeys.all, "audit"] as const,
   auditList: (params?: Record<string, unknown>) => [...settingsKeys.audit(), params] as const,
 };

@@ -11,6 +11,8 @@ class CoreConfig(AppConfig):
         Import signal handlers when the app is ready
         """
         try:
+            from core.compat import patch_django_context_copy
+            patch_django_context_copy()
             import core.signals
         except ImportError:
             pass

@@ -6,6 +6,7 @@ from rest_framework.test import APITestCase
 
 from accounts.models import RolePermission, User
 from core.models import Permission
+from core.models import SettingAuditLog
 
 
 class SettingsApiTests(APITestCase):
@@ -106,6 +107,102 @@ class SettingsApiTests(APITestCase):
             format="json",
         )
         self.assertEqual(update_response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_user_roles_defaults_when_empty(self):
+        self.client.force_authenticate(self.admin)
+        response = self.client.get(f"{self.base_url}user-roles/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("allow_user_invite", response.data)
+        self.assertIn(response.data["default_new_user_role"], {"admin", "receptionist", "viewer"})
+
+    def test_admin_can_update_user_roles_and_writes_audit_log(self):
+        self.client.force_authenticate(self.admin)
+        payload = {
+            "allow_user_invite": False,
+            "default_new_user_role": "receptionist",
+            "allow_role_editing": True,
+        }
+        response = self.client.put(f"{self.base_url}user-roles/", payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data["allow_user_invite"])
+        self.assertEqual(response.data["default_new_user_role"], "receptionist")
+
+        self.assertTrue(SettingAuditLog.objects.filter(section="user_roles").exists())
+
+    def test_get_user_role_permission_matrix(self):
+        self.client.force_authenticate(self.admin)
+        response = self.client.get(f"{self.base_url}user-roles/permissions/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("roles", response.data)
+        self.assertIn("modules", response.data)
+        self.assertIn("actions", response.data)
+        self.assertIn("matrix", response.data)
+        self.assertIn("admin", response.data["roles"])
+        self.assertIn("settings", response.data["modules"])
+
+    def test_admin_can_update_role_permission_matrix(self):
+        self.client.force_authenticate(self.admin)
+        payload = {
+            "matrix": [
+                {"role_name": "admin", "module": "settings", "actions": ["view", "change"]},
+                {"role_name": "admin", "module": "users", "actions": ["view", "add", "change", "delete"]},
+                {"role_name": "receptionist", "module": "settings", "actions": ["view"]},
+            ]
+        }
+        response = self.client.put(
+            f"{self.base_url}user-roles/permissions/",
+            payload,
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        matrix = response.data["matrix"]
+        users_row = next((item for item in matrix if item["role_name"] == "admin" and item["module"] == "users"), None)
+        self.assertIsNotNone(users_row)
+        self.assertIn("delete", users_row["actions"])
+
+    def test_reject_invalid_role_permission_payload(self):
+        self.client.force_authenticate(self.admin)
+        payload = {
+            "matrix": [
+                {"role_name": "invalid-role", "module": "settings", "actions": ["view", "change"]},
+            ]
+        }
+        response = self.client.put(
+            f"{self.base_url}user-roles/permissions/",
+            payload,
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_non_admin_cannot_update_user_role_permissions(self):
+        self.client.force_authenticate(self.receptionist)
+        payload = {
+            "matrix": [
+                {"role_name": "admin", "module": "settings", "actions": ["view", "change"]},
+            ]
+        }
+        response = self.client.put(
+            f"{self.base_url}user-roles/permissions/",
+            payload,
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_guardrail_prevents_removing_admin_settings_permissions(self):
+        self.client.force_authenticate(self.admin)
+        payload = {
+            "matrix": [
+                {"role_name": "admin", "module": "settings", "actions": ["view"]},
+            ]
+        }
+        response = self.client.put(
+            f"{self.base_url}user-roles/permissions/",
+            payload,
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("matrix", response.data)
 
     @patch("django.core.mail.send_mail")
     def test_test_email_endpoint(self, send_mail_mock):

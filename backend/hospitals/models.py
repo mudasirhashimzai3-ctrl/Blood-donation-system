@@ -5,10 +5,48 @@ from core.base_models import BaseModel
 
 
 class Hospital(BaseModel):
+    PROVINCE_CHOICES = [
+        ("Badakhshan", "Badakhshan"),
+        ("Badghis", "Badghis"),
+        ("Baghlan", "Baghlan"),
+        ("Balkh", "Balkh"),
+        ("Bamyan", "Bamyan"),
+        ("Daykundi", "Daykundi"),
+        ("Farah", "Farah"),
+        ("Faryab", "Faryab"),
+        ("Ghazni", "Ghazni"),
+        ("Ghor", "Ghor"),
+        ("Helmand", "Helmand"),
+        ("Herat", "Herat"),
+        ("Jowzjan", "Jowzjan"),
+        ("Kabul", "Kabul"),
+        ("Kandahar", "Kandahar"),
+        ("Kapisa", "Kapisa"),
+        ("Khost", "Khost"),
+        ("Kunar", "Kunar"),
+        ("Kunduz", "Kunduz"),
+        ("Laghman", "Laghman"),
+        ("Logar", "Logar"),
+        ("Nangarhar", "Nangarhar"),
+        ("Nimroz", "Nimroz"),
+        ("Nuristan", "Nuristan"),
+        ("Paktia", "Paktia"),
+        ("Paktika", "Paktika"),
+        ("Panjshir", "Panjshir"),
+        ("Parwan", "Parwan"),
+        ("Samangan", "Samangan"),
+        ("Sar-e Pol", "Sar-e Pol"),
+        ("Takhar", "Takhar"),
+        ("Urozgan", "Urozgan"),
+        ("Wardak", "Wardak"),
+        ("Zabul", "Zabul"),
+    ]
+
     name = models.CharField(max_length=200)
     phone = models.CharField(max_length=20, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     address = models.TextField(null=True, blank=True)
+    province = models.CharField(max_length=50, choices=PROVINCE_CHOICES, default="Kabul")
     city = models.CharField(max_length=100)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
@@ -18,6 +56,7 @@ class Hospital(BaseModel):
         db_table = "hospitals"
         indexes = [
             models.Index(fields=["name"]),
+            models.Index(fields=["province"]),
             models.Index(fields=["city"]),
             models.Index(fields=["phone"]),
             models.Index(fields=["email"]),
@@ -43,4 +82,3 @@ class Hospital(BaseModel):
 
     def __str__(self):
         return self.name
-

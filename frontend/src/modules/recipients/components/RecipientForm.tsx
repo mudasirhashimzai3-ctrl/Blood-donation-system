@@ -8,7 +8,6 @@ import { type RecipientFormValues } from "../schemas/recipientSchemas";
 import {
   BLOOD_GROUP_OPTIONS,
   EMERGENCY_LEVEL_OPTIONS,
-  GENDER_OPTIONS,
   RECIPIENT_STATUS_OPTIONS,
 } from "../types/recipient.types";
 
@@ -64,29 +63,11 @@ export default function RecipientForm({
           error={errors.phone?.message}
           {...register("phone")}
         />
-        <Input
-          type="number"
-          label={t("recipients.form.age", "Age")}
-          error={errors.age?.message}
-          {...register("age", { valueAsNumber: true })}
-        />
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
         <Select
           label={t("recipients.form.requiredBloodGroup", "Required Blood Group")}
           error={errors.required_blood_group?.message}
           options={BLOOD_GROUP_OPTIONS.map((group) => ({ value: group, label: group }))}
           {...register("required_blood_group")}
-        />
-        <Select
-          label={t("recipients.form.gender", "Gender")}
-          error={errors.gender?.message}
-          options={GENDER_OPTIONS.map((gender) => ({
-            value: gender,
-            label: t(`recipients.gender.${gender}`, gender),
-          }))}
-          {...register("gender")}
         />
       </div>
 

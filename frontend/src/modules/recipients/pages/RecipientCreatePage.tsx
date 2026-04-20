@@ -23,16 +23,18 @@ export default function RecipientCreatePage() {
 
   if (!can("recipients")) {
     return (
-      <Card>
-        <CardContent className="text-sm text-error">
-          {t("recipients.errors.noPermission", "You do not have permission to access recipients.")}
-        </CardContent>
-      </Card>
+      <div className="recipient-theme" data-testid="recipient-page-root">
+        <Card>
+          <CardContent className="text-sm text-error">
+            {t("recipients.errors.noPermission", "You do not have permission to access recipients.")}
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="recipient-theme space-y-6" data-testid="recipient-page-root">
       <PageHeader
         title={t("recipients.create.title", "Create Recipient")}
         subtitle={t("recipients.create.subtitle", "Add a new recipient record")}
@@ -52,4 +54,3 @@ export default function RecipientCreatePage() {
     </div>
   );
 }
-

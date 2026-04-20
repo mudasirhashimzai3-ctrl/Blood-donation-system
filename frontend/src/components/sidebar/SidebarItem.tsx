@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import { useState, useRef, useEffect, type MouseEvent as ReactMouseEvent } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ChevronDown, ChevronRight, type LucideIcon } from "lucide-react";
+import { ChevronDown, type LucideIcon } from "lucide-react";
 import { useSidebarState, type SubNavItem } from "./useSidebarState";
 
 export interface SidebarItemProps {
@@ -26,229 +26,268 @@ export default function SidebarItem({
   divider = false,
 }: SidebarItemProps) {
   const { t } = useTranslation();
-  const { isCollapsed, expandedItems, toggleItem } = useSidebarState();
-  const [isExpanded, setIsExpanded] = useState(expandedItems.includes(path));
-  const [showPopover, setShowPopover] = useState(false);
-  const popoverRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLAnchorElement>(null);
+  const location = useLocation();
+  const { isCollapsed, expandedItems, toggleItem, closeMobile } =
+    useSidebarState();
+  const [isFlyoutOpen, setIsFlyoutOpen] = useState(false);
+  const flyoutRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLAnchorElement>(null);
 
-  const hasSubItems = subItems && subItems.length > 0;
+  const hasSubItems = Boolean(subItems?.length);
+  const isExpanded = expandedItems.includes(path);
+  const translatedLabel = t(
+    `mis.nav.${label.toLowerCase().replace(/\s+/g, "")}`,
+    label
+  );
 
-  // Close popover when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        popoverRef.current &&
-        buttonRef.current &&
-        !popoverRef.current.contains(event.target as Node) &&
-        !buttonRef.current.contains(event.target as Node)
+        flyoutRef.current &&
+        triggerRef.current &&
+        !flyoutRef.current.contains(event.target as Node) &&
+        !triggerRef.current.contains(event.target as Node)
       ) {
-        setShowPopover(false);
+        setIsFlyoutOpen(false);
       }
     };
 
-    if (showPopover) {
+    if (isFlyoutOpen) {
       document.addEventListener("mousedown", handleClickOutside);
       return () => document.removeEventListener("mousedown", handleClickOutside);
     }
-  }, [showPopover]);
+  }, [isFlyoutOpen]);
 
-  const handleToggle = (e: React.MouseEvent) => {
+  useEffect(() => {
+    setIsFlyoutOpen(false);
+  }, [location.pathname, isCollapsed]);
+
+  const handleToggle = (event: ReactMouseEvent<HTMLAnchorElement>) => {
     if (hasSubItems) {
-      e.preventDefault();
+      event.preventDefault();
+
       if (isCollapsed) {
-        // Show popover when collapsed
-        setShowPopover(!showPopover);
+        setIsFlyoutOpen((current) => !current);
       } else {
-        // Expand/collapse normally when not collapsed
-        const newState = !isExpanded;
-        setIsExpanded(newState);
         toggleItem(path);
       }
+
+      return;
     }
+
+    closeMobile();
   };
-
-  const itemContent = () => (
-    <>
-      <div className="flex flex-1 items-center gap-3">
-        <Icon className="h-5 w-5 flex-shrink-0" />
-        {!isCollapsed && (
-          <span className="text-sm font-medium">
-            {t(`mis.nav.${label.toLowerCase()}`, label)}
-          </span>
-        )}
-      </div>
-
-      {/* Badge */}
-      {!isCollapsed && badge !== undefined && (
-        <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary/20 px-1.5 text-xs font-semibold text-primary">
-          {badge}
-        </span>
-      )}
-
-      {/* Chevron for sub-items */}
-      {!isCollapsed && hasSubItems && (
-        <div className="flex-shrink-0 transition-transform duration-200">
-          {isExpanded ? (
-            <ChevronDown className="h-4 w-4" />
-          ) : (
-            <ChevronRight className="h-4 w-4" />
-          )}
-        </div>
-      )}
-    </>
-  );
 
   return (
     <>
       <li className="relative">
         <NavLink
-          ref={buttonRef}
+          ref={triggerRef}
           to={hasSubItems ? "#" : path}
-          end={path === "/mis"}
+          end={path === "/"}
           onClick={handleToggle}
+          title={isCollapsed ? translatedLabel : undefined}
           className={({ isActive }) =>
-            `group relative flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 overflow-hidden ${
-              isCollapsed ? "justify-center" : ""
+            `group relative flex items-center overflow-hidden rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
+              isCollapsed ? "justify-center px-2 py-2.5" : "gap-3 px-3 py-2.5"
             } ${
-              isActive && !hasSubItems
-                ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg shadow-primary/30"
-                : "text-slate-300 hover:bg-white/10 hover:text-white active:scale-[0.98]"
+              (isActive && !hasSubItems) ||
+              (!isCollapsed && hasSubItems && isExpanded)
+                ? "bg-primary/10 text-primary shadow-sm shadow-primary/15"
+                : "text-text-secondary hover:bg-surface-hover hover:text-text-primary"
             }`
           }
         >
-          {/* Active indicator */}
           {({ isActive }) => (
             <>
-              {isActive && !hasSubItems && (
-                <div className="absolute left-0 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full bg-white" />
+              {((isActive && !hasSubItems) ||
+                (!isCollapsed && hasSubItems && isExpanded)) && (
+                <div className="absolute left-0 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r-full bg-primary" />
               )}
-              {itemContent()}
+
+              <Icon
+                className={`h-5 w-5 shrink-0 ${
+                  (isActive && !hasSubItems) ||
+                  (!isCollapsed && hasSubItems && isExpanded)
+                    ? "text-primary"
+                    : "text-text-secondary group-hover:text-text-primary"
+                }`}
+              />
+
+              {!isCollapsed && (
+                <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                  {translatedLabel}
+                </span>
+              )}
+
+              {!isCollapsed && badge !== undefined && (
+                <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[11px] font-semibold text-primary">
+                  {badge}
+                </span>
+              )}
+
+              {!isCollapsed && hasSubItems && (
+                <span
+                  className={`transition-transform duration-200 ${
+                    isExpanded ? "rotate-180" : ""
+                  }`}
+                >
+                  <ChevronDown className="h-4 w-4" />
+                </span>
+              )}
             </>
           )}
         </NavLink>
 
-        {/* Popover for collapsed sidebar with subitems */}
-        {isCollapsed && hasSubItems && showPopover && (
+        {isCollapsed && hasSubItems && isFlyoutOpen && (
           <div
-            ref={popoverRef}
-            className="fixed left-20 z-50 min-w-[200px] rounded-xl border border-white/10 bg-slate-900 shadow-2xl"
-            style={{
-              top: buttonRef.current?.getBoundingClientRect().top || 0,
-            }}
+            ref={flyoutRef}
+            className="absolute left-full top-0 z-50 ml-2 w-56 rounded-xl border border-border bg-card p-2 shadow-2xl"
           >
-            <div className="border-b border-white/10 px-4 py-2">
-              <p className="text-sm font-semibold text-white">{label}</p>
-            </div>
-            <ul className="p-2 space-y-0.5">
-              {subItems.map((subItem) => (
+            <p className="px-2 pb-1 text-xs font-semibold uppercase tracking-[0.08em] text-text-muted">
+              {translatedLabel}
+            </p>
+            <ul className="space-y-1">
+              {(subItems ?? []).map((subItem) => (
                 <li key={subItem.id}>
                   <NavLink
                     to={subItem.path}
-                    onClick={() => setShowPopover(false)}
+                    onClick={() => {
+                      setIsFlyoutOpen(false);
+                      closeMobile();
+                    }}
                     className={({ isActive }) =>
                       `flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-150 ${
                         isActive
-                          ? "bg-primary/20 text-primary"
-                          : "text-slate-300 hover:bg-white/5 hover:text-white"
+                          ? "bg-primary/10 text-primary"
+                          : "text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                       }`
                     }
                   >
-                    {subItem.icon && <subItem.icon className="h-3.5 w-3.5 flex-shrink-0" />}
-                    <span className="flex-1">{t(`mis.nav.${subItem.label.toLowerCase().replace(/\s+/g, '')}`, subItem.label)}</span>
+                    {subItem.icon ? (
+                      <subItem.icon className="h-3.5 w-3.5 shrink-0" />
+                    ) : null}
+                    <span className="flex-1 truncate">
+                      {t(
+                        `mis.nav.${subItem.label.toLowerCase().replace(/\s+/g, "")}`,
+                        subItem.label
+                      )}
+                    </span>
                     {subItem.quickAction && (
-                      <span className="flex h-4 items-center rounded-full bg-gradient-to-r from-success to-success/80 px-1.5 text-[9px] font-bold text-white shadow-sm">
+                      <span className="rounded-full bg-success-soft px-1.5 py-0.5 text-[10px] font-semibold text-success">
                         Quick
                       </span>
                     )}
                   </NavLink>
-                  {/* Tertiary items in popover */}
-                  {subItem.children && subItem.children.length > 0 && (
-                    <ul className="mt-1 ml-6 space-y-0.5">
+                  {subItem.children?.length ? (
+                    <ul className="ml-5 mt-1 space-y-0.5 border-l border-border pl-2">
                       {subItem.children.map((child) => (
                         <li key={child.id}>
                           <NavLink
                             to={child.path}
-                            onClick={() => setShowPopover(false)}
+                            onClick={() => {
+                              setIsFlyoutOpen(false);
+                              closeMobile();
+                            }}
                             className={({ isActive }) =>
-                              `flex items-center gap-2 rounded-md px-3 py-1.5 text-xs transition-all duration-150 ${
+                              `flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-all duration-150 ${
                                 isActive
-                                  ? "text-primary font-semibold"
-                                  : "text-slate-400 hover:text-white"
+                                  ? "font-semibold text-primary"
+                                  : "text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                               }`
                             }
                           >
                             <span className="h-1 w-1 rounded-full bg-current" />
-                            <span>{t(`mis.nav.${child.label.toLowerCase()}`, child.label)}</span>
+                            <span>
+                              {t(
+                                `mis.nav.${child.label
+                                  .toLowerCase()
+                                  .replace(/\s+/g, "")}`,
+                                child.label
+                              )}
+                            </span>
                           </NavLink>
                         </li>
                       ))}
                     </ul>
-                  )}
+                  ) : null}
                 </li>
               ))}
             </ul>
           </div>
         )}
 
-        {/* Sub-items (collapsible) */}
         {!isCollapsed && hasSubItems && isExpanded && (
-          <ul className="mt-1.5 space-y-0.5 border-l-2 border-white/10 pl-3 ml-6 py-1">
-            {subItems.map((subItem) => (
+          <ul className="ml-4 mt-1 space-y-1 border-l border-border py-1 pl-4">
+            {(subItems ?? []).map((subItem) => (
               <li key={subItem.id}>
                 <NavLink
                   to={subItem.path}
+                  onClick={closeMobile}
                   className={({ isActive }) =>
-                    `flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-150 ${
+                    `flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition-all duration-150 ${
                       isActive
-                        ? "bg-primary/20 text-primary border-l-2 border-primary -ml-[2px] pl-[10px] shadow-sm"
-                        : "text-slate-400 hover:bg-white/5 hover:text-white hover:pl-1"
+                        ? "bg-primary/10 text-primary"
+                        : "text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                     }`
                   }
                 >
-                  {subItem.icon && <subItem.icon className="h-3.5 w-3.5 flex-shrink-0" />}
-                  <span className="flex-1">{t(`mis.nav.${subItem.label.toLowerCase().replace(/\s+/g, '')}`, subItem.label)}</span>
+                  {subItem.icon ? (
+                    <subItem.icon className="h-3.5 w-3.5 shrink-0" />
+                  ) : null}
+                  <span className="flex-1 truncate">
+                    {t(
+                      `mis.nav.${subItem.label.toLowerCase().replace(/\s+/g, "")}`,
+                      subItem.label
+                    )}
+                  </span>
                   {subItem.quickAction && (
-                    <span className="flex h-4 items-center rounded-full bg-gradient-to-r from-success to-success/80 px-1.5 text-[9px] font-bold text-white shadow-sm">
+                    <span className="rounded-full bg-success-soft px-1.5 py-0.5 text-[10px] font-semibold text-success">
                       Quick
                     </span>
                   )}
                 </NavLink>
 
-                {/* Tertiary items (children) */}
-                {subItem.children && subItem.children.length > 0 && (
-                  <ul className="mt-1 ml-4 space-y-0.5 border-l border-white/5 pl-3">
+                {subItem.children?.length ? (
+                  <ul className="ml-3 mt-1 space-y-0.5 border-l border-border pl-3">
                     {subItem.children.map((child) => (
                       <li key={child.id}>
                         <NavLink
                           to={child.path}
+                          onClick={closeMobile}
                           className={({ isActive }) =>
                             `flex items-center gap-2 rounded-md px-3 py-1.5 text-xs transition-all duration-150 ${
                               isActive
-                                ? "text-primary font-semibold"
-                                : "text-slate-500 hover:text-white hover:bg-white/5"
+                                ? "font-semibold text-primary"
+                                : "text-text-secondary hover:bg-surface-hover hover:text-text-primary"
                             }`
                           }
                         >
                           <span className="h-1 w-1 rounded-full bg-current" />
-                          <span>{t(`mis.nav.${child.label.toLowerCase()}`, child.label)}</span>
+                          <span>
+                            {t(
+                              `mis.nav.${child.label
+                                .toLowerCase()
+                                .replace(/\s+/g, "")}`,
+                              child.label
+                            )}
+                          </span>
                         </NavLink>
                       </li>
                     ))}
                   </ul>
-                )}
+                ) : null}
               </li>
             ))}
           </ul>
         )}
       </li>
 
-      {/* Divider */}
-      {divider && !isCollapsed && (
-        <li className="my-2">
-          <div className="h-px bg-sidebar-hover/50" />
+      {divider ? (
+        <li className={isCollapsed ? "px-2 py-2" : "px-3 py-2"}>
+          <div className="h-px bg-border" />
         </li>
-      )}
+      ) : null}
     </>
   );
 }

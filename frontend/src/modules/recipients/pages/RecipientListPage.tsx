@@ -70,23 +70,25 @@ export default function RecipientListPage() {
 
   if (!can("recipients")) {
     return (
-      <Card>
-        <CardContent className="text-sm text-error">
-          {t("recipients.errors.noPermission", "You do not have permission to access recipients.")}
-        </CardContent>
-      </Card>
+      <div className="recipient-theme" data-testid="recipient-page-root">
+        <Card>
+          <CardContent className="text-sm text-error">
+            {t("recipients.errors.noPermission", "You do not have permission to access recipients.")}
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="recipient-theme space-y-6" data-testid="recipient-page-root">
       <PageHeader
         title={t("recipients.title", "Recipients")}
         subtitle={t("recipients.subtitle", "Manage recipient records with emergency requirements")}
         actions={[
           {
             label: t("recipients.actions.add", "Add Recipient"),
-            icon: <Plus className="h-4 w-4" />,
+            icon: <Plus className="recipient-header-accent h-4 w-4" />,
             onClick: () => navigate("/recipients/new"),
           },
         ]}

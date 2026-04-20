@@ -21,12 +21,12 @@ export default function AccountLockedMessage({
   // Calculate time remaining
   const unlockTime = new Date(lockedUntil);
   const now = new Date();
-  const minutesRemaining = Math.ceil(
+  const minutesRemaining = Math.max(1, Math.ceil(
     (unlockTime.getTime() - now.getTime()) / (1000 * 60)
-  );
+  ));
 
   return (
-    <Alert variant="error" className="space-y-3">
+    <Alert variant="error" className="space-y-3 rounded-xl border border-error/25 bg-error-soft">
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0">
           <Lock className="h-5 w-5" />
@@ -57,7 +57,7 @@ export default function AccountLockedMessage({
           {/* Help Links */}
           <div className="flex flex-col gap-2 border-t border-error/20 pt-3 text-sm">
             <Link
-              to="/mis/forgot-password"
+              to="/auth/forgot-password"
               className="inline-flex items-center gap-2 font-medium hover:underline"
             >
               <Mail className="h-4 w-4" />

@@ -14,6 +14,7 @@ SETTINGS_SECTION_KEYS = {
 
 LIVE_SECTIONS = (
     "general",
+    "user_roles",
     "notifications",
     "localization",
     "security",
@@ -21,7 +22,7 @@ LIVE_SECTIONS = (
 
 SECTION_META = {
     "general": {"implemented": True, "title": "System General Settings"},
-    "user_roles": {"implemented": False, "title": "User & Role Management Settings"},
+    "user_roles": {"implemented": True, "title": "User & Role Management Settings"},
     "notifications": {"implemented": True, "title": "Notification Settings"},
     "emergency_alerts": {"implemented": False, "title": "Emergency Alert Settings"},
     "blood_request_rules": {"implemented": False, "title": "Blood Request Rules"},

@@ -2,23 +2,24 @@ import { Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Button, Input, Select } from "@components/ui";
+import { AFGHANISTAN_PROVINCES, type Province } from "../types/hospital.types";
 
 interface HospitalFiltersProps {
   search: string;
-  city: string;
+  province: Province | "";
   isActive: "" | "true" | "false";
   onSearchChange: (value: string) => void;
-  onCityChange: (value: string) => void;
+  onProvinceChange: (value: Province | "") => void;
   onIsActiveChange: (value: "" | "true" | "false") => void;
   onReset: () => void;
 }
 
 export default function HospitalFilters({
   search,
-  city,
+  province,
   isActive,
   onSearchChange,
-  onCityChange,
+  onProvinceChange,
   onIsActiveChange,
   onReset,
 }: HospitalFiltersProps) {
@@ -33,10 +34,13 @@ export default function HospitalFilters({
         leftIcon={<Search className="h-4 w-4" />}
       />
 
-      <Input
-        placeholder={t("hospitals.filters.cityPlaceholder", "City")}
-        value={city}
-        onChange={(event) => onCityChange(event.target.value)}
+      <Select
+        value={province}
+        onChange={(event) => onProvinceChange(event.target.value as Province | "")}
+        options={[
+          { value: "", label: t("hospitals.filters.provincePlaceholder", "Province") },
+          ...AFGHANISTAN_PROVINCES.map((value) => ({ value, label: value })),
+        ]}
       />
 
       <Select
@@ -57,4 +61,3 @@ export default function HospitalFilters({
     </div>
   );
 }
-

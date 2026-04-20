@@ -11,19 +11,16 @@ interface SidebarToggleProps {
  * On mobile, this button is not shown (handled by mobile hamburger)
  */
 export default function SidebarToggle({ className = "" }: SidebarToggleProps) {
-  const { isCollapsed, toggleCollapse, closeMobile } = useSidebarState();
+  const { isCollapsed, toggleCollapse } = useSidebarState();
 
   const handleToggle = () => {
-    // On mobile, close the mobile sidebar
-    closeMobile();
-    // On desktop, toggle collapse
     toggleCollapse();
   };
 
   return (
     <button
       onClick={handleToggle}
-      className={`flex h-9 w-9 items-center justify-center rounded-lg bg-white/5 text-slate-300 transition-all duration-200 hover:bg-white/10 hover:text-white active:scale-95 ${className}`}
+      className={`inline-flex h-8 w-8 items-center justify-center rounded-xl border border-border bg-surface text-text-secondary transition-all duration-200 hover:border-border-strong hover:bg-surface-hover hover:text-text-primary active:scale-95 ${className}`}
       aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
       title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
     >

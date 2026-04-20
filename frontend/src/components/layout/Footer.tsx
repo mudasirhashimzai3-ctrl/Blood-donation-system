@@ -162,7 +162,7 @@ function Footer() {
     <footer className="bg-card border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid md:grid-cols-4 gap-8">
-          {/* School Info */}
+          {/* info */}
           <div className="col-span-2 md:col-span-1">
             <img
               src="/images/logo.png"

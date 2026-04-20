@@ -2,6 +2,8 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { useUserStore } from "@/modules/auth/stores/useUserStore";
 import { getCSRFToken } from "@/utils/csrf";
+import i18n from "@/utils/i18n";
+import { normalizeLanguageCode } from "@/utils/language";
 
 // --- Helper Functions for Token Management ---
 
@@ -44,6 +46,7 @@ apiClient.interceptors.request.use(
     if (csrfToken && config.method !== "get") {
       config.headers["X-CSRFToken"] = csrfToken;
     }
+    config.headers["Accept-Language"] = normalizeLanguageCode(i18n.language);
 
     return config;
   },

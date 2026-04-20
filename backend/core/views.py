@@ -16,10 +16,16 @@ from core.serializers_settings import (
     GeneralSettingsSerializer,
     LocalizationSettingsSerializer,
     NotificationSettingsSerializer,
+    RolePermissionMatrixSerializer,
     SecuritySettingsSerializer,
     SettingAuditLogSerializer,
     TestEmailSerializer,
     TestSmsSerializer,
+    UserRoleSettingsSerializer,
+)
+from core.services.role_permission_service import (
+    get_permission_matrix_payload,
+    replace_permission_matrix,
 )
 from core.services.settings_defaults import SETTINGS_SECTION_KEYS
 from core.services.settings_service import (
@@ -178,9 +184,19 @@ class SettingsViewSet(PermissionMixin, viewsets.ViewSet):
     def security(self, request):
         return self._live_section_get_put(request, "security", SecuritySettingsSerializer)
 
-    @action(detail=False, methods=["get"], url_path="user-roles")
+    @action(detail=False, methods=["get", "put"], url_path="user-roles")
     def user_roles(self, request):
-        return Response(self._section_payload("user_roles"), status=status.HTTP_200_OK)
+        return self._live_section_get_put(request, "user_roles", UserRoleSettingsSerializer)
+
+    @action(detail=False, methods=["get", "put"], url_path="user-roles/permissions")
+    def user_roles_permissions(self, request):
+        if request.method == "GET":
+            return Response(get_permission_matrix_payload(), status=status.HTTP_200_OK)
+
+        serializer = RolePermissionMatrixSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        replace_permission_matrix(serializer.validated_data["matrix"])
+        return Response(get_permission_matrix_payload(), status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["get"], url_path="emergency-alerts")
     def emergency_alerts(self, request):

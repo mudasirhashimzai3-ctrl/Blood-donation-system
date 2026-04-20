@@ -55,19 +55,17 @@ class RecipientApiTests(APITestCase):
         defaults.update(kwargs)
         return Hospital.objects.create(**defaults)
 
-    def test_create_recipient_defaults_to_pending(self):
+    def test_create_recipient_defaults_to_active(self):
         hospital = self._create_hospital()
         payload = {
             "full_name": "Ahmad Khan",
             "phone": "0700000011",
             "required_blood_group": "O+",
-            "age": 24,
-            "gender": "male",
             "hospital": hospital.id,
         }
         response = self.client.post(self.base_url, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["status"], "pending")
+        self.assertEqual(response.data["status"], "active")
         self.assertEqual(response.data["emergency_level"], "normal")
 
     def test_create_recipient_duplicate_phone_fails(self):
@@ -76,8 +74,6 @@ class RecipientApiTests(APITestCase):
             full_name="First Recipient",
             phone="0700000022",
             required_blood_group="A+",
-            age=30,
-            gender="female",
             hospital=hospital,
             status="active",
             emergency_level="urgent",
@@ -86,8 +82,6 @@ class RecipientApiTests(APITestCase):
             "full_name": "Second Recipient",
             "phone": "0700000022",
             "required_blood_group": "A-",
-            "age": 21,
-            "gender": "female",
             "hospital": hospital.id,
             "status": "active",
             "emergency_level": "urgent",
@@ -103,8 +97,6 @@ class RecipientApiTests(APITestCase):
             phone="0700000033",
             email="recipient@example.com",
             required_blood_group="AB+",
-            age=28,
-            gender="male",
             hospital=hospital,
             emergency_level="normal",
             status="active",
@@ -114,32 +106,12 @@ class RecipientApiTests(APITestCase):
             "phone": "0700000034",
             "email": "RECIPIENT@example.com",
             "required_blood_group": "AB-",
-            "age": 26,
-            "gender": "male",
             "hospital": hospital.id,
             "status": "active",
         }
         response = self.client.post(self.base_url, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("email", response.data)
-
-    def test_create_rejects_invalid_age(self):
-        hospital = self._create_hospital()
-        bad_age_response = self.client.post(
-            self.base_url,
-            {
-                "full_name": "Young Recipient",
-                "phone": "0700000044",
-                "required_blood_group": "B+",
-                "age": 0,
-                "gender": "other",
-                "hospital": hospital.id,
-                "status": "pending",
-            },
-            format="json",
-        )
-        self.assertEqual(bad_age_response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("age", bad_age_response.data)
 
     def test_list_supports_search_filters_ordering_and_pagination(self):
         kabul_hospital = self._create_hospital(name="Kabul Hospital", city="Kabul")
@@ -149,8 +121,6 @@ class RecipientApiTests(APITestCase):
             full_name="Ali Search",
             phone="0700000051",
             required_blood_group="O-",
-            age=33,
-            gender="male",
             hospital=kabul_hospital,
             emergency_level="critical",
             status="blocked",
@@ -159,11 +129,9 @@ class RecipientApiTests(APITestCase):
             full_name="Bahar Filter",
             phone="0700000052",
             required_blood_group="A+",
-            age=29,
-            gender="female",
             hospital=herat_hospital,
             emergency_level="urgent",
-            status="pending",
+            status="active",
         )
 
         response = self.client.get(
@@ -191,8 +159,6 @@ class RecipientApiTests(APITestCase):
             phone="0700000061",
             email="detail@recipient.com",
             required_blood_group="B-",
-            age=40,
-            gender="female",
             hospital=hospital,
             emergency_level="urgent",
             status="active",
@@ -211,11 +177,9 @@ class RecipientApiTests(APITestCase):
             full_name="Action Recipient",
             phone="0700000071",
             required_blood_group="A-",
-            age=45,
-            gender="male",
             hospital=hospital,
             emergency_level="normal",
-            status="pending",
+            status="active",
         )
 
         block_response = self.client.patch(f"{self.base_url}{recipient.id}/block/", {}, format="json")
@@ -232,8 +196,6 @@ class RecipientApiTests(APITestCase):
             full_name="Delete Recipient",
             phone="0700000081",
             required_blood_group="AB+",
-            age=36,
-            gender="other",
             hospital=hospital,
             emergency_level="normal",
             status="active",
@@ -254,11 +216,9 @@ class RecipientApiTests(APITestCase):
             full_name="Viewer Check",
             phone="0700000091",
             required_blood_group="O+",
-            age=50,
-            gender="male",
             hospital=hospital,
             emergency_level="urgent",
-            status="pending",
+            status="active",
         )
         self.client.force_authenticate(user=self.viewer_user)
 
@@ -268,8 +228,6 @@ class RecipientApiTests(APITestCase):
                 "full_name": "Unauthorized Recipient",
                 "phone": "0700000092",
                 "required_blood_group": "O+",
-                "age": 20,
-                "gender": "male",
                 "hospital": hospital.id,
             },
             format="json",

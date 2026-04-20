@@ -44,16 +44,15 @@ class DonorDetailSerializer(serializers.ModelSerializer):
             "email",
             "blood_group",
             "status",
+            "age",
             "profile_picture",
             "profile_picture_url",
             "latitude",
             "longitude",
             "date_of_birth",
-            "address",
-            "emergency_contact_name",
-            "emergency_contact_phone",
+            "permanent_address",
+            "local_address",
             "last_donation_date",
-            "notes",
             "remove_profile_picture",
             "created_at",
             "updated_at",
@@ -100,6 +99,13 @@ class DonorDetailSerializer(serializers.ModelSerializer):
         if value.size > max_size:
             raise serializers.ValidationError("Profile picture size must be 5MB or less.")
 
+        return value
+
+    def validate_age(self, value):
+        if value is None:
+            return value
+        if value < 1:
+            raise serializers.ValidationError("Age must be greater than zero.")
         return value
 
     def validate(self, attrs):

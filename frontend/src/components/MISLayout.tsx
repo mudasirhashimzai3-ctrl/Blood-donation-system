@@ -10,19 +10,22 @@ export default function MISLayout() {
   const { showTimeoutWarning, hideWarning } = useSessionStore();
 
   return (
-    <div data-section="mis" className="flex h-screen bg-background">
-      {/* Main Sidebar */}
-      <Sidebar />
-
-      {/* Main Content Area */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <MISHeader />
-        <main className="flex-1 overflow-y-auto bg-background p-6">
-          <Outlet />
-        </main>
+    <div
+      data-section="mis"
+      className="h-screen overflow-hidden bg-background text-text-primary"
+    >
+      <div className="relative flex h-full">
+        <Sidebar />
+        <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
+          <MISHeader />
+          <main className="flex-1 overflow-y-auto bg-background px-4 pb-6 pt-4 sm:px-6 sm:pb-8 sm:pt-6 lg:px-8">
+            <div className="mx-auto w-full max-w-[1680px] animate-fade-in">
+              <Outlet />
+            </div>
+          </main>
+        </div>
       </div>
 
-      {/* Session Timeout Modal */}
       <SessionTimeoutModal
         isOpen={showTimeoutWarning}
         remainingSeconds={Math.floor(remainingTime / 1000)}

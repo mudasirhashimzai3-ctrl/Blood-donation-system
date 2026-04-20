@@ -13,14 +13,13 @@ const defaultValues: DonorFormValues = {
   status: "pending",
   profile_picture: null,
   remove_profile_picture: false,
+  age: "",
   date_of_birth: "",
-  address: "",
-  emergency_contact_name: "",
-  emergency_contact_phone: "",
+  permanent_address: "",
+  local_address: "",
   last_donation_date: "",
   latitude: "",
   longitude: "",
-  notes: "",
 };
 
 export const mapDonorToFormValues = (donor?: Partial<Donor>): DonorFormValues => {
@@ -35,14 +34,13 @@ export const mapDonorToFormValues = (donor?: Partial<Donor>): DonorFormValues =>
     status: donor.status ?? "pending",
     profile_picture: null,
     remove_profile_picture: false,
+    age: donor.age?.toString() ?? "",
     date_of_birth: donor.date_of_birth ?? "",
-    address: donor.address ?? "",
-    emergency_contact_name: donor.emergency_contact_name ?? "",
-    emergency_contact_phone: donor.emergency_contact_phone ?? "",
+    permanent_address: donor.permanent_address ?? "",
+    local_address: donor.local_address ?? "",
     last_donation_date: donor.last_donation_date ?? "",
     latitude: donor.latitude ?? "",
     longitude: donor.longitude ?? "",
-    notes: donor.notes ?? "",
   };
 };
 

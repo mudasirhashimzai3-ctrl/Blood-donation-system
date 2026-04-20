@@ -5,14 +5,25 @@ import { ToastProvider } from "./providers/ToastProvider";
 import ErrorBoundary from "./providers/ErrorBoundary";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
-import { directionMap, type SupportedLang } from "./utils/directions";
+import { useUserStore } from "@/modules/auth/stores/useUserStore";
+import { getDirectionForLanguage, normalizeLanguageCode } from "./utils/language";
 
 function App() {
   const { i18n } = useTranslation();
+  const preferredLanguage = useUserStore((state) => state.userProfile?.preferences?.language);
 
   useEffect(() => {
-    const lang = i18n.language as SupportedLang;
-    const dir = directionMap[lang] ?? "ltr";
+    const normalizedPreferred = normalizeLanguageCode(preferredLanguage);
+    const normalizedCurrent = normalizeLanguageCode(i18n.language, normalizedPreferred);
+
+    if (normalizedCurrent !== normalizedPreferred) {
+      void i18n.changeLanguage(normalizedPreferred);
+    }
+  }, [i18n, preferredLanguage]);
+
+  useEffect(() => {
+    const lang = normalizeLanguageCode(i18n.language);
+    const dir = getDirectionForLanguage(lang);
 
     document.documentElement.dir = dir;
     document.documentElement.lang = lang;

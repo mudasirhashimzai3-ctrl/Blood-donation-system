@@ -51,42 +51,50 @@ export default function RecipientViewPage() {
 
   if (!can("recipients")) {
     return (
-      <Card>
-        <CardContent className="text-sm text-error">
-          {t("recipients.errors.noPermission", "You do not have permission to access recipients.")}
-        </CardContent>
-      </Card>
+      <div className="recipient-theme" data-testid="recipient-page-root">
+        <Card>
+          <CardContent className="text-sm text-error">
+            {t("recipients.errors.noPermission", "You do not have permission to access recipients.")}
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   if (!Number.isFinite(recipientId)) {
     return (
-      <Card>
-        <CardContent className="text-sm text-error">{t("recipients.errors.notFound", "Recipient not found")}</CardContent>
-      </Card>
+      <div className="recipient-theme" data-testid="recipient-page-root">
+        <Card>
+          <CardContent className="text-sm text-error">{t("recipients.errors.notFound", "Recipient not found")}</CardContent>
+        </Card>
+      </div>
     );
   }
 
   if (isLoading) {
     return (
-      <Card>
-        <CardContent>{t("recipients.loading", "Loading recipient details...")}</CardContent>
-      </Card>
+      <div className="recipient-theme" data-testid="recipient-page-root">
+        <Card>
+          <CardContent>{t("recipients.loading", "Loading recipient details...")}</CardContent>
+        </Card>
+      </div>
     );
   }
 
   if (error || !recipient) {
     return (
-      <Card>
-        <CardContent className="text-sm text-error">
-          {t("recipients.errors.loadFailed", "Failed to load recipient details")}
-        </CardContent>
-      </Card>
+      <div className="recipient-theme" data-testid="recipient-page-root">
+        <Card>
+          <CardContent className="text-sm text-error">
+            {t("recipients.errors.loadFailed", "Failed to load recipient details")}
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="recipient-theme space-y-6" data-testid="recipient-page-root">
       <PageHeader
         title={t("recipients.view.title", "Recipient Details")}
         subtitle={t("recipients.view.subtitle", "View recipient profile information")}
@@ -110,14 +118,6 @@ export default function RecipientViewPage() {
             <div>
               <p className="text-xs uppercase text-text-secondary">{t("recipients.form.email", "Email")}</p>
               <p className="text-sm text-text-primary">{recipient.email || "-"}</p>
-            </div>
-            <div>
-              <p className="text-xs uppercase text-text-secondary">{t("recipients.form.age", "Age")}</p>
-              <p className="text-sm text-text-primary">{recipient.age}</p>
-            </div>
-            <div>
-              <p className="text-xs uppercase text-text-secondary">{t("recipients.form.gender", "Gender")}</p>
-              <p className="text-sm text-text-primary">{t(`recipients.gender.${recipient.gender}`, recipient.gender)}</p>
             </div>
             <div>
               <p className="text-xs uppercase text-text-secondary">{t("recipients.form.hospitalName", "Hospital Name")}</p>

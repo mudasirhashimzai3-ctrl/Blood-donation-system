@@ -14,7 +14,7 @@ interface DashboardCardProps {
 }
 
 const colorClasses = {
-  primary: "bg-primary/10 text-primary",
+  primary: "bg-primary/15 text-primary",
   success: "bg-success-soft text-success",
   warning: "bg-warning-soft text-warning",
   error: "bg-error-soft text-error",
@@ -30,12 +30,10 @@ export default function DashboardCard({
   subtitle,
 }: DashboardCardProps) {
   return (
-    <div className="rounded-xl border border-border bg-card p-6 transition-all duration-200 hover:shadow-lg">
+    <div className="blood-card p-5">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-text-secondary">
-            {title}
-          </p>
+          <p className="text-sm font-medium text-text-secondary">{title}</p>
           <p className="mt-2 text-3xl font-bold text-text-primary">
             {value}
           </p>
@@ -64,7 +62,7 @@ export default function DashboardCard({
             <p className="mt-2 text-sm text-text-secondary">{subtitle}</p>
           )}
         </div>
-        <div className={`rounded-xl p-3 ${colorClasses[color]}`}>
+        <div className={`rounded-xl p-3 shadow-sm ${colorClasses[color]}`}>
           <Icon className="h-6 w-6" />
         </div>
       </div>

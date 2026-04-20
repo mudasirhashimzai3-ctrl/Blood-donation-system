@@ -84,6 +84,7 @@ class BloodRequestApiTests(APITestCase):
         self.hospital = Hospital.objects.create(
             name="City Hospital",
             phone="0700100001",
+            province="Kabul",
             city="Kabul",
             latitude="34.555300",
             longitude="69.207500",
@@ -93,8 +94,6 @@ class BloodRequestApiTests(APITestCase):
             full_name="Recipient One",
             phone="0700000001",
             required_blood_group="O+",
-            age=25,
-            gender="male",
             hospital=self.hospital,
             emergency_level="urgent",
             status="active",

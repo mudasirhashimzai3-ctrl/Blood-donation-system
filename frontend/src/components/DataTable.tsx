@@ -9,21 +9,23 @@ interface ColumnDef {
   body?: (rowData: unknown) => React.ReactNode;
 }
 
-interface MISDataTableProps<T> extends Omit<DataTableProps<T[]>, "children"> {
+interface MISDataTableProps<T extends object> extends Omit<DataTableProps<any>, "children" | "value"> {
   data: T[];
   columns: ColumnDef[];
   loading?: boolean;
 }
 
-export default function DataTable<T>({
+const PrimeDataTableAny = PrimeDataTable as any;
+
+export default function DataTable<T extends object>({
   data,
   columns,
   loading = false,
   ...props
 }: MISDataTableProps<T>) {
   return (
-    <PrimeDataTable
-      value={data}
+    <PrimeDataTableAny
+      value={data as any}
       loading={loading}
       paginator
       rows={10}
@@ -40,6 +42,6 @@ export default function DataTable<T>({
           body={col.body}
         />
       ))}
-    </PrimeDataTable>
+    </PrimeDataTableAny>
   );
 }

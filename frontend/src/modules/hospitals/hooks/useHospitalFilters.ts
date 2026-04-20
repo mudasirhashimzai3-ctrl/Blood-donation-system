@@ -1,16 +1,17 @@
 import { useMemo } from "react";
 
 import { useHospitalUiStore } from "../stores/useHospitalUiStore";
+import type { Province } from "../types/hospital.types";
 
 export const useHospitalFilters = () => {
   const {
     search,
-    city,
+    province,
     isActive,
     page,
     pageSize,
     setSearch,
-    setCity,
+    setProvince,
     setIsActive,
     setPage,
     setPageSize,
@@ -22,20 +23,20 @@ export const useHospitalFilters = () => {
       page,
       page_size: pageSize,
       search: search || undefined,
-      city: city || undefined,
+      province: province || undefined,
       is_active: isActive === "" ? undefined : isActive === "true",
     }),
-    [city, isActive, page, pageSize, search]
+    [isActive, page, pageSize, province, search]
   );
 
   return {
     search,
-    city,
+    province: province as Province | "",
     isActive,
     page,
     pageSize,
     setSearch,
-    setCity,
+    setProvince,
     setIsActive,
     setPage,
     setPageSize,
@@ -43,4 +44,3 @@ export const useHospitalFilters = () => {
     queryParams,
   };
 };
-

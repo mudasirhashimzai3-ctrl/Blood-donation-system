@@ -1,9 +1,10 @@
 import { Controller, type UseFormReturn } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
-import { Button, Input, Switch } from "@components/ui";
+import { Button, Input, Select, Switch } from "@components/ui";
 import { formatLocalDateTime } from "@/utils/formatLocalDateTime";
 import { type HospitalFormValues } from "../schemas/hospitalSchemas";
+import { AFGHANISTAN_PROVINCES } from "../types/hospital.types";
 
 interface HospitalFormProps {
   form: UseFormReturn<HospitalFormValues>;
@@ -57,11 +58,11 @@ export default function HospitalForm({
           error={errors.email?.message}
           {...register("email")}
         />
-        <Input
-          label={t("hospitals.form.city", "City")}
-          placeholder={t("hospitals.form.cityPlaceholder", "Enter city")}
-          error={errors.city?.message}
-          {...register("city")}
+        <Select
+          label={t("hospitals.form.province", "Province")}
+          error={errors.province?.message}
+          options={AFGHANISTAN_PROVINCES.map((province) => ({ value: province, label: province }))}
+          {...register("province")}
         />
       </div>
 
@@ -124,4 +125,3 @@ export default function HospitalForm({
     </form>
   );
 }
-

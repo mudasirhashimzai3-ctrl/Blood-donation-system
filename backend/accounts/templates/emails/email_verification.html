@@ -77,7 +77,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">🎓 School MIS</div>
+            <div class="logo">Blood Donation System</div>
             <div class="welcome-icon">✉️</div>
         </div>
 
@@ -85,7 +85,7 @@
 
         <p>Hello {{ user.first_name or user.username }},</p>
 
-        <p>Welcome to School MIS! To complete your registration and start using your account, please verify your email address by clicking the button below:</p>
+        <p>Welcome to bds! To complete your registration and start using your account, please verify your email address by clicking the button below:</p>
 
         <div style="text-align: center;">
             <a href="{{ verification_url }}" class="button">Verify Email Address</a>
@@ -98,11 +98,11 @@
         <p>If the button doesn't work, copy and paste this link into your browser:</p>
         <p class="link-text">{{ verification_url }}</p>
 
-        <p style="margin-top: 30px;">If you didn't create an account with School MIS, please ignore this email.</p>
+        <p style="margin-top: 30px;">If you didn't create an account with blood donation system, please ignore this email.</p>
 
         <div class="footer">
-            <p>This is an automated message from School MIS.</p>
-            <p>© {{ current_year }} School Management Information System. All rights reserved.</p>
+            <p>This is an automated message from blood donation system.</p>
+            <p>© {{ current_year }} blood donation MIS. All rights reserved.</p>
         </div>
     </div>
 </body>

@@ -1,7 +1,7 @@
 
 // components/AuthProvider.tsx
 import React, { createContext } from 'react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from "@/modules/auth/hooks/useAuth";
 import type { UserProfile } from '../stores/useUserStore';
 
 interface AuthContextType {
