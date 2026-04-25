@@ -5,12 +5,62 @@ from core.models import Permission
 from core.base_models import BaseModel
 from core.managers import UserManager
 from django.contrib.auth.models import UserManager as BaseUserManager
+from typing import Iterable
 
-ROLE_CHOICES = [
-    ("admin", "Administrator" ),
-    ("receptionist", "Receptionist" ),
-    ("viewer", "Viewer" ),
+PUBLIC_ROLE_CHOICES = [
+    ("admin", "Administrator"),
+    ("donor", "Donor"),
+    ("recipient", "Recipient"),
 ]
+
+LEGACY_ROLE_TO_PUBLIC = {
+    "viewer": "donor",
+    "receptionist": "recipient",
+}
+
+PUBLIC_ROLE_TO_LEGACY = {
+    "donor": "viewer",
+    "recipient": "receptionist",
+}
+
+# Keep legacy role values as valid choices for backward compatibility with
+# existing records while the system transitions to public role names.
+ROLE_CHOICES = [
+    *PUBLIC_ROLE_CHOICES,
+    ("receptionist", "Recipient (Legacy)"),
+    ("viewer", "Donor (Legacy)"),
+]
+
+PUBLIC_ROLE_NAMES = tuple(role for role, _ in PUBLIC_ROLE_CHOICES)
+
+
+def normalize_role_name(role_name: str | None) -> str | None:
+    if role_name is None:
+        return None
+    return LEGACY_ROLE_TO_PUBLIC.get(role_name, role_name)
+
+
+def to_legacy_role_name(role_name: str | None) -> str | None:
+    if role_name is None:
+        return None
+    public_role = normalize_role_name(role_name)
+    return PUBLIC_ROLE_TO_LEGACY.get(public_role, public_role)
+
+
+def expand_role_names(role_names: Iterable[str] | None) -> list[str]:
+    if not role_names:
+        return []
+
+    expanded = set()
+    for role in role_names:
+        if not role:
+            continue
+        normalized = normalize_role_name(role)
+        if not normalized:
+            continue
+        expanded.add(normalized)
+        expanded.add(to_legacy_role_name(normalized))
+    return sorted(expanded)
 
 
 class User(AbstractUser, BaseModel):

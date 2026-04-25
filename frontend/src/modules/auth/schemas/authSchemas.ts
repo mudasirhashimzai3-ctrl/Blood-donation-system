@@ -65,6 +65,37 @@ export const verifyEmailSchema = z.object({
 });
 
 /**
+ * Signup Schema
+ * Creates donor or recipient accounts
+ */
+export const signupSchema = z
+  .object({
+    first_name: z.string().min(1, "First name is required"),
+    last_name: z.string().min(1, "Last name is required"),
+    username: z
+      .string()
+      .min(3, "Username must be at least 3 characters")
+      .max(50, "Username must be at most 50 characters"),
+    email: z.union([z.string().email("Invalid email address"), z.literal("")]),
+    phone: z.string().min(1, "Phone is required"),
+    role: z.enum(["donor", "recipient"], {
+      required_error: "Role is required",
+      invalid_type_error: "Role is required",
+    }),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[A-Z]/, "Must contain at least one uppercase letter")
+      .regex(/[a-z]/, "Must contain at least one lowercase letter")
+      .regex(/[0-9]/, "Must contain at least one number"),
+    confirm_password: z.string().min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.password === data.confirm_password, {
+    message: "Passwords do not match",
+    path: ["confirm_password"],
+  });
+
+/**
  * Enhanced Login Schema
  * Includes rate limiting support
  */
@@ -85,4 +116,5 @@ export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type VerifyResetCodeInput = z.infer<typeof verifyResetCodeSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;
+export type SignupInput = z.infer<typeof signupSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;

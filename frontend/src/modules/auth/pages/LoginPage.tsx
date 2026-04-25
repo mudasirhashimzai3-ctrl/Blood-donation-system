@@ -14,8 +14,15 @@ import { useUserStore } from "@/modules/auth/stores/useUserStore";
 import { AccountLockedMessage } from "@/modules/auth";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import Select from "@/components/ui/Select";
 import { AxiosError } from "axios";
 import AuthShell from "../components/AuthShell";
+
+const roleOptions = [
+  { value: "admin", label: "Admin" },
+  { value: "donor", label: "Donor" },
+  { value: "recipient", label: "Recipient" },
+];
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -128,6 +135,15 @@ export default function LoginPage() {
           {...register("username")}
         />
 
+        <Select
+          label={t("auth.role", "Role")}
+          placeholder={t("auth.rolePlaceholder", "Select your role")}
+          options={roleOptions}
+          error={errors.role?.message}
+          disabled={isLocked}
+          {...register("role")}
+        />
+
         <div>
           <Input
             type={showPassword ? "text" : "password"}
@@ -205,6 +221,21 @@ export default function LoginPage() {
       </form>
 
       <div className="mt-6 text-center text-sm text-text-secondary">
+        <div className="mb-4 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
+          <Link
+            to="/auth/signup?role=donor"
+            className="font-medium text-primary hover:underline"
+          >
+            {t("auth.signupDonor", "Sign up as Donor")}
+          </Link>
+          <span className="hidden text-text-secondary sm:inline">|</span>
+          <Link
+            to="/auth/signup?role=recipient"
+            className="font-medium text-primary hover:underline"
+          >
+            {t("auth.signupRecipient", "Sign up as Recipient")}
+          </Link>
+        </div>
         <p>
           {t("auth.needHelp", "Need assistance?")}{" "}
           <a

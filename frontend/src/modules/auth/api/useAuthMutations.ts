@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { authService } from "./authService";
 import type {
   ForgotPasswordRequest,
+  SignupRequest,
   VerifyResetCodeRequest,
   ResetPasswordRequest,
   VerifyEmailRequest,
@@ -13,6 +14,22 @@ import { extractAxiosError } from "@/utils/extractError";
 /**
  * Extract error message from Axios error
  */
+
+/**
+ * Signup Hook
+ * Creates a donor or recipient account
+ */
+export const useSignup = () => {
+  return useMutation({
+    mutationFn: (data: SignupRequest) => authService.signup(data),
+    onSuccess: (response) => {
+      toast.success(response.data.message || "Account created successfully");
+    },
+    onError: (error) => {
+      toast.error(extractAxiosError(error, "Failed to create account"));
+    },
+  });
+};
 
 
 /**

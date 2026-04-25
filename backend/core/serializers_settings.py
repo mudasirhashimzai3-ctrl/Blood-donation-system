@@ -2,7 +2,7 @@ from zoneinfo import ZoneInfo
 
 from rest_framework import serializers
 
-from accounts.models import ROLE_CHOICES
+from accounts.models import PUBLIC_ROLE_NAMES
 from core.models import Permission, SettingAuditLog
 from core.services.role_permission_service import MATRIX_ACTIONS
 
@@ -93,7 +93,7 @@ class UserRoleSettingsSerializer(serializers.Serializer):
     allow_user_invite = serializers.BooleanField(required=False)
     default_new_user_role = serializers.ChoiceField(
         required=False,
-        choices=[role for role, _ in ROLE_CHOICES],
+        choices=list(PUBLIC_ROLE_NAMES),
     )
     allow_role_editing = serializers.BooleanField(required=False)
     allow_self_profile_edit = serializers.BooleanField(required=False)
@@ -101,7 +101,7 @@ class UserRoleSettingsSerializer(serializers.Serializer):
 
 
 class RolePermissionMatrixRowSerializer(serializers.Serializer):
-    role_name = serializers.ChoiceField(choices=[role for role, _ in ROLE_CHOICES])
+    role_name = serializers.ChoiceField(choices=list(PUBLIC_ROLE_NAMES))
     module = serializers.ChoiceField(choices=[module for module, _ in Permission.MODULES])
     actions = serializers.ListField(
         child=serializers.ChoiceField(choices=MATRIX_ACTIONS),

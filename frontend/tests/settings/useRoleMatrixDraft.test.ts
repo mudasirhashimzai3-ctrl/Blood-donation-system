@@ -11,7 +11,7 @@ const initialRows: RolePermissionMatrixRow[] = [
     actions: ["view", "change"],
   },
   {
-    role_name: "receptionist",
+    role_name: "recipient",
     module: "settings",
     actions: ["view"],
   },
@@ -39,5 +39,19 @@ describe("useRoleMatrixDraft", () => {
       result.current.reset();
     });
     expect(result.current.hasChanges).toBe(false);
+  });
+
+  it("creates a row when toggling a module that is missing in the draft", () => {
+    const { result } = renderHook(() => useRoleMatrixDraft(initialRows));
+
+    act(() => {
+      result.current.toggleAction("recipient", "users", "view");
+    });
+
+    const created = result.current.draftRows.find(
+      (row) => row.role_name === "recipient" && row.module === "users"
+    );
+    expect(created).toBeDefined();
+    expect(created?.actions).toEqual(["view"]);
   });
 });

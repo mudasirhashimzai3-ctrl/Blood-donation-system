@@ -75,6 +75,7 @@ export type ChangePasswordData = {
 export type LoginCredentials = {
   username: string;
   password: string;
+  role: "admin" | "donor" | "recipient";
 };
 
 const normalizeUserProfileLanguage = (profile: UserProfile): UserProfile => ({
@@ -374,6 +375,7 @@ export const useUserStore = create<UserState>()(
       hasPermission(permission, all: boolean = false) {
         const { userProfile } = get();
         if (!userProfile) return false;
+        if (userProfile.role === "admin") return true;
 
         // Normalize permission to array if it's a single permission
         const permissionsArray = Array.isArray(permission)

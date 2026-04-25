@@ -111,7 +111,9 @@ class CanAccessSettings(permissions.BasePermission):
             return True
         
         # For modify operations, check admin role
-        return user.role_name == 'admin'
+        from accounts.models import normalize_role_name
+
+        return normalize_role_name(user.role_name) == "admin"
         
 
 class PermissionMixin:
@@ -190,8 +192,18 @@ def _user_has_permission(user, permission_module, permission_action):
     """Check if user has specific permission through their roles"""
     if user.is_superuser:
         return True
-    
-    from accounts.models import UserPermission, RolePermission  # Import here to avoid circular imports
+
+    from accounts.models import (  # Import here to avoid circular imports
+        RolePermission,
+        UserPermission,
+        expand_role_names,
+        normalize_role_name,
+    )
+
+    # Admin role always has full access, regardless of matrix rows.
+    if normalize_role_name(getattr(user, "role_name", None)) == "admin":
+        return True
+
     permission_actions = [permission_action, 'all']
     override = UserPermission.objects.filter(
         user=user,
@@ -200,13 +212,15 @@ def _user_has_permission(user, permission_module, permission_action):
     )
     if override.exists():
         if override.count() > 1:
-            override = override.filter(permission_action='all')
-        return override.first().allow
+            override = override.filter(permission__action='all')
+        selected_override = override.first()
+        if selected_override:
+            return selected_override.allow
     try:
         # Get user's roles and check permissions
-        role_name = user.role_name
+        role_names = expand_role_names([user.role_name])
         return RolePermission.objects.filter(
-            role_name=role_name,
+            role_name__in=role_names,
             permission__module=permission_module,
             permission__action__in=permission_actions
         ).exists()

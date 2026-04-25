@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 
+from accounts.models import expand_role_names
 from notifications.models import Notification
 
 User = get_user_model()
@@ -29,7 +30,8 @@ def _resolve_users(*, user_ids=None, role_names=None):
         resolved_ids.update(int(item) for item in user_ids)
 
     if role_names:
-        role_users = queryset.filter(role_name__in=role_names).values_list("id", flat=True)
+        expanded_roles = expand_role_names(role_names)
+        role_users = queryset.filter(role_name__in=expanded_roles).values_list("id", flat=True)
         resolved_ids.update(role_users)
 
     if not resolved_ids:

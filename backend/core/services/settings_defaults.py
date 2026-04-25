@@ -47,7 +47,7 @@ SECTION_DEFAULTS = {
     },
     "user_roles": {
         "allow_user_invite": True,
-        "default_new_user_role": "viewer",
+        "default_new_user_role": "donor",
         "allow_role_editing": False,
         "allow_self_profile_edit": True,
         "enforce_2fa_for_admin": False,

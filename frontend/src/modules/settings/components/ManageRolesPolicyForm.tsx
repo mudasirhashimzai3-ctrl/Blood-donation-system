@@ -13,9 +13,9 @@ interface ManageRolesPolicyFormProps {
 }
 
 const roleOptions = [
-  { value: "admin", label: "Administrator" },
-  { value: "receptionist", label: "Receptionist" },
-  { value: "viewer", label: "Viewer" },
+  { value: "admin", label: "Admin" },
+  { value: "recipient", label: "Recipient" },
+  { value: "donor", label: "Donor" },
 ];
 
 export default function ManageRolesPolicyForm({

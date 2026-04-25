@@ -33,7 +33,7 @@ import { useSettingsDirtyGuard } from "../hooks/useSettingsDirtyGuard";
 
 const policyDefaults: UserRolePolicyFormValues = {
   allow_user_invite: true,
-  default_new_user_role: "viewer",
+  default_new_user_role: "donor",
   allow_role_editing: false,
   allow_self_profile_edit: true,
   enforce_2fa_for_admin: false,

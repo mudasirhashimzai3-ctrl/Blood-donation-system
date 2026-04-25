@@ -17,6 +17,10 @@ const storeRef = vi.hoisted(() => ({
 }));
 
 vi.mock("react-i18next", () => ({
+  initReactI18next: {
+    type: "3rdParty",
+    init: () => {},
+  },
   useTranslation: () => ({
     t: (
       key: string,
@@ -66,7 +70,16 @@ describe("LoginPage UI", () => {
     expect(screen.getByText("Blood Donation Command Center")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sign In" })).toBeInTheDocument();
     expect(screen.getByLabelText("Username")).toBeInTheDocument();
+    expect(screen.getByLabelText("Role")).toBeInTheDocument();
     expect(screen.getByLabelText("Password")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Sign up as Donor" })).toHaveAttribute(
+      "href",
+      "/auth/signup?role=donor"
+    );
+    expect(screen.getByRole("link", { name: "Sign up as Recipient" })).toHaveAttribute(
+      "href",
+      "/auth/signup?role=recipient"
+    );
   });
 
   it("shows account lockout panel when backend returns 429", async () => {
@@ -93,6 +106,7 @@ describe("LoginPage UI", () => {
     );
 
     await user.type(screen.getByLabelText("Username"), "operator");
+    await user.selectOptions(screen.getByLabelText("Role"), "donor");
     await user.type(screen.getByLabelText("Password"), "Password123!");
     await user.click(screen.getByRole("button", { name: "Sign In" }));
 

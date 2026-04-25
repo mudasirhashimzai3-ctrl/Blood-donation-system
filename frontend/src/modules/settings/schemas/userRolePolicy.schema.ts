@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const userRolePolicySchema = z.object({
   allow_user_invite: z.boolean(),
-  default_new_user_role: z.enum(["admin", "receptionist", "viewer"]),
+  default_new_user_role: z.enum(["admin", "recipient", "donor"]),
   allow_role_editing: z.boolean(),
   allow_self_profile_edit: z.boolean(),
   enforce_2fa_for_admin: z.boolean(),

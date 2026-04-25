@@ -20,7 +20,7 @@ export type SystemSettingsSection =
   | "localization"
   | "security";
 
-export type RoleName = "admin" | "receptionist" | "viewer";
+export type RoleName = "admin" | "recipient" | "donor";
 
 export interface GeneralSettings {
   organization_name: string;

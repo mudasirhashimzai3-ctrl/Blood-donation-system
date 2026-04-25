@@ -3,14 +3,15 @@ from collections import defaultdict
 from django.db import transaction
 from rest_framework import serializers
 
-from accounts.models import ROLE_CHOICES, RolePermission
+from accounts.models import PUBLIC_ROLE_NAMES, RolePermission, expand_role_names, normalize_role_name
 from core.models import Permission
 
 MATRIX_ACTIONS = ("view", "add", "change", "delete", "all")
+MANUAL_ROLE_NAMES = ("donor", "recipient")
 
 
 def get_role_names() -> list[str]:
-    return [role for role, _ in ROLE_CHOICES]
+    return list(PUBLIC_ROLE_NAMES)
 
 
 def get_permission_modules() -> list[str]:
@@ -35,63 +36,73 @@ def get_permission_matrix_payload() -> dict:
     grouped: dict[tuple[str, str], set[str]] = defaultdict(set)
     queryset = RolePermission.objects.select_related("permission")
     for row in queryset:
-        grouped[(row.role_name, row.permission.module)].add(row.permission.action)
+        public_role = normalize_role_name(row.role_name)
+        if public_role not in MANUAL_ROLE_NAMES:
+            continue
+        grouped[(public_role, row.permission.module)].add(row.permission.action)
 
-    matrix = [
-        {
-            "role_name": role_name,
-            "module": module,
-            "actions": sorted(actions),
-        }
-        for (role_name, module), actions in grouped.items()
-    ]
-    matrix.sort(key=lambda item: (item["role_name"], item["module"]))
+    modules = get_permission_modules()
+    matrix = []
+    for role_name in get_role_names():
+        for module in modules:
+            if role_name == "admin":
+                actions = list(MATRIX_ACTIONS)
+            else:
+                actions = sorted(grouped.get((role_name, module), set()))
+
+            matrix.append(
+                {
+                    "role_name": role_name,
+                    "module": module,
+                    "actions": actions,
+                }
+            )
 
     return {
         "roles": get_role_names(),
-        "modules": get_permission_modules(),
+        "modules": modules,
         "actions": list(MATRIX_ACTIONS),
         "matrix": matrix,
     }
 
 
-def _validate_guardrail(rows: list[dict]) -> None:
-    role_module_map: dict[tuple[str, str], set[str]] = defaultdict(set)
-    for row in rows:
-        role_module_map[(row["role_name"], row["module"])].update(row["actions"])
-
-    admin_settings_actions = role_module_map.get(("admin", "settings"), set())
-    if "all" in admin_settings_actions:
-        return
-
-    missing = [action for action in ("view", "change") if action not in admin_settings_actions]
-    if missing:
-        raise serializers.ValidationError(
-            {
-                "matrix": (
-                    "Admin must retain settings.view and settings.change permissions."
-                )
-            }
-        )
-
-
 def replace_permission_matrix(rows: list[dict]) -> None:
     ensure_permission_catalog()
-    _validate_guardrail(rows)
 
     with transaction.atomic():
-        RolePermission.objects.filter(role_name__in=get_role_names()).delete()
+        RolePermission.objects.filter(role_name__in=expand_role_names(get_role_names())).delete()
 
         permission_lookup = {
             (permission.module, permission.action): permission
             for permission in Permission.objects.filter(action__in=MATRIX_ACTIONS)
         }
 
-        create_rows = []
+        donor_recipient_map: dict[tuple[str, str], set[str]] = defaultdict(set)
         for row in rows:
-            role_name = row["role_name"]
-            module = row["module"]
-            for action in sorted(set(row["actions"])):
+            role_name = normalize_role_name(row["role_name"])
+            if role_name not in MANUAL_ROLE_NAMES:
+                continue
+            donor_recipient_map[(role_name, row["module"])].update(row["actions"])
+
+        create_rows = []
+
+        # Admin is always full access.
+        for module in get_permission_modules():
+            for action in MATRIX_ACTIONS:
+                permission = permission_lookup.get((module, action))
+                if not permission:
+                    raise serializers.ValidationError(
+                        {
+                            "matrix": (
+                                f"Permission {module}.{action} is not configured."
+                            )
+                        }
+                    )
+                create_rows.append(RolePermission(role_name="admin", permission=permission))
+
+        # Donor/recipient are configured manually.
+        for (role_name, module), actions in donor_recipient_map.items():
+            for action in sorted(set(actions)):
                 permission = permission_lookup.get((module, action))
                 if not permission:
                     raise serializers.ValidationError(

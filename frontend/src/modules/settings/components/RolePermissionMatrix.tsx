@@ -1,6 +1,7 @@
 import { Button, Checkbox } from "@components/ui";
 
 import type { RoleName, RolePermissionMatrixRow } from "../types/settings.types";
+import { getRoleLabel } from "../utils/roleLabels";
 
 interface RolePermissionMatrixProps {
   roles: RoleName[];
@@ -40,10 +41,16 @@ export default function RolePermissionMatrix({
     <div className="space-y-6">
       {roles.map((role) => (
         <div key={role} className="space-y-3 rounded-lg border border-border p-4">
-          <h4 className="text-sm font-semibold text-text-primary">{toTitle(role)} Permissions</h4>
+          <h4 className="text-sm font-semibold text-text-primary">{getRoleLabel(role)} Permissions</h4>
+          {role === "admin" ? (
+            <p className="text-xs text-text-secondary">
+              Admin permissions are fixed to full access.
+            </p>
+          ) : null}
           <div className="space-y-2">
             {modules.map((module) => {
               const roleActions = getActions(role, module);
+              const disableRowEditing = readOnly || role === "admin";
               return (
                 <div
                   key={`${role}-${module}`}
@@ -56,7 +63,7 @@ export default function RolePermissionMatrix({
                         key={`${role}-${module}-${action}`}
                         checked={roleActions.includes(action)}
                         label={toTitle(action)}
-                        disabled={readOnly}
+                        disabled={disableRowEditing}
                         onChange={() => onToggleAction(role, module, action)}
                       />
                     ))}

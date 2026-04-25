@@ -1,7 +1,16 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
-from .models import ROLE_CHOICES, ActivityLog, User, RolePermission
+from core.models import Permission
+from .models import (
+    ROLE_CHOICES,
+    PUBLIC_ROLE_NAMES,
+    ActivityLog,
+    User,
+    RolePermission,
+    expand_role_names,
+    normalize_role_name,
+)
 # serializers.py
 
 
@@ -9,12 +18,14 @@ class LoginSerializer(serializers.Serializer):
     """Login serializer"""
     username = serializers.CharField()
     password = serializers.CharField(style={'input_type': 'password'})
+    role = serializers.ChoiceField(choices=[("admin", "Admin"), ("donor", "Donor"), ("recipient", "Recipient")])
 
     def validate(self, attrs):
         username = attrs.get('username')
         password = attrs.get('password')
+        selected_role = attrs.get('role')
 
-        if username and password:
+        if username and password and selected_role:
             user = authenticate(
                 request=self.context.get('request'),
                 username=username,
@@ -24,11 +35,54 @@ class LoginSerializer(serializers.Serializer):
                 raise serializers.ValidationError('Invalid credentials.')
             if not user.is_active:
                 raise serializers.ValidationError('User account is disabled.')
+
+            if normalize_role_name(user.role_name) != normalize_role_name(selected_role):
+                raise serializers.ValidationError('Invalid credentials.')
             
             attrs['user'] = user
             return attrs
         else:
-            raise serializers.ValidationError('Must include username and password.')
+            raise serializers.ValidationError('Must include username, password, and role.')
+
+
+class SignupSerializer(serializers.Serializer):
+    first_name = serializers.CharField(max_length=150)
+    last_name = serializers.CharField(max_length=150)
+    username = serializers.CharField(max_length=150)
+    email = serializers.EmailField(max_length=254, required=False, allow_blank=True)
+    phone = serializers.CharField(max_length=20)
+    password = serializers.CharField(write_only=True, validators=[validate_password])
+    confirm_password = serializers.CharField(write_only=True)
+    role = serializers.ChoiceField(choices=[("donor", "Donor"), ("recipient", "Recipient")])
+
+    def validate_username(self, value):
+        if User.objects.filter(username__iexact=value).exists():
+            raise serializers.ValidationError("Username already exists")
+        return value
+
+    def validate_email(self, value):
+        if not value:
+            return ""
+        if User.objects.filter(email__iexact=value).exists():
+            raise serializers.ValidationError("Email already exists")
+        return value
+
+    def validate(self, attrs):
+        if attrs["password"] != attrs["confirm_password"]:
+            raise serializers.ValidationError({"confirm_password": "Passwords do not match"})
+        return attrs
+
+    def create(self, validated_data):
+        role_name = normalize_role_name(validated_data.pop("role"))
+        validated_data.pop("confirm_password", None)
+        password = validated_data.pop("password")
+
+        user = User.objects.create_user(
+            password=password,
+            role_name=role_name,
+            **validated_data,
+        )
+        return user
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -49,12 +103,16 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def get_permissions(self, obj):
         """Get all permissions for this user through roles and direct permissions"""
+        if normalize_role_name(obj.role_name) == "admin":
+            return [module for module, _ in Permission.MODULES]
+
         permissions = set()
         
         # Get permissions from role
         if obj.role_name:
-            role_name = obj.role_name
-            role_permissions = RolePermission.objects.filter(role_name=role_name)
+            role_permissions = RolePermission.objects.filter(
+                role_name__in=expand_role_names([obj.role_name])
+            )
             
             for rp in role_permissions:
                 permissions.add(rp.permission.module)
@@ -80,7 +138,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'username': data['username'],
             'email': data['email'],
             'phone': data['phone'],
-            'role': data['role_name'] if data['role_name'] else None,
+            'role': normalize_role_name(data['role_name']) if data['role_name'] else None,
             'permissions': data['permissions'],
             'preferences': {
                 'language': data['language_preference'],
@@ -93,8 +151,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
         if 'role_name' in validated_data:
             role_name = validated_data.pop('role_name')
             if role_name:
-                if role_name in ROLE_CHOICES:
-                    instance.role_name = role_name
+                normalized_role = normalize_role_name(role_name)
+                if normalized_role in PUBLIC_ROLE_NAMES:
+                    instance.role_name = normalized_role
                 else:
                     raise serializers.ValidationError({'role_name': 'Invalid role Name'})
         
@@ -136,14 +195,12 @@ class CreateUserSerializer(serializers.ModelSerializer):
         return value
 
     def validate_role_name(self, role_name):
-        if role_name == 'admin':
+        normalized_role = normalize_role_name(role_name)
+        if normalized_role == 'admin':
             raise serializers.ValidationError("Invalid Role Name")
-        for role in ROLE_CHOICES:
-            if role_name == role[0]:
-                break
-        else:
+        if normalized_role not in {"donor", "recipient"}:
             raise serializers.ValidationError("Invalid Role Name")
-        return role_name
+        return normalized_role
 
     def create(self, validated_data):
         import secrets
@@ -153,7 +210,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
         from datetime import datetime
         from django.utils import timezone
 
-        role_name = validated_data.pop('role_name')
+        role_name = normalize_role_name(validated_data.pop('role_name'))
         password = validated_data.pop('password')
         send_email = validated_data.pop('send_verification_email', False)
 

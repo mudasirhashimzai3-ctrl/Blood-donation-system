@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const rolePermissionMatrixRowSchema = z.object({
-  role_name: z.enum(["admin", "receptionist", "viewer"]),
+  role_name: z.enum(["admin", "recipient", "donor"]),
   module: z.string().min(1, "Module is required"),
   actions: z.array(z.string()).default([]),
 });

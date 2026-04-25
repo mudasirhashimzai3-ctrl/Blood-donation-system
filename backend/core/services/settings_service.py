@@ -7,6 +7,7 @@ from django.conf import settings as django_settings
 from django.core import signing
 from django.core.cache import cache
 
+from accounts.models import normalize_role_name
 from core.models import SettingAuditLog, Settings
 from core.permissions import _user_has_permission
 
@@ -143,6 +144,11 @@ def _apply_runtime_resolvers(section: str, payload: dict) -> dict:
 def _sanitize_public_payload(section: str, payload: dict) -> dict:
     public_payload = deepcopy(payload)
 
+    if section == "user_roles" and "default_new_user_role" in public_payload:
+        public_payload["default_new_user_role"] = normalize_role_name(
+            public_payload.get("default_new_user_role")
+        )
+
     for secret_field in SECRET_FIELDS_BY_SECTION.get(section, []):
         secret_value = public_payload.get(secret_field, "") or ""
         public_payload[f"has_{secret_field}"] = bool(secret_value)
@@ -217,6 +223,10 @@ def _build_persisted_payload(section: str, updates: dict) -> dict:
                 continue
             else:
                 payload_to_store[key] = encrypt_secret(str(value))
+            continue
+
+        if section == "user_roles" and key == "default_new_user_role":
+            payload_to_store[key] = normalize_role_name(value)
             continue
 
         payload_to_store[key] = value

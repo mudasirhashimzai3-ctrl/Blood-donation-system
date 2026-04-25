@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.utils import timezone
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
@@ -15,11 +15,12 @@ from core.permissions import (
 )
 from core.services.settings_service import get_runtime_security_settings
 from .models import (
-    ActivityLog, User, UserPermission
+    ActivityLog, User, UserPermission, normalize_role_name
 )
 from .serializers import (
     ActivityLogSerializer, UserListSerializer, UserProfileSerializer,
     ChangePasswordSerializer, LoginSerializer,
+    SignupSerializer,
     CreateUserSerializer, ForgotPasswordSerializer,
     VerifyResetCodeSerializer, ResetPasswordSerializer, VerifyEmailSerializer,
     ResendVerificationSerializer
@@ -67,7 +68,7 @@ class UserViewSet(PermissionMixin, viewsets.ModelViewSet):
     def get_queryset(self):
 
         user = self.request.user
-        if user.role_name and user.role_name == 'admin':
+        if normalize_role_name(user.role_name) == "admin":
             return User.objects.all()
         else:
             # Regular users can only see themselves
@@ -140,6 +141,31 @@ class UserViewSet(PermissionMixin, viewsets.ModelViewSet):
 class AuthViewSet(viewsets.ViewSet):
     """Authentication viewset"""
     from django.core.handlers.wsgi import WSGIRequest
+
+    @action(detail=False, methods=["post"], url_path="signup", permission_classes=[AllowAny], authentication_classes=[])
+    def signup(self, request):
+        """Public signup for donor/recipient roles."""
+        serializer = SignupSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        public_role = serializer.validated_data["role"]
+        user = serializer.save()
+
+        return Response(
+            {
+                "message": "Signup successful",
+                "user": {
+                    "id": str(user.id),
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "username": user.username,
+                    "email": user.email,
+                    "phone": user.phone,
+                    "role": public_role,
+                },
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
     @action(detail=False, methods=['post'])
     def login(self, request: WSGIRequest):
         """User login with attempt tracking and lockout"""

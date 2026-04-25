@@ -42,6 +42,30 @@ export interface VerifyEmailResponse {
   email: string;
 }
 
+export interface SignupRequest {
+  first_name: string;
+  last_name: string;
+  username: string;
+  email?: string;
+  phone: string;
+  password: string;
+  confirm_password: string;
+  role: "donor" | "recipient";
+}
+
+export interface SignupResponse {
+  message: string;
+  user: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    username: string;
+    email: string;
+    phone: string;
+    role: "donor" | "recipient";
+  };
+}
+
 export interface LoginAttemptInfo {
   attempts: number;
   remaining: number;
@@ -53,6 +77,12 @@ export interface LoginAttemptInfo {
  * Handles password reset, email verification, and session management
  */
 export const authService = {
+  /**
+   * Public signup for donor/recipient accounts
+   */
+  signup: (data: SignupRequest) =>
+    apiClient.post<SignupResponse>("/accounts/auth/signup/", data),
+
   /**
    * Request password reset code via email
    * @param data Email or username

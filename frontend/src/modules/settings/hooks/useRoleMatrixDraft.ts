@@ -36,7 +36,16 @@ export const useRoleMatrixDraft = (initialRows: RolePermissionMatrixRow[]) => {
       const index = next.findIndex(
         (row) => row.role_name === roleName && row.module === module
       );
-      if (index < 0) return next;
+      if (index < 0) {
+        return normalize([
+          ...next,
+          {
+            role_name: roleName,
+            module,
+            actions: [action],
+          },
+        ]);
+      }
 
       const actions = new Set(next[index].actions);
       if (actions.has(action)) {

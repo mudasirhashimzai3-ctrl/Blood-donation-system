@@ -2,6 +2,7 @@ import { Navigate, createBrowserRouter, RouterProvider } from "react-router-dom"
 import { AuthGuard } from "@/providers";
 import {
   LoginPage,
+  SignupPage,
   ForgotPasswordPage,
   ResetPasswordPage,
   VerifyEmailPage,
@@ -108,6 +109,10 @@ function AppRouterProvider() {
     {
       path: "/auth/login",
       element: <LoginPage />,
+    },
+    {
+      path: "/auth/signup",
+      element: <SignupPage />,
     },
     {
       path: "/auth/forgot-password",

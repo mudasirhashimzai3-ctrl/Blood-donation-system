@@ -27,8 +27,8 @@ class SettingsApiTests(APITestCase):
 
         RolePermission.objects.get_or_create(role_name="admin", permission=view_perm)
         RolePermission.objects.get_or_create(role_name="admin", permission=change_perm)
-        RolePermission.objects.get_or_create(role_name="receptionist", permission=view_perm)
-        RolePermission.objects.get_or_create(role_name="viewer", permission=view_perm)
+        RolePermission.objects.get_or_create(role_name="recipient", permission=view_perm)
+        RolePermission.objects.get_or_create(role_name="donor", permission=view_perm)
 
     def setUp(self):
         self.admin = User.objects.create_user(
@@ -37,10 +37,10 @@ class SettingsApiTests(APITestCase):
             role_name="admin",
             email="admin@example.com",
         )
-        self.receptionist = User.objects.create_user(
+        self.recipient = User.objects.create_user(
             username=f"settings-rec-{User.objects.count() + 1}",
             password="StrongPass123!",
-            role_name="receptionist",
+            role_name="recipient",
             email="rec@example.com",
         )
 
@@ -95,8 +95,8 @@ class SettingsApiTests(APITestCase):
         self.assertTrue(response.data["has_smtp_password"])
         self.assertEqual(response.data["smtp_password"], "")
 
-    def test_receptionist_can_view_but_cannot_update(self):
-        self.client.force_authenticate(self.receptionist)
+    def test_recipient_can_view_but_cannot_update(self):
+        self.client.force_authenticate(self.recipient)
 
         view_response = self.client.get(f"{self.base_url}general/")
         self.assertEqual(view_response.status_code, status.HTTP_200_OK)
@@ -113,19 +113,19 @@ class SettingsApiTests(APITestCase):
         response = self.client.get(f"{self.base_url}user-roles/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("allow_user_invite", response.data)
-        self.assertIn(response.data["default_new_user_role"], {"admin", "receptionist", "viewer"})
+        self.assertIn(response.data["default_new_user_role"], {"admin", "recipient", "donor"})
 
     def test_admin_can_update_user_roles_and_writes_audit_log(self):
         self.client.force_authenticate(self.admin)
         payload = {
             "allow_user_invite": False,
-            "default_new_user_role": "receptionist",
+            "default_new_user_role": "recipient",
             "allow_role_editing": True,
         }
         response = self.client.put(f"{self.base_url}user-roles/", payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data["allow_user_invite"])
-        self.assertEqual(response.data["default_new_user_role"], "receptionist")
+        self.assertEqual(response.data["default_new_user_role"], "recipient")
 
         self.assertTrue(SettingAuditLog.objects.filter(section="user_roles").exists())
 
@@ -146,7 +146,7 @@ class SettingsApiTests(APITestCase):
             "matrix": [
                 {"role_name": "admin", "module": "settings", "actions": ["view", "change"]},
                 {"role_name": "admin", "module": "users", "actions": ["view", "add", "change", "delete"]},
-                {"role_name": "receptionist", "module": "settings", "actions": ["view"]},
+                {"role_name": "recipient", "module": "settings", "actions": ["view"]},
             ]
         }
         response = self.client.put(
@@ -176,7 +176,7 @@ class SettingsApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_non_admin_cannot_update_user_role_permissions(self):
-        self.client.force_authenticate(self.receptionist)
+        self.client.force_authenticate(self.recipient)
         payload = {
             "matrix": [
                 {"role_name": "admin", "module": "settings", "actions": ["view", "change"]},
@@ -189,7 +189,7 @@ class SettingsApiTests(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_guardrail_prevents_removing_admin_settings_permissions(self):
+    def test_admin_permissions_remain_full_even_if_payload_restricts_admin(self):
         self.client.force_authenticate(self.admin)
         payload = {
             "matrix": [
@@ -201,8 +201,20 @@ class SettingsApiTests(APITestCase):
             payload,
             format="json",
         )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("matrix", response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        settings_admin_row = next(
+            (
+                item
+                for item in response.data["matrix"]
+                if item["role_name"] == "admin" and item["module"] == "settings"
+            ),
+            None,
+        )
+        self.assertIsNotNone(settings_admin_row)
+        self.assertEqual(
+            set(settings_admin_row["actions"]),
+            {"view", "add", "change", "delete", "all"},
+        )
 
     @patch("django.core.mail.send_mail")
     def test_test_email_endpoint(self, send_mail_mock):
