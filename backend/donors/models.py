@@ -23,6 +23,13 @@ class Donor(BaseModel):
         ("pending", "Pending"),
     ]
 
+    user = models.OneToOneField(
+        "accounts.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="donor",
+    )
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     phone = models.CharField(max_length=10)

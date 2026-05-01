@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 
 import { AFGHANISTAN_PROVINCES, useHospital, useHospitalsList } from "@/modules/hospitals";
 import type { Province } from "@/modules/hospitals";
-import { useRecipientsList } from "@/modules/recipients";
 import { Button, Input, Select, Switch } from "@components/ui";
 import { type BloodRequestFormValues } from "../schemas/bloodRequestSchemas";
 import {
@@ -55,14 +54,12 @@ export default function BloodRequestForm({
   const responseDeadline = watch("response_deadline");
   const selectedHospitalId = watch("hospital");
   const [province, setProvince] = useState<Province | "">("");
-  const { data: recipientsData } = useRecipientsList({ page_size: 100 });
   const { data: selectedHospital } = useHospital(selectedHospitalId, { enabled: selectedHospitalId > 0 });
   const { data: hospitalsData } = useHospitalsList(
     { page_size: 100, is_active: true, province: province || undefined },
     { enabled: Boolean(province) }
   );
 
-  const recipients = recipientsData?.results ?? [];
   const hospitals = hospitalsData?.results ?? [];
 
   useEffect(() => {
@@ -70,6 +67,16 @@ export default function BloodRequestForm({
       setProvince(selectedHospital.province);
     }
   }, [province, selectedHospital]);
+
+  useEffect(() => {
+    if (!selectedHospital) return;
+    if (selectedHospital.latitude) {
+      setValue("location_lat", String(selectedHospital.latitude), { shouldDirty: true, shouldValidate: true });
+    }
+    if (selectedHospital.longitude) {
+      setValue("location_lon", String(selectedHospital.longitude), { shouldDirty: true, shouldValidate: true });
+    }
+  }, [selectedHospital, setValue]);
 
   return (
     <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
@@ -86,27 +93,7 @@ export default function BloodRequestForm({
         }}
       />
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Controller
-          control={control}
-          name="recipient"
-          render={({ field }) => (
-            <Select
-              label={t("bloodRequests.form.recipient", "Recipient")}
-              error={errors.recipient?.message}
-              value={String(field.value || "")}
-              options={[
-                { value: "", label: t("bloodRequests.form.recipientPlaceholder", "Select recipient") },
-                ...recipients.map((recipient) => ({
-                  value: String(recipient.id),
-                  label: `${recipient.full_name} (${recipient.phone})`,
-                })),
-              ]}
-              onChange={(event) => field.onChange(Number(event.target.value))}
-            />
-          )}
-        />
-
+      <div className="grid gap-4 md:grid-cols-1">
         <Controller
           control={control}
           name="hospital"
@@ -198,39 +185,6 @@ export default function BloodRequestForm({
           render={({ field }) => (
             <Switch
               label={t("bloodRequests.form.autoMatchEnabled", "Auto match enabled")}
-              checked={field.value}
-              onChange={(event) => field.onChange(event.target.checked)}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="is_active"
-          render={({ field }) => (
-            <Switch
-              label={t("bloodRequests.form.isActive", "Active")}
-              checked={field.value}
-              onChange={(event) => field.onChange(event.target.checked)}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="is_verified"
-          render={({ field }) => (
-            <Switch
-              label={t("bloodRequests.form.isVerified", "Verified")}
-              checked={field.value}
-              onChange={(event) => field.onChange(event.target.checked)}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="is_emergency"
-          render={({ field }) => (
-            <Switch
-              label={t("bloodRequests.form.isEmergency", "Emergency")}
               checked={field.value}
               onChange={(event) => field.onChange(event.target.checked)}
             />

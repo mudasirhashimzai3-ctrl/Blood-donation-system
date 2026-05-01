@@ -20,7 +20,7 @@ class RecipientFilter(filterset.FilterSet):
         fields = ["required_blood_group", "emergency_level", "status", "city"]
 
 
-class RecipientViewSet(PermissionMixin, viewsets.ModelViewSet):
+class RecipientViewSet(PermissionMixin, viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     permission_module = "recipients"
     queryset = Recipient.objects.select_related("hospital").all().order_by("-created_at")

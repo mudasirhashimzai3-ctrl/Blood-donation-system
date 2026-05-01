@@ -5,10 +5,12 @@ import { Button, Card, CardContent, Input, Select, Switch, Textarea } from "@com
 import {
   DONATION_STATUS_OPTIONS,
   type Donation,
+  type DonationRespondPayload,
   type DonationReminderChannel,
   type DonationStatus,
 } from "../types/donation.types";
 import SendReminderDialog from "./SendReminderDialog";
+import { useUserStore } from "@/modules/auth/stores/useUserStore";
 
 interface DonationActionsPanelProps {
   donation: Donation;
@@ -20,11 +22,13 @@ interface DonationActionsPanelProps {
   onSetPrimary: (value: boolean) => Promise<unknown>;
   onRefreshEstimate: () => Promise<unknown>;
   onSendReminder: (channels: DonationReminderChannel[]) => Promise<unknown>;
+  onRespond?: (payload: DonationRespondPayload) => Promise<unknown>;
   loadingStates?: {
     status?: boolean;
     primary?: boolean;
     estimate?: boolean;
     reminder?: boolean;
+    respond?: boolean;
   };
 }
 
@@ -34,9 +38,11 @@ export default function DonationActionsPanel({
   onSetPrimary,
   onRefreshEstimate,
   onSendReminder,
+  onRespond,
   loadingStates,
 }: DonationActionsPanelProps) {
   const { t } = useTranslation();
+  const userRole = useUserStore((state) => state.userProfile?.role);
   const [status, setStatus] = useState<DonationStatus>(donation.status);
   const [notes, setNotes] = useState(donation.notes ?? "");
   const [cancellationReason, setCancellationReason] = useState(donation.cancellation_reason ?? "");
@@ -46,6 +52,7 @@ export default function DonationActionsPanel({
     () => ["completed", "cancelled", "declined", "expired"].includes(donation.status),
     [donation.status]
   );
+  const isDonorUser = userRole === "donor";
 
   return (
     <>
@@ -55,72 +62,105 @@ export default function DonationActionsPanel({
             {t("donations.actions.title", "Actions")}
           </h3>
 
-          <Switch
-            checked={donation.is_primary}
-            onChange={(event) => {
-              onSetPrimary(event.target.checked);
-            }}
-            disabled={loadingStates?.primary}
-            label={t("donations.actions.primaryToggle", "Set as primary")}
-          />
+          {!isDonorUser ? (
+            <>
+              <Switch
+                checked={donation.is_primary}
+                onChange={(event) => {
+                  onSetPrimary(event.target.checked);
+                }}
+                disabled={loadingStates?.primary}
+                label={t("donations.actions.primaryToggle", "Set as primary")}
+              />
 
-          <Select
-            value={status}
-            onChange={(event) => setStatus(event.target.value as DonationStatus)}
-            disabled={isTerminal}
-            options={DONATION_STATUS_OPTIONS.map((value) => ({
-              value,
-              label: t(`donations.status.${value}`, value),
-            }))}
-          />
+              <Select
+                value={status}
+                onChange={(event) => setStatus(event.target.value as DonationStatus)}
+                disabled={isTerminal}
+                options={DONATION_STATUS_OPTIONS.map((value) => ({
+                  value,
+                  label: t(`donations.status.${value}`, value),
+                }))}
+              />
 
-          <Textarea
-            value={notes}
-            onChange={(event) => setNotes(event.target.value)}
-            label={t("donations.actions.notes", "Notes")}
-            rows={3}
-          />
+              <Textarea
+                value={notes}
+                onChange={(event) => setNotes(event.target.value)}
+                label={t("donations.actions.notes", "Notes")}
+                rows={3}
+              />
 
-          {status === "cancelled" ? (
-            <Input
-              value={cancellationReason}
-              onChange={(event) => setCancellationReason(event.target.value)}
-              label={t("donations.actions.cancellationReason", "Cancellation Reason")}
-            />
+              {status === "cancelled" ? (
+                <Input
+                  value={cancellationReason}
+                  onChange={(event) => setCancellationReason(event.target.value)}
+                  label={t("donations.actions.cancellationReason", "Cancellation Reason")}
+                />
+              ) : null}
+            </>
           ) : null}
 
           <div className="flex flex-wrap gap-2">
-            <Button
-              variant="primary"
-              loading={loadingStates?.status}
-              disabled={isTerminal}
-              onClick={async () => {
-                await onStatusUpdate({
-                  status,
-                  notes,
-                  cancellation_reason: status === "cancelled" ? cancellationReason : null,
-                });
-              }}
-            >
-              {t("donations.actions.updateStatus", "Update Status")}
-            </Button>
-            <Button
-              variant="outline"
-              loading={loadingStates?.estimate}
-              onClick={async () => {
-                await onRefreshEstimate();
-              }}
-            >
-              {t("donations.actions.refreshEstimate", "Refresh Estimate")}
-            </Button>
-            <Button
-              variant="outline"
-              loading={loadingStates?.reminder}
-              disabled={donation.status !== "pending"}
-              onClick={() => setIsReminderOpen(true)}
-            >
-              {t("donations.actions.sendReminder", "Send Reminder")}
-            </Button>
+            {isDonorUser ? (
+              <>
+                <Button
+                  variant="primary"
+                  loading={loadingStates?.respond}
+                  disabled={donation.status !== "pending" || !onRespond}
+                  onClick={async () => {
+                    if (!onRespond) return;
+                    await onRespond({ action: "accept" });
+                  }}
+                >
+                  {t("donations.actions.acceptRequest", "Accept Request")}
+                </Button>
+                <Button
+                  variant="outline"
+                  loading={loadingStates?.respond}
+                  disabled={donation.status !== "pending" || !onRespond}
+                  onClick={async () => {
+                    if (!onRespond) return;
+                    await onRespond({ action: "decline" });
+                  }}
+                >
+                  {t("donations.actions.declineRequest", "Decline")}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="primary"
+                  loading={loadingStates?.status}
+                  disabled={isTerminal}
+                  onClick={async () => {
+                    await onStatusUpdate({
+                      status,
+                      notes,
+                      cancellation_reason: status === "cancelled" ? cancellationReason : null,
+                    });
+                  }}
+                >
+                  {t("donations.actions.updateStatus", "Update Status")}
+                </Button>
+                <Button
+                  variant="outline"
+                  loading={loadingStates?.estimate}
+                  onClick={async () => {
+                    await onRefreshEstimate();
+                  }}
+                >
+                  {t("donations.actions.refreshEstimate", "Refresh Estimate")}
+                </Button>
+                <Button
+                  variant="outline"
+                  loading={loadingStates?.reminder}
+                  disabled={donation.status !== "pending"}
+                  onClick={() => setIsReminderOpen(true)}
+                >
+                  {t("donations.actions.sendReminder", "Send Reminder")}
+                </Button>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>

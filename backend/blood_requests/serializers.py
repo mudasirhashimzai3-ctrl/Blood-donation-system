@@ -6,7 +6,7 @@ from rest_framework import serializers
 from donors.models import Donor
 
 from .models import BloodRequest, BloodRequestNotification
-from .services.matching import MAX_MATCH_RADIUS_KM, haversine_distance_km
+from .services.matching import get_max_match_radius_km, haversine_distance_km
 
 
 class BloodRequestListSerializer(serializers.ModelSerializer):
@@ -239,7 +239,6 @@ class BloodRequestWriteSerializer(serializers.ModelSerializer):
         model = BloodRequest
         fields = [
             "id",
-            "recipient",
             "hospital",
             "blood_group",
             "units_needed",
@@ -270,20 +269,31 @@ class BloodRequestWriteSerializer(serializers.ModelSerializer):
         longitude = attrs.get("location_lon", getattr(self.instance, "location_lon", None))
         response_deadline = attrs.get("response_deadline", getattr(self.instance, "response_deadline", None))
         request_type = attrs.get("request_type", getattr(self.instance, "request_type", "normal"))
+        hospital = attrs.get("hospital", getattr(self.instance, "hospital", None))
 
         errors = {}
 
+        if latitude is None and hospital and hospital.latitude is not None:
+            attrs["location_lat"] = hospital.latitude
+            latitude = attrs["location_lat"]
+        if longitude is None and hospital and hospital.longitude is not None:
+            attrs["location_lon"] = hospital.longitude
+            longitude = attrs["location_lon"]
+
+        auto_match_enabled = attrs.get("auto_match_enabled", getattr(self.instance, "auto_match_enabled", True))
+        if auto_match_enabled and hospital and (hospital.latitude is None or hospital.longitude is None):
+            errors["hospital"] = "Selected hospital does not have coordinates configured for auto matching."
+
+        if latitude is None:
+            errors["location_lat"] = "Latitude is required."
+        if longitude is None:
+            errors["location_lon"] = "Longitude is required."
         if latitude is not None and (latitude < -90 or latitude > 90):
             errors["location_lat"] = "Latitude must be between -90 and 90."
         if longitude is not None and (longitude < -180 or longitude > 180):
             errors["location_lon"] = "Longitude must be between -180 and 180."
         if response_deadline and response_deadline <= timezone.now():
             errors["response_deadline"] = "Response deadline must be in the future."
-
-        recipient = attrs.get("recipient", getattr(self.instance, "recipient", None))
-        hospital = attrs.get("hospital", getattr(self.instance, "hospital", None))
-        if recipient and hospital and recipient.hospital_id != hospital.id:
-            errors["hospital"] = "Selected recipient is not linked to the selected hospital."
 
         if "is_emergency" not in attrs:
             attrs["is_emergency"] = request_type != "normal"
@@ -353,7 +363,7 @@ class AssignDonorSerializer(serializers.Serializer):
             donor.latitude,
             donor.longitude,
         )
-        if distance_km > MAX_MATCH_RADIUS_KM:
+        if distance_km > get_max_match_radius_km():
             raise serializers.ValidationError("Donor is outside the matching radius.")
 
         self.context["donor"] = donor

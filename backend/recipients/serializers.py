@@ -4,8 +4,8 @@ from .models import Recipient
 
 
 class RecipientListSerializer(serializers.ModelSerializer):
-    hospital_name = serializers.CharField(source="hospital.name", read_only=True)
-    city = serializers.CharField(source="hospital.city", read_only=True)
+    hospital_name = serializers.CharField(source="hospital.name", read_only=True, allow_null=True)
+    city = serializers.CharField(source="hospital.city", read_only=True, allow_null=True)
 
     class Meta:
         model = Recipient
@@ -23,14 +23,14 @@ class RecipientListSerializer(serializers.ModelSerializer):
 
 
 class RecipientDetailSerializer(serializers.ModelSerializer):
-    hospital_name = serializers.CharField(source="hospital.name", read_only=True)
+    hospital_name = serializers.CharField(source="hospital.name", read_only=True, allow_null=True)
     hospital_phone = serializers.CharField(source="hospital.phone", read_only=True, allow_null=True)
     hospital_email = serializers.CharField(source="hospital.email", read_only=True, allow_null=True)
-    hospital_address = serializers.CharField(source="hospital.address", read_only=True)
-    city = serializers.CharField(source="hospital.city", read_only=True)
+    hospital_address = serializers.CharField(source="hospital.address", read_only=True, allow_null=True)
+    city = serializers.CharField(source="hospital.city", read_only=True, allow_null=True)
     latitude = serializers.DecimalField(source="hospital.latitude", read_only=True, max_digits=9, decimal_places=6)
     longitude = serializers.DecimalField(source="hospital.longitude", read_only=True, max_digits=9, decimal_places=6)
-    hospital_is_active = serializers.BooleanField(source="hospital.is_active", read_only=True)
+    hospital_is_active = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipient
@@ -67,6 +67,11 @@ class RecipientDetailSerializer(serializers.ModelSerializer):
             "longitude",
             "hospital_is_active",
         ]
+
+    def get_hospital_is_active(self, obj):
+        if not obj.hospital:
+            return None
+        return obj.hospital.is_active
 
     def validate_full_name(self, value):
         normalized = value.strip()

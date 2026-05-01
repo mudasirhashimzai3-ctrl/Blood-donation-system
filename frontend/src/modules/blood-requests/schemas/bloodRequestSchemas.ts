@@ -25,7 +25,6 @@ const fileFieldSchema = z
   });
 
 export const bloodRequestFormSchema = z.object({
-  recipient: z.coerce.number().int().positive("Recipient is required"),
   hospital: z.coerce.number().int().positive("Hospital is required"),
   blood_group: z.enum(BLOOD_GROUP_OPTIONS),
   units_needed: z.coerce.number().int().min(1, "Units needed must be at least 1"),
@@ -48,9 +47,6 @@ export const bloodRequestFormSchema = z.object({
       const parsed = Number(value);
       return !Number.isNaN(parsed) && parsed >= -180 && parsed <= 180;
     }, "Longitude must be between -180 and 180"),
-  is_active: z.boolean(),
-  is_verified: z.boolean(),
-  is_emergency: z.boolean(),
   response_deadline: z
     .string()
     .optional()

@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 from donations.models import Donation
 from donations.services.metrics import build_distance_eta_priority_snapshot
+from donations.services.sync import sync_candidate_notification_for_donation
 from donations.services.transitions import can_transition, is_terminal_status
 
 
@@ -153,6 +154,10 @@ class DonationEstimateRefreshSerializer(serializers.Serializer):
         return donation
 
 
+class DonationRespondSerializer(serializers.Serializer):
+    action = serializers.ChoiceField(choices=[("accept", "accept"), ("decline", "decline")])
+
+
 def apply_status_update(donation: Donation, *, status_value: str, notes=None, cancellation_reason=None):
     original_status = donation.status
     now = timezone.now()
@@ -179,4 +184,5 @@ def apply_status_update(donation: Donation, *, status_value: str, notes=None, ca
             "updated_at",
         ]
     )
+    sync_candidate_notification_for_donation(donation)
     return donation

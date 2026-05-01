@@ -24,8 +24,8 @@ class RecipientApiTests(APITestCase):
             )
             cls.permissions[action] = permission
 
-        for action in actions:
-            RolePermission.objects.get_or_create(role_name="admin", permission=cls.permissions[action])
+        RolePermission.objects.get_or_create(role_name="admin", permission=cls.permissions["view"])
+        RolePermission.objects.get_or_create(role_name="admin", permission=cls.permissions["change"])
         RolePermission.objects.get_or_create(role_name="viewer", permission=cls.permissions["view"])
 
     def setUp(self):
@@ -55,7 +55,7 @@ class RecipientApiTests(APITestCase):
         defaults.update(kwargs)
         return Hospital.objects.create(**defaults)
 
-    def test_create_recipient_defaults_to_active(self):
+    def test_create_recipient_endpoint_is_disabled(self):
         hospital = self._create_hospital()
         payload = {
             "full_name": "Ahmad Khan",
@@ -64,54 +64,7 @@ class RecipientApiTests(APITestCase):
             "hospital": hospital.id,
         }
         response = self.client.post(self.base_url, payload, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["status"], "active")
-        self.assertEqual(response.data["emergency_level"], "normal")
-
-    def test_create_recipient_duplicate_phone_fails(self):
-        hospital = self._create_hospital()
-        Recipient.objects.create(
-            full_name="First Recipient",
-            phone="0700000022",
-            required_blood_group="A+",
-            hospital=hospital,
-            status="active",
-            emergency_level="urgent",
-        )
-        payload = {
-            "full_name": "Second Recipient",
-            "phone": "0700000022",
-            "required_blood_group": "A-",
-            "hospital": hospital.id,
-            "status": "active",
-            "emergency_level": "urgent",
-        }
-        response = self.client.post(self.base_url, payload, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("phone", response.data)
-
-    def test_create_recipient_duplicate_email_fails_case_insensitive(self):
-        hospital = self._create_hospital()
-        Recipient.objects.create(
-            full_name="First Recipient",
-            phone="0700000033",
-            email="recipient@example.com",
-            required_blood_group="AB+",
-            hospital=hospital,
-            emergency_level="normal",
-            status="active",
-        )
-        payload = {
-            "full_name": "Second Recipient",
-            "phone": "0700000034",
-            "email": "RECIPIENT@example.com",
-            "required_blood_group": "AB-",
-            "hospital": hospital.id,
-            "status": "active",
-        }
-        response = self.client.post(self.base_url, payload, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("email", response.data)
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_list_supports_search_filters_ordering_and_pagination(self):
         kabul_hospital = self._create_hospital(name="Kabul Hospital", city="Kabul")
@@ -171,6 +124,21 @@ class RecipientApiTests(APITestCase):
         self.assertIn("latitude", response.data)
         self.assertIn("longitude", response.data)
 
+    def test_retrieve_allows_recipient_without_hospital(self):
+        recipient = Recipient.objects.create(
+            full_name="No Hospital Recipient",
+            phone="0700000062",
+            email="nohospital@recipient.com",
+            required_blood_group="AB-",
+            hospital=None,
+            emergency_level="normal",
+            status="active",
+        )
+        response = self.client.get(f"{self.base_url}{recipient.id}/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNone(response.data["hospital_name"])
+        self.assertIsNone(response.data["hospital_is_active"])
+
     def test_block_and_unblock_actions_change_status(self):
         hospital = self._create_hospital()
         recipient = Recipient.objects.create(
@@ -190,7 +158,7 @@ class RecipientApiTests(APITestCase):
         self.assertEqual(unblock_response.status_code, status.HTTP_200_OK)
         self.assertEqual(unblock_response.data["status"], "active")
 
-    def test_delete_soft_deletes_recipient(self):
+    def test_delete_recipient_endpoint_is_disabled(self):
         hospital = self._create_hospital()
         recipient = Recipient.objects.create(
             full_name="Delete Recipient",
@@ -201,16 +169,9 @@ class RecipientApiTests(APITestCase):
             status="active",
         )
         delete_response = self.client.delete(f"{self.base_url}{recipient.id}/")
-        self.assertEqual(delete_response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(delete_response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-        recipient.refresh_from_db()
-        self.assertIsNotNone(recipient.deleted_at)
-
-        list_response = self.client.get(self.base_url)
-        self.assertEqual(list_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(list_response.data["count"], 0)
-
-    def test_viewer_cannot_mutate_or_block(self):
+    def test_viewer_cannot_block(self):
         hospital = self._create_hospital()
         recipient = Recipient.objects.create(
             full_name="Viewer Check",
@@ -221,18 +182,6 @@ class RecipientApiTests(APITestCase):
             status="active",
         )
         self.client.force_authenticate(user=self.viewer_user)
-
-        create_response = self.client.post(
-            self.base_url,
-            {
-                "full_name": "Unauthorized Recipient",
-                "phone": "0700000092",
-                "required_blood_group": "O+",
-                "hospital": hospital.id,
-            },
-            format="json",
-        )
-        self.assertEqual(create_response.status_code, status.HTTP_403_FORBIDDEN)
 
         block_response = self.client.patch(f"{self.base_url}{recipient.id}/block/", {}, format="json")
         self.assertEqual(block_response.status_code, status.HTTP_403_FORBIDDEN)

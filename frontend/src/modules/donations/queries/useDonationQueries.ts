@@ -3,7 +3,13 @@ import { toast } from "sonner";
 
 import { extractAxiosError } from "@/utils/extractError";
 import { donationService } from "../services/donationService";
-import type { DonationQueryParams, DonationReminderPayload, DonationStatusPayload, PaginatedDonations } from "../types/donation.types";
+import type {
+  DonationQueryParams,
+  DonationReminderPayload,
+  DonationRespondPayload,
+  DonationStatusPayload,
+  PaginatedDonations,
+} from "../types/donation.types";
 import { donationKeys } from "./donationKeys";
 
 export const useDonationsList = (params?: DonationQueryParams) =>
@@ -81,6 +87,22 @@ export const useSendDonationReminder = (id: number) => {
     },
     onError: (error) => {
       toast.error(extractAxiosError(error, "Failed to send reminder"));
+    },
+  });
+};
+
+export const useRespondDonation = (id: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: DonationRespondPayload) => donationService.respond(id, payload).then((res) => res.data),
+    onSuccess: (_data, payload) => {
+      toast.success(payload.action === "accept" ? "Donation accepted" : "Donation declined");
+      queryClient.invalidateQueries({ queryKey: donationKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: donationKeys.lists() });
+    },
+    onError: (error) => {
+      toast.error(extractAxiosError(error, "Failed to submit donor response"));
     },
   });
 };

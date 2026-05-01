@@ -2,6 +2,7 @@ import apiClient from "@/lib/api";
 import type {
   Donation,
   DonationQueryParams,
+  DonationRespondPayload,
   DonationReminderPayload,
   DonationReminderResult,
   DonationStatusPayload,
@@ -27,4 +28,7 @@ export const donationService = {
       `/donations/${id}/send-reminder/`,
       payload
     ),
+
+  respond: (id: number, payload: DonationRespondPayload) =>
+    apiClient.post<Donation>(`/donations/${id}/respond/`, payload),
 };

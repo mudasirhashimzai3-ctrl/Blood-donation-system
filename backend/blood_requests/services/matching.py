@@ -5,6 +5,7 @@ from decimal import Decimal
 from django.db.models import Q
 from django.utils import timezone
 
+from core.services.settings_service import get_runtime_section_payload
 from donors.models import Donor
 
 from ..models import BloodRequest, BloodRequestNotification
@@ -27,6 +28,19 @@ def get_eta_minutes(request_type: str) -> int:
 def default_response_deadline(request_type: str):
     eta_minutes = get_eta_minutes(request_type)
     return timezone.now() + timedelta(minutes=eta_minutes)
+
+
+def get_max_match_radius_km() -> Decimal:
+    default_value = MAX_MATCH_RADIUS_KM
+    try:
+        payload = get_runtime_section_payload("auto_matching")
+        raw_value = payload.get("max_distance_km", default_value)
+        value = Decimal(str(raw_value))
+        if value <= 0:
+            return default_value
+        return value
+    except Exception:
+        return default_value
 
 
 def haversine_distance_km(lat1: Decimal, lon1: Decimal, lat2: Decimal, lon2: Decimal) -> Decimal:
@@ -92,6 +106,7 @@ def auto_match_blood_request(blood_request: BloodRequest, *, max_notifications: 
         .order_by("last_donation_date", "created_at")
     )
 
+    match_radius_km = get_max_match_radius_km()
     within_radius = []
     for donor in eligible_donors:
         distance_km = haversine_distance_km(
@@ -100,7 +115,7 @@ def auto_match_blood_request(blood_request: BloodRequest, *, max_notifications: 
             donor.latitude,
             donor.longitude,
         )
-        if distance_km <= MAX_MATCH_RADIUS_KM:
+        if distance_km <= match_radius_km:
             within_radius.append((donor, distance_km))
 
     within_radius.sort(
@@ -157,4 +172,38 @@ def auto_match_blood_request(blood_request: BloodRequest, *, max_notifications: 
     blood_request.total_notified_donors = total_notified
     blood_request.save(update_fields=["nearby_donors_count", "total_notified_donors", "updated_at"])
 
+    _notify_matched_donor_users(
+        blood_request=blood_request,
+        selected_candidates=selected_candidates,
+    )
+
     return created_or_updated
+
+
+def _notify_matched_donor_users(*, blood_request: BloodRequest, selected_candidates):
+    user_ids = [donor.user_id for donor, _distance in selected_candidates if donor.user_id]
+    if not user_ids:
+        return
+
+    try:
+        from notifications.services import create_notifications
+
+        create_notifications(
+            event_key="blood_request_created",
+            type="reminder",
+            title=f"New blood request #{blood_request.id}",
+            message=(
+                f"A {blood_request.request_type} request for blood group {blood_request.blood_group} "
+                f"is available near {blood_request.hospital.name}."
+            ),
+            sent_via=["in_app"],
+            user_ids=user_ids,
+            request_id=blood_request.id,
+            metadata={
+                "status": blood_request.status,
+                "blood_group": blood_request.blood_group,
+                "request_type": blood_request.request_type,
+            },
+        )
+    except Exception:
+        return

@@ -28,11 +28,24 @@ class Recipient(BaseModel):
         ("critical", "Critical"),
     ]
 
+    user = models.OneToOneField(
+        "accounts.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="recipient",
+    )
     full_name = models.CharField(max_length=200)
     email = models.EmailField(null=True, blank=True)
     phone = models.CharField(max_length=20)
     required_blood_group = models.CharField(max_length=3, choices=BLOOD_GROUP_CHOICES)
-    hospital = models.ForeignKey(Hospital, on_delete=models.PROTECT, related_name="recipients")
+    hospital = models.ForeignKey(
+        Hospital,
+        on_delete=models.PROTECT,
+        related_name="recipients",
+        null=True,
+        blank=True,
+    )
     emergency_level = models.CharField(max_length=20, choices=EMERGENCY_LEVEL_CHOICES, default="normal")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="active")
 

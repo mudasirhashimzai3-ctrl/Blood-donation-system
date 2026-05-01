@@ -5,6 +5,7 @@ from django.core.mail import send_mail
 from django.utils import timezone
 
 from donations.models import Donation
+from donations.services.sync import sync_candidate_notification_for_donation
 
 logger = logging.getLogger(__name__)
 
@@ -131,5 +132,6 @@ def expire_overdue_pending_donations(now=None):
             delta = now - donation.notified_at
             donation.response_time = max(0, int(delta.total_seconds() // 60))
         donation.save(update_fields=["status", "responded_at", "response_time", "updated_at"])
+        sync_candidate_notification_for_donation(donation)
         expired_count += 1
     return expired_count

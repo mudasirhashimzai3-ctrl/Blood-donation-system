@@ -6,6 +6,8 @@ from rest_framework.test import APITestCase
 
 from accounts.models import User
 from core.models import Settings
+from donors.models import Donor
+from recipients.models import Recipient
 
 
 class AuthSecuritySettingsTests(APITestCase):
@@ -148,6 +150,9 @@ class AuthSignupTests(APITestCase):
                 "username": "donor-signup",
                 "email": "donor-signup@example.com",
                 "phone": "0700000001",
+                "donor_blood_group": "O+",
+                "donor_latitude": "34.555300",
+                "donor_longitude": "69.207500",
                 "password": "StrongPass123!",
                 "confirm_password": "StrongPass123!",
                 "role": "donor",
@@ -157,6 +162,9 @@ class AuthSignupTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         created = User.objects.get(username="donor-signup")
         self.assertEqual(created.role_name, "donor")
+        donor_profile = Donor.objects.get(user=created)
+        self.assertEqual(donor_profile.blood_group, "O+")
+        self.assertEqual(donor_profile.status, "active")
 
     def test_recipient_signup_creates_recipient_role(self):
         response = self.client.post(
@@ -167,6 +175,7 @@ class AuthSignupTests(APITestCase):
                 "username": "recipient-signup",
                 "email": "recipient-signup@example.com",
                 "phone": "0700000002",
+                "recipient_required_blood_group": "A+",
                 "password": "StrongPass123!",
                 "confirm_password": "StrongPass123!",
                 "role": "recipient",
@@ -176,6 +185,9 @@ class AuthSignupTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         created = User.objects.get(username="recipient-signup")
         self.assertEqual(created.role_name, "recipient")
+        recipient_profile = Recipient.objects.get(user=created)
+        self.assertEqual(recipient_profile.required_blood_group, "A+")
+        self.assertEqual(recipient_profile.status, "active")
 
     def test_signup_rejects_invalid_role(self):
         response = self.client.post(
@@ -209,6 +221,9 @@ class AuthSignupTests(APITestCase):
                 "username": "existing-user",
                 "email": "existing@example.com",
                 "phone": "0700000004",
+                "donor_blood_group": "O-",
+                "donor_latitude": "34.555300",
+                "donor_longitude": "69.207500",
                 "password": "StrongPass123!",
                 "confirm_password": "StrongPass123!",
                 "role": "donor",
@@ -228,6 +243,7 @@ class AuthSignupTests(APITestCase):
                 "username": "mismatch-user",
                 "email": "mismatch@example.com",
                 "phone": "0700000005",
+                "recipient_required_blood_group": "B+",
                 "password": "StrongPass123!",
                 "confirm_password": "WrongPass123!",
                 "role": "recipient",
@@ -245,6 +261,9 @@ class AuthSignupTests(APITestCase):
                 "last_name": "Email",
                 "username": "no-email-user",
                 "phone": "0700000007",
+                "donor_blood_group": "AB+",
+                "donor_latitude": "34.555300",
+                "donor_longitude": "69.207500",
                 "password": "StrongPass123!",
                 "confirm_password": "StrongPass123!",
                 "role": "donor",
@@ -264,6 +283,9 @@ class AuthSignupTests(APITestCase):
                 "username": "flow-user",
                 "email": "flow@example.com",
                 "phone": "0700000006",
+                "donor_blood_group": "O+",
+                "donor_latitude": "34.555300",
+                "donor_longitude": "69.207500",
                 "password": "StrongPass123!",
                 "confirm_password": "StrongPass123!",
                 "role": "donor",

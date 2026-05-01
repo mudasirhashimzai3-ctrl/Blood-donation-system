@@ -2,15 +2,20 @@ from django_filters import rest_framework as filterset
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, parsers, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from accounts.models import normalize_role_name
 from core.pagination import StandardResultsSetPagination
 from core.permissions import PermissionMixin
 from donations.models import Donation
 from donations.services.compatibility import get_legacy_notifications_for_request
-from donations.services.sync import expire_pending_donations_for_request
+from donations.services.sync import (
+    expire_pending_donations_for_request,
+    notify_request_fulfilled_to_other_donors,
+    sync_candidate_notification_for_donation,
+)
 
 from .models import BloodRequest, BloodRequestNotification
 from .serializers import (
@@ -71,6 +76,25 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
     ordering_fields = ["created_at", "updated_at", "response_deadline", "priority", "units_needed"]
     ordering = ["-created_at"]
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+        role_name = normalize_role_name(getattr(user, "role_name", None))
+
+        if role_name == "recipient":
+            recipient_profile = getattr(user, "recipient", None)
+            if not recipient_profile:
+                return queryset.none()
+            return queryset.filter(recipient=recipient_profile)
+
+        if role_name == "donor":
+            donor_profile = getattr(user, "donor", None)
+            if not donor_profile:
+                return queryset.none()
+            return queryset.filter(donations__donor=donor_profile).distinct()
+
+        return queryset
+
     def get_serializer_class(self):
         if self.action == "list":
             return BloodRequestListSerializer
@@ -79,7 +103,15 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
         return BloodRequestDetailSerializer
 
     def perform_create(self, serializer):
-        instance = serializer.save()
+        role_name = normalize_role_name(getattr(self.request.user, "role_name", None))
+        if role_name != "recipient":
+            raise PermissionDenied("Only recipient users can create blood requests.")
+
+        recipient_profile = getattr(self.request.user, "recipient", None)
+        if recipient_profile is None:
+            raise ValidationError({"detail": "Recipient profile is not configured for this account."})
+
+        instance = serializer.save(recipient=recipient_profile)
         _create_system_notifications(
             event_key="blood_request_created",
             type="request_update",
@@ -128,10 +160,10 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
         donor = serializer.context["donor"]
 
         from django.utils import timezone
-
+        now = timezone.now()
         blood_request.assigned_donor = donor
         blood_request.status = "matched"
-        blood_request.matched_at = timezone.now()
+        blood_request.matched_at = now
         blood_request.save(update_fields=["assigned_donor", "status", "matched_at", "updated_at"])
         _create_system_notifications(
             event_key="blood_request_assigned",
@@ -148,7 +180,7 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
             request=blood_request,
             deleted_at__isnull=True,
             is_primary=True,
-        ).exclude(donor=donor).update(is_primary=False, updated_at=timezone.now())
+        ).exclude(donor=donor).update(is_primary=False, updated_at=now)
         donation = Donation.objects.filter(
             request=blood_request,
             donor=donor,
@@ -158,7 +190,7 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
             donation.is_primary = True
             if donation.status == "pending":
                 donation.status = "accepted"
-                donation.responded_at = timezone.now()
+                donation.responded_at = now
                 if donation.notified_at:
                     delta = donation.responded_at - donation.notified_at
                     donation.response_time = max(0, int(delta.total_seconds() // 60))
@@ -171,6 +203,45 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
                     "updated_at",
                 ]
             )
+            sync_candidate_notification_for_donation(donation)
+
+        other_candidates = Donation.objects.filter(
+            request=blood_request,
+            deleted_at__isnull=True,
+            status__in=Donation.PRIMARY_ACTIVE_STATUSES,
+        ).exclude(donor=donor)
+        for candidate in other_candidates:
+            candidate.is_primary = False
+            candidate.status = "expired"
+            candidate.responded_at = candidate.responded_at or now
+            if candidate.notified_at and candidate.response_time is None:
+                delta = candidate.responded_at - candidate.notified_at
+                candidate.response_time = max(0, int(delta.total_seconds() // 60))
+            candidate.save(
+                update_fields=[
+                    "is_primary",
+                    "status",
+                    "responded_at",
+                    "response_time",
+                    "updated_at",
+                ]
+            )
+            sync_candidate_notification_for_donation(candidate)
+
+        BloodRequestNotification.objects.filter(
+            blood_request=blood_request,
+            channel="in_app",
+            response_status="pending",
+        ).exclude(donor=donor).update(response_status="expired", responded_at=now, updated_at=now)
+        BloodRequestNotification.objects.filter(
+            blood_request=blood_request,
+            donor=donor,
+            channel="in_app",
+        ).update(response_status="accepted", responded_at=now, updated_at=now)
+        notify_request_fulfilled_to_other_donors(
+            blood_request=blood_request,
+            winning_donor_id=donor.id,
+        )
 
         output = BloodRequestDetailSerializer(blood_request, context={"request": request})
         return Response(output.data, status=status.HTTP_200_OK)

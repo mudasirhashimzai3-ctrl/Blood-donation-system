@@ -176,11 +176,15 @@ export default function DonationViewPage() {
         onSendReminder={async (channels) => {
           await actions.sendReminder({ channels });
         }}
+        onRespond={async (payload) => {
+          await actions.respond(payload);
+        }}
         loadingStates={{
           status: actions.isUpdatingStatus,
           primary: actions.isSettingPrimary,
           estimate: actions.isRefreshingEstimate,
           reminder: actions.isSendingReminder,
+          respond: actions.isResponding,
         }}
       />
 

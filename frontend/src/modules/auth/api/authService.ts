@@ -48,6 +48,10 @@ export interface SignupRequest {
   username: string;
   email?: string;
   phone: string;
+  donor_blood_group?: "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-";
+  donor_latitude?: number;
+  donor_longitude?: number;
+  recipient_required_blood_group?: "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-";
   password: string;
   confirm_password: string;
   role: "donor" | "recipient";
@@ -63,6 +67,12 @@ export interface SignupResponse {
     email: string;
     phone: string;
     role: "donor" | "recipient";
+  };
+  profile: {
+    donor_blood_group?: string | null;
+    donor_latitude?: number | null;
+    donor_longitude?: number | null;
+    recipient_required_blood_group?: string | null;
   };
 }
 

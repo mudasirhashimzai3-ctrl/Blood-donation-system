@@ -8,7 +8,6 @@ import {
 describe("useBloodRequestForm helpers", () => {
   it("maps model data to form values", () => {
     const values = mapBloodRequestToFormValues({
-      recipient: 10,
       hospital: 11,
       blood_group: "A+",
       units_needed: 3,
@@ -17,20 +16,15 @@ describe("useBloodRequestForm helpers", () => {
       auto_match_enabled: true,
       location_lat: "34.555300",
       location_lon: "69.207500",
-      is_active: true,
-      is_verified: true,
-      is_emergency: true,
       response_deadline: "2026-02-28T10:00:00Z",
     });
 
-    expect(values.recipient).toBe(10);
     expect(values.hospital).toBe(11);
     expect(values.request_type).toBe("critical");
   });
 
   it("normalizes payload and converts empty deadline to null", () => {
     const payload = normalizeBloodRequestPayload({
-      recipient: 1,
       hospital: 1,
       blood_group: "O+",
       units_needed: 2,
@@ -39,9 +33,6 @@ describe("useBloodRequestForm helpers", () => {
       auto_match_enabled: true,
       location_lat: " 34.555300 ",
       location_lon: " 69.207500 ",
-      is_active: true,
-      is_verified: false,
-      is_emergency: false,
       response_deadline: "",
       medical_report: null,
       prescription_image: null,

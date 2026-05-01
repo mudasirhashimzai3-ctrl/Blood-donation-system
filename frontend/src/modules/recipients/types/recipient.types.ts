@@ -22,12 +22,12 @@ export interface Recipient {
   email: string | null;
   phone: string;
   required_blood_group: BloodGroup;
-  hospital: number;
-  hospital_name: string;
+  hospital: number | null;
+  hospital_name: string | null;
   hospital_phone: string | null;
   hospital_email: string | null;
   hospital_address: string | null;
-  city: string;
+  city: string | null;
   latitude: string | null;
   longitude: string | null;
   hospital_is_active: boolean;

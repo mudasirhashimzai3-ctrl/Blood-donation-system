@@ -148,6 +148,12 @@ class AuthViewSet(viewsets.ViewSet):
         serializer = SignupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         public_role = serializer.validated_data["role"]
+        profile_payload = {
+            "donor_blood_group": serializer.validated_data.get("donor_blood_group"),
+            "donor_latitude": serializer.validated_data.get("donor_latitude"),
+            "donor_longitude": serializer.validated_data.get("donor_longitude"),
+            "recipient_required_blood_group": serializer.validated_data.get("recipient_required_blood_group"),
+        }
         user = serializer.save()
 
         return Response(
@@ -162,6 +168,7 @@ class AuthViewSet(viewsets.ViewSet):
                     "phone": user.phone,
                     "role": public_role,
                 },
+                "profile": profile_payload,
             },
             status=status.HTTP_201_CREATED,
         )

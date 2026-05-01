@@ -2,6 +2,9 @@ from django.utils import timezone
 
 from donations.models import Donation
 from donations.services.metrics import build_distance_eta_priority_snapshot
+from notifications.services import create_notifications
+
+from blood_requests.models import BloodRequestNotification
 
 
 def _compute_response_time_minutes(notified_at, responded_at):
@@ -9,6 +12,61 @@ def _compute_response_time_minutes(notified_at, responded_at):
         return None
     delta = responded_at - notified_at
     return max(0, int(delta.total_seconds() // 60))
+
+
+def _notification_response_for_donation_status(status: str) -> str:
+    if status in {"accepted", "en_route", "arrived", "completed"}:
+        return "accepted"
+    if status == "declined":
+        return "declined"
+    if status in {"expired", "cancelled"}:
+        return "expired"
+    return "pending"
+
+
+def sync_candidate_notification_for_donation(donation: Donation):
+    notification = BloodRequestNotification.objects.filter(
+        blood_request_id=donation.request_id,
+        donor_id=donation.donor_id,
+        channel="in_app",
+        deleted_at__isnull=True,
+    ).first()
+    if not notification:
+        return
+
+    response_status = _notification_response_for_donation_status(donation.status)
+    notification.response_status = response_status
+    if response_status != "pending":
+        notification.responded_at = donation.responded_at or timezone.now()
+    notification.save(update_fields=["response_status", "responded_at", "updated_at"])
+
+
+def notify_request_fulfilled_to_other_donors(*, blood_request, winning_donor_id: int):
+    other_user_ids = list(
+        blood_request.donations.filter(
+            deleted_at__isnull=True,
+            donor__user_id__isnull=False,
+        )
+        .exclude(donor_id=winning_donor_id)
+        .values_list("donor__user_id", flat=True)
+        .distinct()
+    )
+    if not other_user_ids:
+        return
+
+    create_notifications(
+        event_key="blood_request_assigned",
+        type="request_update",
+        title=f"Blood request #{blood_request.id} fulfilled",
+        message=(
+            f"Blood request #{blood_request.id} has been accepted by another donor. "
+            "No further action is needed."
+        ),
+        sent_via=["in_app"],
+        user_ids=other_user_ids,
+        request_id=blood_request.id,
+        metadata={"status": blood_request.status, "fulfilled": True},
+    )
 
 
 def sync_donations_for_matches(*, blood_request, selected_candidates):
@@ -139,3 +197,4 @@ def expire_pending_donations_for_request(*, blood_request, cancellation_reason=N
                 "updated_at",
             ]
         )
+        sync_candidate_notification_for_donation(donation)

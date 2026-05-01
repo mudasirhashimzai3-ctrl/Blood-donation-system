@@ -1,4 +1,4 @@
-import { Ban, Eye, Pencil, ShieldCheck, Trash2 } from "lucide-react";
+import { Ban, Eye, ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Card, CardContent, Pagination, PaginationInfo, Skeleton } from "@components/ui";
@@ -14,8 +14,6 @@ interface RecipientTableProps {
   pageSize: number;
   onPageChange: (page: number) => void;
   onView: (id: number) => void;
-  onEdit: (id: number) => void;
-  onDelete: (id: number) => void;
   onToggleBlock: (id: number, currentStatus: RecipientListItem["status"]) => void;
 }
 
@@ -49,8 +47,6 @@ export default function RecipientTable({
   pageSize,
   onPageChange,
   onView,
-  onEdit,
-  onDelete,
   onToggleBlock,
 }: RecipientTableProps) {
   const { t } = useTranslation();
@@ -120,22 +116,6 @@ export default function RecipientTable({
                             type="button"
                           >
                             <Eye className="h-4 w-4" />
-                          </button>
-                          <button
-                            className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-primary/10 hover:text-primary"
-                            onClick={() => onEdit(recipient.id)}
-                            title={t("recipients.actions.edit", "Edit")}
-                            type="button"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </button>
-                          <button
-                            className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-danger/10 hover:text-danger"
-                            onClick={() => onDelete(recipient.id)}
-                            title={t("recipients.actions.delete", "Delete")}
-                            type="button"
-                          >
-                            <Trash2 className="h-4 w-4" />
                           </button>
                           <button
                             className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-warning/10 hover:text-warning"

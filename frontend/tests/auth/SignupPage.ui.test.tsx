@@ -85,6 +85,7 @@ describe("SignupPage UI", () => {
         email: "",
         phone: "0700000010",
         role: "recipient",
+        recipient_required_blood_group: "A+",
         password: "StrongPass123",
         confirm_password: "StrongPass123",
       });
@@ -104,6 +105,9 @@ describe("SignupPage UI", () => {
     await user.type(screen.getByLabelText("Last Name"), "Jan");
     await user.type(screen.getByLabelText("Username"), "ali.jan");
     await user.type(screen.getByLabelText("Phone"), "0700000011");
+    await user.selectOptions(screen.getByLabelText("Blood Group"), "O+");
+    await user.type(screen.getByLabelText("Latitude"), "34.555300");
+    await user.type(screen.getByLabelText("Longitude"), "69.207500");
     await user.type(screen.getByLabelText("Password"), "StrongPass123");
     await user.type(screen.getByLabelText("Confirm Password"), "WrongPass123");
     await user.click(screen.getByRole("button", { name: "Create Account" }));

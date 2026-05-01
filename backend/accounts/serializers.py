@@ -51,6 +51,34 @@ class SignupSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)
     email = serializers.EmailField(max_length=254, required=False, allow_blank=True)
     phone = serializers.CharField(max_length=20)
+    donor_blood_group = serializers.ChoiceField(
+        choices=[
+            ("A+", "A+"),
+            ("A-", "A-"),
+            ("B+", "B+"),
+            ("B-", "B-"),
+            ("AB+", "AB+"),
+            ("AB-", "AB-"),
+            ("O+", "O+"),
+            ("O-", "O-"),
+        ],
+        required=False,
+    )
+    donor_latitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False)
+    donor_longitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False)
+    recipient_required_blood_group = serializers.ChoiceField(
+        choices=[
+            ("A+", "A+"),
+            ("A-", "A-"),
+            ("B+", "B+"),
+            ("B-", "B-"),
+            ("AB+", "AB+"),
+            ("AB-", "AB-"),
+            ("O+", "O+"),
+            ("O-", "O-"),
+        ],
+        required=False,
+    )
     password = serializers.CharField(write_only=True, validators=[validate_password])
     confirm_password = serializers.CharField(write_only=True)
     role = serializers.ChoiceField(choices=[("donor", "Donor"), ("recipient", "Recipient")])
@@ -68,20 +96,134 @@ class SignupSerializer(serializers.Serializer):
         return value
 
     def validate(self, attrs):
+        from donors.models import Donor
+        from recipients.models import Recipient
+
         if attrs["password"] != attrs["confirm_password"]:
             raise serializers.ValidationError({"confirm_password": "Passwords do not match"})
+
+        role = normalize_role_name(attrs.get("role"))
+        if role == "donor":
+            if not attrs.get("donor_blood_group"):
+                raise serializers.ValidationError({"donor_blood_group": "Blood group is required for donor signup."})
+            if attrs.get("donor_latitude") is None:
+                raise serializers.ValidationError({"donor_latitude": "Latitude is required for donor signup."})
+            if attrs.get("donor_longitude") is None:
+                raise serializers.ValidationError({"donor_longitude": "Longitude is required for donor signup."})
+            if attrs["donor_latitude"] < -90 or attrs["donor_latitude"] > 90:
+                raise serializers.ValidationError({"donor_latitude": "Latitude must be between -90 and 90."})
+            if attrs["donor_longitude"] < -180 or attrs["donor_longitude"] > 180:
+                raise serializers.ValidationError({"donor_longitude": "Longitude must be between -180 and 180."})
+            if Donor.objects.filter(
+                phone=attrs["phone"],
+                deleted_at__isnull=True,
+                user__isnull=False,
+            ).exists():
+                raise serializers.ValidationError({"phone": "A donor profile already exists for this phone number."})
+        elif role == "recipient":
+            if not attrs.get("recipient_required_blood_group"):
+                raise serializers.ValidationError(
+                    {"recipient_required_blood_group": "Required blood group is required for recipient signup."}
+                )
+            if Recipient.objects.filter(
+                phone=attrs["phone"],
+                deleted_at__isnull=True,
+                user__isnull=False,
+            ).exists():
+                raise serializers.ValidationError({"phone": "A recipient profile already exists for this phone number."})
         return attrs
 
     def create(self, validated_data):
+        from donors.models import Donor
+        from recipients.models import Recipient
+
         role_name = normalize_role_name(validated_data.pop("role"))
         validated_data.pop("confirm_password", None)
         password = validated_data.pop("password")
+        donor_blood_group = validated_data.pop("donor_blood_group", None)
+        donor_latitude = validated_data.pop("donor_latitude", None)
+        donor_longitude = validated_data.pop("donor_longitude", None)
+        recipient_required_blood_group = validated_data.pop("recipient_required_blood_group", None)
 
         user = User.objects.create_user(
             password=password,
             role_name=role_name,
             **validated_data,
         )
+
+        if role_name == "donor":
+            donor = Donor.objects.filter(
+                user__isnull=True,
+                phone=user.phone,
+                deleted_at__isnull=True,
+            ).first()
+            if donor:
+                donor.user = user
+                donor.first_name = user.first_name
+                donor.last_name = user.last_name
+                donor.email = user.email or None
+                donor.blood_group = donor_blood_group
+                donor.latitude = donor_latitude
+                donor.longitude = donor_longitude
+                donor.status = "active"
+                donor.save(
+                    update_fields=[
+                        "user",
+                        "first_name",
+                        "last_name",
+                        "email",
+                        "blood_group",
+                        "latitude",
+                        "longitude",
+                        "status",
+                        "updated_at",
+                    ]
+                )
+            else:
+                Donor.objects.create(
+                    user=user,
+                    first_name=user.first_name,
+                    last_name=user.last_name,
+                    phone=user.phone,
+                    email=user.email or None,
+                    blood_group=donor_blood_group,
+                    status="active",
+                    latitude=donor_latitude,
+                    longitude=donor_longitude,
+                )
+        elif role_name == "recipient":
+            full_name = f"{user.first_name} {user.last_name}".strip() or user.username
+            recipient = Recipient.objects.filter(
+                user__isnull=True,
+                phone=user.phone,
+                deleted_at__isnull=True,
+            ).first()
+            if recipient:
+                recipient.user = user
+                recipient.full_name = full_name
+                recipient.email = user.email or None
+                recipient.required_blood_group = recipient_required_blood_group
+                recipient.status = "active"
+                recipient.save(
+                    update_fields=[
+                        "user",
+                        "full_name",
+                        "email",
+                        "required_blood_group",
+                        "status",
+                        "updated_at",
+                    ]
+                )
+            else:
+                Recipient.objects.create(
+                    user=user,
+                    full_name=full_name,
+                    email=user.email or None,
+                    phone=user.phone,
+                    required_blood_group=recipient_required_blood_group,
+                    emergency_level="normal",
+                    status="active",
+                )
         return user
 
 

@@ -10,13 +10,10 @@ export const loginSchema = z.object({
     .string()
     .min(6, { message: "Password must be at least 6 characters" })
     .max(100, { message: "Password must be at most 100 characters" }),
-  role: z.preprocess(
-    (value) => (value === "" ? undefined : value),
-    z.enum(["admin", "donor", "recipient"], {
-      required_error: "Role is required",
-      invalid_type_error: "Role is required",
-    })
-  ),
+  role: z.enum(["admin", "donor", "recipient"], {
+    required_error: "Role is required",
+    invalid_type_error: "Role is required",
+  }),
 });
 
 // Change Password Schema

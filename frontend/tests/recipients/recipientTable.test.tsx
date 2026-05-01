@@ -34,8 +34,6 @@ describe("RecipientTable", () => {
         pageSize={10}
         onPageChange={vi.fn()}
         onView={vi.fn()}
-        onEdit={vi.fn()}
-        onDelete={vi.fn()}
         onToggleBlock={onToggleBlock}
       />
     );

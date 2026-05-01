@@ -82,6 +82,14 @@ export const signupSchema = z
       required_error: "Role is required",
       invalid_type_error: "Role is required",
     }),
+    donor_blood_group: z
+      .enum(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"])
+      .optional(),
+    donor_latitude: z.coerce.number().optional(),
+    donor_longitude: z.coerce.number().optional(),
+    recipient_required_blood_group: z
+      .enum(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"])
+      .optional(),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")
@@ -89,6 +97,52 @@ export const signupSchema = z
       .regex(/[a-z]/, "Must contain at least one lowercase letter")
       .regex(/[0-9]/, "Must contain at least one number"),
     confirm_password: z.string().min(1, "Please confirm your password"),
+  })
+  .superRefine((data, ctx) => {
+    if (data.role === "donor") {
+      if (!data.donor_blood_group) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Blood group is required for donor signup",
+          path: ["donor_blood_group"],
+        });
+      }
+      if (data.donor_latitude === undefined || Number.isNaN(data.donor_latitude)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Latitude is required for donor signup",
+          path: ["donor_latitude"],
+        });
+      } else if (data.donor_latitude < -90 || data.donor_latitude > 90) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Latitude must be between -90 and 90",
+          path: ["donor_latitude"],
+        });
+      }
+
+      if (data.donor_longitude === undefined || Number.isNaN(data.donor_longitude)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Longitude is required for donor signup",
+          path: ["donor_longitude"],
+        });
+      } else if (data.donor_longitude < -180 || data.donor_longitude > 180) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Longitude must be between -180 and 180",
+          path: ["donor_longitude"],
+        });
+      }
+    }
+
+    if (data.role === "recipient" && !data.recipient_required_blood_group) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Required blood group is mandatory for recipient signup",
+        path: ["recipient_required_blood_group"],
+      });
+    }
   })
   .refine((data) => data.password === data.confirm_password, {
     message: "Passwords do not match",

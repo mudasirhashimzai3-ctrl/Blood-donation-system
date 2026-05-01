@@ -65,7 +65,7 @@ class BloodRequestApiTests(APITestCase):
         for action in actions:
             RolePermission.objects.get_or_create(role_name="admin", permission=permissions[action])
         for action in ["view", "add", "change"]:
-            RolePermission.objects.get_or_create(role_name="receptionist", permission=permissions[action])
+            RolePermission.objects.get_or_create(role_name="recipient", permission=permissions[action])
         RolePermission.objects.get_or_create(role_name="viewer", permission=permissions["view"])
 
     def setUp(self):
@@ -74,12 +74,18 @@ class BloodRequestApiTests(APITestCase):
             password="StrongPass123!",
             role_name="admin",
         )
+        self.recipient_user = User.objects.create_user(
+            username="blood_req_recipient",
+            password="StrongPass123!",
+            role_name="recipient",
+            phone="0700000001",
+        )
         self.viewer = User.objects.create_user(
             username="blood_req_viewer",
             password="StrongPass123!",
             role_name="viewer",
         )
-        self.client.force_authenticate(user=self.admin)
+        self.client.force_authenticate(user=self.recipient_user)
 
         self.hospital = Hospital.objects.create(
             name="City Hospital",
@@ -91,6 +97,7 @@ class BloodRequestApiTests(APITestCase):
             is_active=True,
         )
         self.recipient = Recipient.objects.create(
+            user=self.recipient_user,
             full_name="Recipient One",
             phone="0700000001",
             required_blood_group="O+",
@@ -100,10 +107,17 @@ class BloodRequestApiTests(APITestCase):
         )
 
     def _create_donor(self, **kwargs):
+        user = User.objects.create_user(
+            username=f"donor-user-{User.objects.count() + 1}",
+            password="StrongPass123!",
+            role_name="donor",
+            phone=f"0701{Donor.objects.count() + 100001}",
+        )
         payload = {
             "first_name": "Donor",
             "last_name": "One",
-            "phone": f"0700{Donor.objects.count() + 100001}",
+            "phone": user.phone,
+            "user": user,
             "blood_group": "O+",
             "status": "active",
             "latitude": Decimal("34.556000"),
@@ -115,7 +129,6 @@ class BloodRequestApiTests(APITestCase):
 
     def _create_payload(self, **kwargs):
         payload = {
-            "recipient": self.recipient.id,
             "hospital": self.hospital.id,
             "blood_group": "O+",
             "units_needed": 2,
@@ -154,6 +167,13 @@ class BloodRequestApiTests(APITestCase):
         self.assertTrue(bool(obj.medical_report))
         self.assertTrue(bool(obj.emergency_proof))
 
+    def test_create_rejects_client_supplied_recipient_field(self):
+        payload = self._create_payload()
+        payload["recipient"] = self.recipient.id
+        response = self.client.post(self.base_url, payload, format="multipart")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("recipient", response.data)
+
     def test_auto_match_excludes_donor_without_coordinates(self):
         self._create_donor(latitude=None, longitude=None, phone="0700111111")
         response = self.client.post(self.base_url, self._create_payload(), format="multipart")
@@ -162,7 +182,18 @@ class BloodRequestApiTests(APITestCase):
         self.assertEqual(obj.nearby_donors_count, 0)
         self.assertEqual(obj.total_notified_donors, 0)
 
+    def test_recipient_without_profile_cannot_create_request(self):
+        orphan_user = User.objects.create_user(
+            username="recipient-no-profile",
+            password="StrongPass123!",
+            role_name="recipient",
+        )
+        self.client.force_authenticate(user=orphan_user)
+        response = self.client.post(self.base_url, self._create_payload(), format="multipart")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_assign_rejects_donor_outside_radius_or_cooldown(self):
+        self.client.force_authenticate(user=self.admin)
         request_obj = BloodRequest.objects.create(
             recipient=self.recipient,
             hospital=self.hospital,
@@ -200,6 +231,7 @@ class BloodRequestApiTests(APITestCase):
         self.assertEqual(cooldown_response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_pending_to_matched_to_completed_transition(self):
+        self.client.force_authenticate(user=self.admin)
         donor = self._create_donor(phone="0700333333")
         request_obj = BloodRequest.objects.create(
             recipient=self.recipient,
@@ -232,6 +264,7 @@ class BloodRequestApiTests(APITestCase):
         self.assertFalse(complete_response.data["is_active"])
 
     def test_cancel_sets_terminal_state(self):
+        self.client.force_authenticate(user=self.admin)
         request_obj = BloodRequest.objects.create(
             recipient=self.recipient,
             hospital=self.hospital,
@@ -255,11 +288,13 @@ class BloodRequestApiTests(APITestCase):
         self.assertFalse(response.data["is_active"])
 
     def test_verify_and_notifications_endpoints(self):
+        self.client.force_authenticate(user=self.recipient_user)
         self._create_donor(phone="0700444441")
         create_response = self.client.post(self.base_url, self._create_payload(), format="multipart")
         self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
         request_id = create_response.data["id"]
 
+        self.client.force_authenticate(user=self.admin)
         verify_response = self.client.patch(
             f"{self.base_url}{request_id}/verify/",
             {"is_verified": True},
@@ -278,6 +313,7 @@ class BloodRequestApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_soft_deletes_request(self):
+        self.client.force_authenticate(user=self.admin)
         request_obj = BloodRequest.objects.create(
             recipient=self.recipient,
             hospital=self.hospital,

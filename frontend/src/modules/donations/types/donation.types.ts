@@ -104,3 +104,7 @@ export interface DonationReminderResult {
   failed_channels: Array<{ channel: DonationReminderChannel; error: string }>;
   reminder_count: number;
 }
+
+export interface DonationRespondPayload {
+  action: "accept" | "decline";
+}

@@ -15,7 +15,7 @@ import { UserProfile } from "@/modules/profile";
 import { ReportsWorkspacePage } from "@/modules/reports";
 import { DonorCreatePage, DonorEditPage, DonorListPage, DonorViewPage } from "@/modules/donors";
 import { HospitalCreatePage, HospitalEditPage, HospitalListPage, HospitalViewPage } from "@/modules/hospitals";
-import { RecipientCreatePage, RecipientEditPage, RecipientListPage, RecipientViewPage } from "@/modules/recipients";
+import { RecipientListPage, RecipientViewPage } from "@/modules/recipients";
 import {
   BloodRequestCreatePage,
   BloodRequestEditPage,
@@ -73,9 +73,7 @@ function AppRouterProvider() {
 
         // Recipients
         { path: "recipients", element: <RecipientListPage /> },
-        { path: "recipients/new", element: <RecipientCreatePage /> },
         { path: "recipients/:id", element: <RecipientViewPage /> },
-        { path: "recipients/:id/edit", element: <RecipientEditPage /> },
 
         // Hospitals
         { path: "hospitals", element: <HospitalListPage /> },
