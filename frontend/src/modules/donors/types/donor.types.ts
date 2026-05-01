@@ -28,8 +28,8 @@ export interface Donor {
   latitude: string | null;
   longitude: string | null;
   date_of_birth: string | null;
-  permanent_address: string | null;
-  local_address: string | null;
+  permanent_address_city: string | null;
+  local_address_city: string | null;
   last_donation_date: string | null;
   created_at: string;
   updated_at: string;
@@ -60,8 +60,8 @@ export interface DonorPayload {
   age?: number | string | null;
   latitude?: string | null;
   longitude?: string | null;
-  permanent_address?: string | null;
-  local_address?: string | null;
+  permanent_address_city?: string | null;
+  local_address_city?: string | null;
   last_donation_date?: string | null;
 }
 

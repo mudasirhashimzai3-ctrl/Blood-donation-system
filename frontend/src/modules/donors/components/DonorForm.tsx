@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { UseFormReturn } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
-import { Avatar, Button, Input, Select, Textarea } from "@components/ui";
+import { Avatar, Button, Input, Select } from "@components/ui";
 import type { DonorFormValues } from "../schemas/donorSchemas";
 import { BLOOD_GROUP_OPTIONS } from "../types/donor.types";
 
@@ -235,17 +235,17 @@ export default function DonorForm({
             {...register("longitude")}
           />
         </div>
-        <Textarea
-          label={t("donors.form.permanentAddress", "Permanent Address")}
-          placeholder={t("donors.form.permanentAddressPlaceholder", "Enter permanent address")}
-          error={errors.permanent_address?.message}
-          {...register("permanent_address")}
+        <Input
+          label={t("donors.form.permanentAddressCity", "Permanent Address City")}
+          placeholder={t("donors.form.permanentAddressCityPlaceholder", "Enter city")}
+          error={errors.permanent_address_city?.message}
+          {...register("permanent_address_city")}
         />
-        <Textarea
-          label={t("donors.form.localAddress", "Local Address")}
-          placeholder={t("donors.form.localAddressPlaceholder", "Enter local address")}
-          error={errors.local_address?.message}
-          {...register("local_address")}
+        <Input
+          label={t("donors.form.localAddressCity", "Local Address City")}
+          placeholder={t("donors.form.localAddressCityPlaceholder", "Enter city")}
+          error={errors.local_address_city?.message}
+          {...register("local_address_city")}
         />
       </div>
 

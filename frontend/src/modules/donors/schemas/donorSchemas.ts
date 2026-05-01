@@ -16,7 +16,7 @@ const notFutureDate = (value?: string) => {
 export const donorFormSchema = z.object({
   first_name: z.string().trim().min(2, "First name must be at least 2 characters"),
   last_name: z.string().trim().min(2, "Last name must be at least 2 characters"),
-  phone: z.string().trim().min(6, "Phone must be at least 6 characters"),
+  phone: z.string().trim().regex(/^\d{10}$/, "Phone must be exactly 10 digits"),
   email: z
     .string()
     .trim()
@@ -50,8 +50,8 @@ export const donorFormSchema = z.object({
     }, {
       message: "Age must be a valid positive number",
     }),
-  permanent_address: z.string().optional().or(z.literal("")),
-  local_address: z.string().optional().or(z.literal("")),
+  permanent_address_city: z.string().optional().or(z.literal("")),
+  local_address_city: z.string().optional().or(z.literal("")),
   last_donation_date: z
     .string()
     .optional()

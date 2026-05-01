@@ -1,8 +1,15 @@
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q
 
 from core.base_models import BaseModel
 from .image_path import donor_profile_picture_upload_path
+
+phone_validator = RegexValidator(
+    regex=r'^\d{10}$',
+    message='Phone number must be exactly 10 digits.',
+    code='invalid_phone'
+)
 
 
 class Donor(BaseModel):
@@ -30,7 +37,7 @@ class Donor(BaseModel):
     )
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    phone = models.CharField(max_length=10)
+    phone = models.CharField(max_length=10, validators=[phone_validator])
     email = models.EmailField(null=True, blank=True)
     blood_group = models.CharField(max_length=3, choices=BLOOD_GROUP_CHOICES)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="active")
@@ -43,8 +50,8 @@ class Donor(BaseModel):
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
-    permanent_address = models.TextField(null=True, blank=True)
-    local_address = models.TextField(null=True, blank=True)
+    permanent_address_city = models.CharField(max_length=100, null=True, blank=True)
+    local_address_city = models.CharField(max_length=100, null=True, blank=True)
     last_donation_date = models.DateField(null=True, blank=True)
 
     class Meta:
