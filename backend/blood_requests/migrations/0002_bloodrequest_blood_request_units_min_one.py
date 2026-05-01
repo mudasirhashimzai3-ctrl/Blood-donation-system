@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddConstraint(
             model_name='bloodrequest',
-            constraint=models.CheckConstraint(check=models.Q(('units_needed__gte', 1)), name='blood_request_units_min_one'),
+            constraint=models.CheckConstraint(check=models.Q(('units_needed__gte', 1)), name='blood_request_units_min_one_v2'),
         ),
     ]

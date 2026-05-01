@@ -69,6 +69,7 @@ export interface DonorQueryParams {
   page?: number;
   page_size?: number;
   blood_group?: BloodGroup | "";
+  local_address_city?: string;
   ordering?: string;
 }
 

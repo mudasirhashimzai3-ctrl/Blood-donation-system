@@ -18,7 +18,7 @@ export default function DonorListPage() {
   const { can } = useCan();
   const [deleteDonorId, setDeleteDonorId] = useState<number | null>(null);
 
-  const { bloodGroup, page, pageSize, setBloodGroup, setPage, resetFilters, queryParams } = useDonorFilters();
+  const { bloodGroup, city, page, pageSize, setBloodGroup, setCity, setPage, resetFilters, queryParams } = useDonorFilters();
 
   const { data, isLoading, error } = useDonorsList(queryParams);
   const deleteMutation = useDeleteDonor();
@@ -60,7 +60,9 @@ export default function DonorListPage() {
         <CardContent>
           <DonorFilters
             bloodGroup={bloodGroup}
+            city={city}
             onBloodGroupChange={setBloodGroup}
+            onCityChange={setCity}
             onReset={resetFilters}
           />
         </CardContent>

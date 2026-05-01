@@ -12,6 +12,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RemoveConstraint(
             model_name='bloodrequest',
-            name='blood_request_units_min_one',
+            name='blood_request_units_min_one_v2',
         ),
     ]

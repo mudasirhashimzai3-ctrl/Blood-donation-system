@@ -17,7 +17,7 @@ class DonorViewSet(PermissionMixin, viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
     parser_classes = [parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    filterset_fields = ["blood_group"]
+    filterset_fields = ["blood_group", "permanent_address_city", "local_address_city"]
     ordering_fields = ["first_name", "last_name", "created_at", "updated_at", "last_donation_date"]
     ordering = ["-created_at"]
 
