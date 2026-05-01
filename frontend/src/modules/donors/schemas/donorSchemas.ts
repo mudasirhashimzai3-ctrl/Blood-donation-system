@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { BLOOD_GROUP_OPTIONS, DONOR_STATUS_OPTIONS } from "../types/donor.types";
+import { BLOOD_GROUP_OPTIONS } from "../types/donor.types";
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
@@ -26,7 +26,6 @@ export const donorFormSchema = z.object({
       message: "Email is invalid",
     }),
   blood_group: z.enum(BLOOD_GROUP_OPTIONS),
-  status: z.enum(DONOR_STATUS_OPTIONS),
   profile_picture: z
     .any()
     .nullable()
@@ -50,13 +49,6 @@ export const donorFormSchema = z.object({
       return Number.isInteger(parsed) && parsed > 0 && parsed <= 150;
     }, {
       message: "Age must be a valid positive number",
-    }),
-  date_of_birth: z
-    .string()
-    .optional()
-    .or(z.literal(""))
-    .refine((value) => notFutureDate(value || undefined), {
-      message: "Date of birth cannot be in the future",
     }),
   permanent_address: z.string().optional().or(z.literal("")),
   local_address: z.string().optional().or(z.literal("")),

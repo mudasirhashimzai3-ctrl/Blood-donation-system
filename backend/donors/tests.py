@@ -71,7 +71,7 @@ class DonorApiTests(APITestCase):
         )
         self.client.force_authenticate(user=self.admin_user)
 
-    def test_create_donor_defaults_to_pending(self):
+    def test_create_donor_defaults_to_active(self):
         payload = {
             "first_name": "Ali",
             "last_name": "Karimi",
@@ -81,7 +81,19 @@ class DonorApiTests(APITestCase):
         response = self.client.post(self.base_url, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Donor.objects.count(), 1)
-        self.assertEqual(response.data["status"], "pending")
+        self.assertEqual(response.data["status"], "active")
+
+    def test_create_donor_ignores_status_payload(self):
+        payload = {
+            "first_name": "Status",
+            "last_name": "Ignored",
+            "phone": "0700000041",
+            "blood_group": "A+",
+            "status": "pending",
+        }
+        response = self.client.post(self.base_url, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["status"], "active")
 
     def test_create_donor_accepts_valid_multipart_image(self):
         payload = {
@@ -160,13 +172,13 @@ class DonorApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("email", response.data)
 
-    def test_list_supports_search_filters_ordering_and_pagination(self):
+    def test_list_supports_blood_group_ordering_and_pagination(self):
         Donor.objects.create(
             first_name="Zia",
             last_name="Last",
             phone="0700000011",
             blood_group="A+",
-            status="pending",
+            status="active",
             permanent_address="Zia Street",
         )
         Donor.objects.create(
@@ -174,24 +186,20 @@ class DonorApiTests(APITestCase):
             last_name="First",
             phone="0700000012",
             blood_group="O-",
-            status="blocked",
+            status="active",
         )
 
         response = self.client.get(
             self.base_url,
-            {"search": "Aman", "status": "blocked", "blood_group": "O-", "ordering": "last_name"},
+            {"blood_group": "O-", "ordering": "last_name"},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["count"], 1)
         self.assertEqual(response.data["results"][0]["first_name"], "Aman")
 
-        pending_response = self.client.get(self.base_url, {"status": "pending"})
-        self.assertEqual(pending_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(pending_response.data["count"], 1)
-
-        address_search = self.client.get(self.base_url, {"search": "Zia Street"})
-        self.assertEqual(address_search.status_code, status.HTTP_200_OK)
-        self.assertEqual(address_search.data["count"], 1)
+        removed_filters_response = self.client.get(self.base_url, {"search": "Zia Street", "status": "active"})
+        self.assertEqual(removed_filters_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(removed_filters_response.data["count"], 2)
 
         page_response = self.client.get(self.base_url, {"page_size": 1})
         self.assertEqual(page_response.status_code, status.HTTP_200_OK)
@@ -217,7 +225,7 @@ class DonorApiTests(APITestCase):
         self.assertEqual(response.data["local_address"], "Local Address")
         self.assertIn("profile_picture_url", response.data)
 
-    def test_update_pending_donor_is_allowed(self):
+    def test_update_forces_status_to_active(self):
         donor = Donor.objects.create(
             first_name="Pending",
             last_name="Donor",
@@ -227,12 +235,13 @@ class DonorApiTests(APITestCase):
         )
         response = self.client.patch(
             f"{self.base_url}{donor.id}/",
-            {"last_name": "Updated"},
+            {"last_name": "Updated", "status": "blocked"},
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         donor.refresh_from_db()
         self.assertEqual(donor.last_name, "Updated")
+        self.assertEqual(donor.status, "active")
 
     def test_remove_profile_picture_clears_image(self):
         donor = Donor.objects.create(
@@ -240,7 +249,7 @@ class DonorApiTests(APITestCase):
             last_name="Remove",
             phone="0700000081",
             blood_group="A+",
-            status="pending",
+            status="active",
             profile_picture=tiny_gif_file("remove.gif"),
         )
         self.assertTrue(donor.profile_picture)
@@ -279,7 +288,6 @@ class DonorApiTests(APITestCase):
             "last_name": "Only",
             "phone": "0700000016",
             "blood_group": "A+",
-            "status": "pending",
         }
         response = self.client.post(self.base_url, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -291,7 +299,6 @@ class DonorApiTests(APITestCase):
             "last_name": "Date",
             "phone": "0700000017",
             "blood_group": "B+",
-            "status": "active",
             "date_of_birth": future_date.isoformat(),
             "last_donation_date": future_date.isoformat(),
         }

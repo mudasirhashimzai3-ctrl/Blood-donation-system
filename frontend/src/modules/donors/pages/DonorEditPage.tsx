@@ -37,7 +37,6 @@ export default function DonorEditPage() {
       ...values,
       email: emptyToNull(values.email),
       age: emptyToNull(values.age),
-      date_of_birth: emptyToNull(values.date_of_birth),
       permanent_address: emptyToNull(values.permanent_address),
       local_address: emptyToNull(values.local_address),
       last_donation_date: emptyToNull(values.last_donation_date),

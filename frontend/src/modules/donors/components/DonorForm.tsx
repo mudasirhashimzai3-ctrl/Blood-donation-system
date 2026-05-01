@@ -1,10 +1,10 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { UseFormReturn } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 import { Avatar, Button, Input, Select, Textarea } from "@components/ui";
 import type { DonorFormValues } from "../schemas/donorSchemas";
-import { BLOOD_GROUP_OPTIONS, DONOR_STATUS_OPTIONS } from "../types/donor.types";
+import { BLOOD_GROUP_OPTIONS } from "../types/donor.types";
 
 interface DonorFormProps {
   form: UseFormReturn<DonorFormValues>;
@@ -24,6 +24,8 @@ export default function DonorForm({
   existingProfilePictureUrl = null,
 }: DonorFormProps) {
   const { t } = useTranslation();
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -50,6 +52,40 @@ export default function DonorForm({
       }
     };
   }, [previewUrl, profilePicture]);
+
+  const handleRegisterLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError(t("donors.form.locationNotSupported", "Geolocation is not supported in this browser."));
+      return;
+    }
+
+    setIsLocating(true);
+    setLocationError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setValue("latitude", position.coords.latitude.toFixed(6), { shouldDirty: true, shouldValidate: true });
+        setValue("longitude", position.coords.longitude.toFixed(6), { shouldDirty: true, shouldValidate: true });
+        setIsLocating(false);
+      },
+      (error) => {
+        if (error.code === error.PERMISSION_DENIED) {
+          setLocationError(t("donors.form.locationPermissionDenied", "Location access was denied."));
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          setLocationError(t("donors.form.locationUnavailable", "Unable to detect your location right now."));
+        } else if (error.code === error.TIMEOUT) {
+          setLocationError(t("donors.form.locationTimeout", "Location request timed out. Please try again."));
+        } else {
+          setLocationError(t("donors.form.locationGenericError", "Failed to register location."));
+        }
+        setIsLocating(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+      }
+    );
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -100,7 +136,7 @@ export default function DonorForm({
             {t("donors.form.sections.basicInfo", "Basic Information")}
           </p>
           <p className="text-xs text-text-secondary">
-            {t("donors.form.sections.basicInfoHint", "Name, contact details, and donor status")}
+            {t("donors.form.sections.basicInfoHint", "Name and contact details")}
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
@@ -135,15 +171,6 @@ export default function DonorForm({
             options={BLOOD_GROUP_OPTIONS.map((group) => ({ value: group, label: group }))}
             {...register("blood_group")}
           />
-          <Select
-            label={t("donors.form.status", "Status")}
-            error={errors.status?.message}
-            options={DONOR_STATUS_OPTIONS.map((status) => ({
-              value: status,
-              label: t(`donors.status.${status}`, status),
-            }))}
-            {...register("status")}
-          />
         </div>
       </div>
 
@@ -153,7 +180,7 @@ export default function DonorForm({
             {t("donors.form.sections.profileInfo", "Profile Information")}
           </p>
           <p className="text-xs text-text-secondary">
-            {t("donors.form.sections.profileInfoHint", "Age, birth date, and donation history")}
+            {t("donors.form.sections.profileInfoHint", "Age and donation history")}
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
@@ -165,12 +192,6 @@ export default function DonorForm({
             placeholder={t("donors.form.agePlaceholder", "Enter age")}
             error={errors.age?.message}
             {...register("age")}
-          />
-          <Input
-            type="date"
-            label={t("donors.form.dateOfBirth", "Date of Birth")}
-            error={errors.date_of_birth?.message}
-            {...register("date_of_birth")}
           />
           <div className="md:col-span-2">
             <Input
@@ -189,8 +210,16 @@ export default function DonorForm({
             {t("donors.form.sections.location", "Location Details")}
           </p>
           <p className="text-xs text-text-secondary">
-            {t("donors.form.sections.locationHint", "Coordinates and address information")}
+            {t("donors.form.sections.locationHint", "Register location and provide address information")}
           </p>
+        </div>
+        <div className="flex flex-col gap-2">
+          <div>
+            <Button type="button" variant="outline" onClick={handleRegisterLocation} loading={isLocating}>
+              {t("donors.form.registerLocation", "Register My Location")}
+            </Button>
+          </div>
+          {locationError ? <p className="text-sm text-error">{locationError}</p> : null}
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <Input

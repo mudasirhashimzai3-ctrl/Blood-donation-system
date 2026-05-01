@@ -245,7 +245,7 @@
   "mis.nav.alldonors": "All Donors",
   "mis.nav.adddonor": "Add Donor",
   "donors.title": "Donors",
-  "donors.subtitle": "Manage donor records with blood group and status",
+  "donors.subtitle": "Manage donor records by blood group",
   "donors.create.title": "Create Donor",
   "donors.create.subtitle": "Add a new donor record",
   "donors.view.title": "Donor Details",

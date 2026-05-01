@@ -18,9 +18,7 @@ const buildDonorFormData = (payload: Partial<DonorPayload>) => {
   appendField(formData, "phone", payload.phone);
   appendField(formData, "email", payload.email ?? "");
   appendField(formData, "blood_group", payload.blood_group);
-  appendField(formData, "status", payload.status);
   appendField(formData, "age", payload.age);
-  appendField(formData, "date_of_birth", payload.date_of_birth ?? "");
   appendField(formData, "permanent_address", payload.permanent_address ?? "");
   appendField(formData, "local_address", payload.local_address ?? "");
   appendField(formData, "last_donation_date", payload.last_donation_date ?? "");

@@ -57,7 +57,7 @@ class DonorDetailSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "created_at", "updated_at", "profile_picture_url"]
+        read_only_fields = ["id", "status", "created_at", "updated_at", "profile_picture_url"]
 
     def get_profile_picture_url(self, obj):
         if not obj.profile_picture:
@@ -139,6 +139,7 @@ class DonorDetailSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data.pop("remove_profile_picture", None)
+        validated_data["status"] = "active"
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
@@ -146,4 +147,5 @@ class DonorDetailSerializer(serializers.ModelSerializer):
         if remove_picture and instance.profile_picture:
             instance.profile_picture.delete(save=False)
             instance.profile_picture = None
+        validated_data["status"] = "active"
         return super().update(instance, validated_data)

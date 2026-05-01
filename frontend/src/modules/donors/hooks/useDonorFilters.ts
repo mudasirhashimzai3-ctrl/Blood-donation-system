@@ -4,14 +4,10 @@ import { useDonorUiStore } from "../stores/useDonorUiStore";
 
 export const useDonorFilters = () => {
   const {
-    search,
     bloodGroup,
-    status,
     page,
     pageSize,
-    setSearch,
     setBloodGroup,
-    setStatus,
     setPage,
     setPageSize,
     resetFilters,
@@ -21,26 +17,19 @@ export const useDonorFilters = () => {
     () => ({
       page,
       page_size: pageSize,
-      search: search || undefined,
       blood_group: bloodGroup || undefined,
-      status: status || undefined,
     }),
-    [bloodGroup, page, pageSize, search, status]
+    [bloodGroup, page, pageSize]
   );
 
   return {
-    search,
     bloodGroup,
-    status,
     page,
     pageSize,
-    setSearch,
     setBloodGroup,
-    setStatus,
     setPage,
     setPageSize,
     resetFilters,
     queryParams,
   };
 };
-

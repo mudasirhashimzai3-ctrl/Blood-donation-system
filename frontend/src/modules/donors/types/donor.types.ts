@@ -9,7 +9,7 @@ export const BLOOD_GROUP_OPTIONS = [
   "O-",
 ] as const;
 
-export const DONOR_STATUS_OPTIONS = ["active", "blocked", "pending"] as const;
+export const DONOR_STATUS_OPTIONS = ["active"] as const;
 
 export type BloodGroup = (typeof BLOOD_GROUP_OPTIONS)[number];
 export type DonorStatus = (typeof DONOR_STATUS_OPTIONS)[number];
@@ -55,13 +55,11 @@ export interface DonorPayload {
   phone: string;
   email?: string | null;
   blood_group: BloodGroup;
-  status: DonorStatus;
   profile_picture?: File | null;
   remove_profile_picture?: boolean;
   age?: number | string | null;
   latitude?: string | null;
   longitude?: string | null;
-  date_of_birth?: string | null;
   permanent_address?: string | null;
   local_address?: string | null;
   last_donation_date?: string | null;
@@ -70,9 +68,7 @@ export interface DonorPayload {
 export interface DonorQueryParams {
   page?: number;
   page_size?: number;
-  search?: string;
   blood_group?: BloodGroup | "";
-  status?: DonorStatus | "";
   ordering?: string;
 }
 

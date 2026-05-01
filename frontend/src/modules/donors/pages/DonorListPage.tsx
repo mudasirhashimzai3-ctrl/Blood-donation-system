@@ -18,8 +18,7 @@ export default function DonorListPage() {
   const { can } = useCan();
   const [deleteDonorId, setDeleteDonorId] = useState<number | null>(null);
 
-  const { search, bloodGroup, status, page, pageSize, setSearch, setBloodGroup, setStatus, setPage, resetFilters, queryParams } =
-    useDonorFilters();
+  const { bloodGroup, page, pageSize, setBloodGroup, setPage, resetFilters, queryParams } = useDonorFilters();
 
   const { data, isLoading, error } = useDonorsList(queryParams);
   const deleteMutation = useDeleteDonor();
@@ -47,7 +46,7 @@ export default function DonorListPage() {
     <div className="space-y-6">
       <PageHeader
         title={t("donors.title", "Donors")}
-        subtitle={t("donors.subtitle", "Manage donor records with blood group and status")}
+        subtitle={t("donors.subtitle", "Manage donor records by blood group")}
         actions={[
           {
             label: t("donors.actions.add", "Add Donor"),
@@ -60,12 +59,8 @@ export default function DonorListPage() {
       <Card>
         <CardContent>
           <DonorFilters
-            search={search}
             bloodGroup={bloodGroup}
-            status={status}
-            onSearchChange={setSearch}
             onBloodGroupChange={setBloodGroup}
-            onStatusChange={setStatus}
             onReset={resetFilters}
           />
         </CardContent>
