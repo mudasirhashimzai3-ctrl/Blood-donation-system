@@ -40,9 +40,6 @@ export default function SignupPage() {
       phone: "",
       role: preselectedRole,
       donor_blood_group: preselectedRole === "donor" ? "A+" : undefined,
-      donor_latitude: undefined,
-      donor_longitude: undefined,
-      recipient_required_blood_group: preselectedRole === "recipient" ? "A+" : undefined,
       password: "",
       confirm_password: "",
     },
@@ -117,47 +114,9 @@ export default function SignupPage() {
         />
 
         {preselectedRole === "donor" ? (
-          <>
-            <Select
-              label={t("auth.bloodGroup", "Blood Group")}
-              error={errors.donor_blood_group?.message}
-              options={[
-                { value: "A+", label: "A+" },
-                { value: "A-", label: "A-" },
-                { value: "B+", label: "B+" },
-                { value: "B-", label: "B-" },
-                { value: "AB+", label: "AB+" },
-                { value: "AB-", label: "AB-" },
-                { value: "O+", label: "O+" },
-                { value: "O-", label: "O-" },
-              ]}
-              {...register("donor_blood_group")}
-            />
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Input
-                type="number"
-                step="0.000001"
-                label={t("auth.latitude", "Latitude")}
-                placeholder={t("auth.latitudePlaceholder", "Enter latitude")}
-                error={errors.donor_latitude?.message}
-                {...register("donor_latitude", { valueAsNumber: true })}
-              />
-              <Input
-                type="number"
-                step="0.000001"
-                label={t("auth.longitude", "Longitude")}
-                placeholder={t("auth.longitudePlaceholder", "Enter longitude")}
-                error={errors.donor_longitude?.message}
-                {...register("donor_longitude", { valueAsNumber: true })}
-              />
-            </div>
-          </>
-        ) : null}
-
-        {preselectedRole === "recipient" ? (
           <Select
-            label={t("auth.requiredBloodGroup", "Required Blood Group")}
-            error={errors.recipient_required_blood_group?.message}
+            label={t("auth.bloodGroup", "Blood Group")}
+            error={errors.donor_blood_group?.message}
             options={[
               { value: "A+", label: "A+" },
               { value: "A-", label: "A-" },
@@ -168,7 +127,7 @@ export default function SignupPage() {
               { value: "O+", label: "O+" },
               { value: "O-", label: "O-" },
             ]}
-            {...register("recipient_required_blood_group")}
+            {...register("donor_blood_group")}
           />
         ) : null}
 

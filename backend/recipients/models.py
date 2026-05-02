@@ -38,7 +38,12 @@ class Recipient(BaseModel):
     full_name = models.CharField(max_length=200)
     email = models.EmailField(null=True, blank=True)
     phone = models.CharField(max_length=20)
-    required_blood_group = models.CharField(max_length=3, choices=BLOOD_GROUP_CHOICES)
+    required_blood_group = models.CharField(
+        max_length=3,
+        choices=BLOOD_GROUP_CHOICES,
+        null=True,
+        blank=True,
+    )
     hospital = models.ForeignKey(
         Hospital,
         on_delete=models.PROTECT,

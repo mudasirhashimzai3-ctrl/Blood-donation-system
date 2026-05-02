@@ -108,7 +108,11 @@ export default function RecipientViewPage() {
               <p className="text-sm text-text-secondary">{recipient.phone}</p>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="outline">{recipient.required_blood_group}</Badge>
+              {recipient.required_blood_group ? (
+                <Badge variant="outline">{recipient.required_blood_group}</Badge>
+              ) : (
+                <span className="text-sm text-text-secondary">—</span>
+              )}
               <EmergencyLevelBadge level={recipient.emergency_level} />
               <RecipientStatusBadge status={recipient.status} />
             </div>

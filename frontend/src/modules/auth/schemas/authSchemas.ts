@@ -107,41 +107,22 @@ export const signupSchema = z
           path: ["donor_blood_group"],
         });
       }
-      if (data.donor_latitude === undefined || Number.isNaN(data.donor_latitude)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Latitude is required for donor signup",
-          path: ["donor_latitude"],
-        });
-      } else if (data.donor_latitude < -90 || data.donor_latitude > 90) {
+      const lat = data.donor_latitude;
+      if (lat !== undefined && !Number.isNaN(lat) && (lat < -90 || lat > 90)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Latitude must be between -90 and 90",
           path: ["donor_latitude"],
         });
       }
-
-      if (data.donor_longitude === undefined || Number.isNaN(data.donor_longitude)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Longitude is required for donor signup",
-          path: ["donor_longitude"],
-        });
-      } else if (data.donor_longitude < -180 || data.donor_longitude > 180) {
+      const lon = data.donor_longitude;
+      if (lon !== undefined && !Number.isNaN(lon) && (lon < -180 || lon > 180)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Longitude must be between -180 and 180",
           path: ["donor_longitude"],
         });
       }
-    }
-
-    if (data.role === "recipient" && !data.recipient_required_blood_group) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Required blood group is mandatory for recipient signup",
-        path: ["recipient_required_blood_group"],
-      });
     }
   })
   .refine((data) => data.password === data.confirm_password, {

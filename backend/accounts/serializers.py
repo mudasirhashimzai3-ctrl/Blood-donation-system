@@ -106,13 +106,11 @@ class SignupSerializer(serializers.Serializer):
         if role == "donor":
             if not attrs.get("donor_blood_group"):
                 raise serializers.ValidationError({"donor_blood_group": "Blood group is required for donor signup."})
-            if attrs.get("donor_latitude") is None:
-                raise serializers.ValidationError({"donor_latitude": "Latitude is required for donor signup."})
-            if attrs.get("donor_longitude") is None:
-                raise serializers.ValidationError({"donor_longitude": "Longitude is required for donor signup."})
-            if attrs["donor_latitude"] < -90 or attrs["donor_latitude"] > 90:
+            donor_latitude = attrs.get("donor_latitude")
+            donor_longitude = attrs.get("donor_longitude")
+            if donor_latitude is not None and (donor_latitude < -90 or donor_latitude > 90):
                 raise serializers.ValidationError({"donor_latitude": "Latitude must be between -90 and 90."})
-            if attrs["donor_longitude"] < -180 or attrs["donor_longitude"] > 180:
+            if donor_longitude is not None and (donor_longitude < -180 or donor_longitude > 180):
                 raise serializers.ValidationError({"donor_longitude": "Longitude must be between -180 and 180."})
             if Donor.objects.filter(
                 phone=attrs["phone"],
@@ -121,10 +119,6 @@ class SignupSerializer(serializers.Serializer):
             ).exists():
                 raise serializers.ValidationError({"phone": "A donor profile already exists for this phone number."})
         elif role == "recipient":
-            if not attrs.get("recipient_required_blood_group"):
-                raise serializers.ValidationError(
-                    {"recipient_required_blood_group": "Required blood group is required for recipient signup."}
-                )
             if Recipient.objects.filter(
                 phone=attrs["phone"],
                 deleted_at__isnull=True,
@@ -163,22 +157,25 @@ class SignupSerializer(serializers.Serializer):
                 donor.last_name = user.last_name
                 donor.email = user.email or None
                 donor.blood_group = donor_blood_group
-                donor.latitude = donor_latitude
-                donor.longitude = donor_longitude
+                if donor_latitude is not None:
+                    donor.latitude = donor_latitude
+                if donor_longitude is not None:
+                    donor.longitude = donor_longitude
                 donor.status = "active"
-                donor.save(
-                    update_fields=[
-                        "user",
-                        "first_name",
-                        "last_name",
-                        "email",
-                        "blood_group",
-                        "latitude",
-                        "longitude",
-                        "status",
-                        "updated_at",
-                    ]
-                )
+                update_fields = [
+                    "user",
+                    "first_name",
+                    "last_name",
+                    "email",
+                    "blood_group",
+                    "status",
+                    "updated_at",
+                ]
+                if donor_latitude is not None:
+                    update_fields.append("latitude")
+                if donor_longitude is not None:
+                    update_fields.append("longitude")
+                donor.save(update_fields=update_fields)
             else:
                 Donor.objects.create(
                     user=user,
@@ -202,18 +199,13 @@ class SignupSerializer(serializers.Serializer):
                 recipient.user = user
                 recipient.full_name = full_name
                 recipient.email = user.email or None
-                recipient.required_blood_group = recipient_required_blood_group
+                if recipient_required_blood_group is not None:
+                    recipient.required_blood_group = recipient_required_blood_group
                 recipient.status = "active"
-                recipient.save(
-                    update_fields=[
-                        "user",
-                        "full_name",
-                        "email",
-                        "required_blood_group",
-                        "status",
-                        "updated_at",
-                    ]
-                )
+                update_fields = ["user", "full_name", "email", "status", "updated_at"]
+                if recipient_required_blood_group is not None:
+                    update_fields.append("required_blood_group")
+                recipient.save(update_fields=update_fields)
             else:
                 Recipient.objects.create(
                     user=user,

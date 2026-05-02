@@ -21,7 +21,7 @@ export interface Recipient {
   full_name: string;
   email: string | null;
   phone: string;
-  required_blood_group: BloodGroup;
+  required_blood_group: BloodGroup | null;
   hospital: number | null;
   hospital_name: string | null;
   hospital_phone: string | null;

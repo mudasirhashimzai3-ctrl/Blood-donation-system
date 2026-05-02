@@ -151,8 +151,6 @@ class AuthSignupTests(APITestCase):
                 "email": "donor-signup@example.com",
                 "phone": "0700000001",
                 "donor_blood_group": "O+",
-                "donor_latitude": "34.555300",
-                "donor_longitude": "69.207500",
                 "password": "StrongPass123!",
                 "confirm_password": "StrongPass123!",
                 "role": "donor",
@@ -165,6 +163,29 @@ class AuthSignupTests(APITestCase):
         donor_profile = Donor.objects.get(user=created)
         self.assertEqual(donor_profile.blood_group, "O+")
         self.assertEqual(donor_profile.status, "active")
+        self.assertIsNone(donor_profile.latitude)
+        self.assertIsNone(donor_profile.longitude)
+
+    def test_signup_rejects_invalid_donor_latitude(self):
+        response = self.client.post(
+            self.signup_url,
+            {
+                "first_name": "Bad",
+                "last_name": "Lat",
+                "username": "bad-lat-donor",
+                "email": "bad-lat@example.com",
+                "phone": "0700000099",
+                "donor_blood_group": "A+",
+                "donor_latitude": "91.000000",
+                "donor_longitude": "69.207500",
+                "password": "StrongPass123!",
+                "confirm_password": "StrongPass123!",
+                "role": "donor",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("donor_latitude", response.data)
 
     def test_recipient_signup_creates_recipient_role(self):
         response = self.client.post(
@@ -175,7 +196,6 @@ class AuthSignupTests(APITestCase):
                 "username": "recipient-signup",
                 "email": "recipient-signup@example.com",
                 "phone": "0700000002",
-                "recipient_required_blood_group": "A+",
                 "password": "StrongPass123!",
                 "confirm_password": "StrongPass123!",
                 "role": "recipient",
@@ -186,7 +206,7 @@ class AuthSignupTests(APITestCase):
         created = User.objects.get(username="recipient-signup")
         self.assertEqual(created.role_name, "recipient")
         recipient_profile = Recipient.objects.get(user=created)
-        self.assertEqual(recipient_profile.required_blood_group, "A+")
+        self.assertIsNone(recipient_profile.required_blood_group)
         self.assertEqual(recipient_profile.status, "active")
 
     def test_signup_rejects_invalid_role(self):
@@ -222,8 +242,6 @@ class AuthSignupTests(APITestCase):
                 "email": "existing@example.com",
                 "phone": "0700000004",
                 "donor_blood_group": "O-",
-                "donor_latitude": "34.555300",
-                "donor_longitude": "69.207500",
                 "password": "StrongPass123!",
                 "confirm_password": "StrongPass123!",
                 "role": "donor",
@@ -243,7 +261,6 @@ class AuthSignupTests(APITestCase):
                 "username": "mismatch-user",
                 "email": "mismatch@example.com",
                 "phone": "0700000005",
-                "recipient_required_blood_group": "B+",
                 "password": "StrongPass123!",
                 "confirm_password": "WrongPass123!",
                 "role": "recipient",
@@ -262,8 +279,6 @@ class AuthSignupTests(APITestCase):
                 "username": "no-email-user",
                 "phone": "0700000007",
                 "donor_blood_group": "AB+",
-                "donor_latitude": "34.555300",
-                "donor_longitude": "69.207500",
                 "password": "StrongPass123!",
                 "confirm_password": "StrongPass123!",
                 "role": "donor",
@@ -284,8 +299,6 @@ class AuthSignupTests(APITestCase):
                 "email": "flow@example.com",
                 "phone": "0700000006",
                 "donor_blood_group": "O+",
-                "donor_latitude": "34.555300",
-                "donor_longitude": "69.207500",
                 "password": "StrongPass123!",
                 "confirm_password": "StrongPass123!",
                 "role": "donor",

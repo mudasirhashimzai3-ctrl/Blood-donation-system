@@ -98,7 +98,9 @@ export default function RecipientTable({
                     <tr key={recipient.id} className="hover:bg-surface-hover">
                       <td className="px-4 py-3 text-sm text-text-primary">{recipient.full_name}</td>
                       <td className="px-4 py-3 text-sm text-text-primary">{recipient.phone}</td>
-                      <td className="px-4 py-3 text-sm text-text-primary">{recipient.required_blood_group}</td>
+                      <td className="px-4 py-3 text-sm text-text-primary">
+                        {recipient.required_blood_group ?? "—"}
+                      </td>
                       <td className="px-4 py-3 text-sm text-text-primary">{recipient.hospital_name}</td>
                       <td className="px-4 py-3 text-sm">
                         <EmergencyLevelBadge level={recipient.emergency_level} />
