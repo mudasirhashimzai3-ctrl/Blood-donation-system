@@ -103,7 +103,6 @@ class BloodRequestApiTests(APITestCase):
             required_blood_group="O+",
             hospital=self.hospital,
             emergency_level="urgent",
-            status="active",
         )
 
     def _create_donor(self, **kwargs):

@@ -17,7 +17,6 @@ class RecipientListSerializer(serializers.ModelSerializer):
             "hospital_name",
             "emergency_level",
             "city",
-            "status",
             "created_at",
         ]
 
@@ -50,7 +49,6 @@ class RecipientDetailSerializer(serializers.ModelSerializer):
             "longitude",
             "hospital_is_active",
             "emergency_level",
-            "status",
             "created_at",
             "updated_at",
         ]

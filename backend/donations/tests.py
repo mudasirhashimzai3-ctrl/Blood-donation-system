@@ -76,7 +76,6 @@ class DonationApiTests(APITestCase):
             required_blood_group="O+",
             hospital=self.hospital,
             emergency_level="urgent",
-            status="active",
         )
         self.request_obj = BloodRequest.objects.create(
             recipient=self.recipient,

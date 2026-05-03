@@ -71,11 +71,8 @@ class ReportsApiTests(APITestCase):
             full_name="Recipient Report",
             phone=f"0703{Recipient.objects.count() + 1000}",
             required_blood_group="A+",
-            age=30,
-            gender="male",
             emergency_level="critical",
             hospital=self.hospital,
-            status="active",
         )
         self.request_obj = BloodRequest.objects.create(
             recipient=self.recipient,

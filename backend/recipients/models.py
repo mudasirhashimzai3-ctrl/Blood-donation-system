@@ -17,11 +17,6 @@ class Recipient(BaseModel):
         ("O-", "O-"),
     ]
 
-    STATUS_CHOICES = [
-        ("active", "Active"),
-        ("blocked", "Blocked"),
-    ]
-
     EMERGENCY_LEVEL_CHOICES = [
         ("normal", "Normal"),
         ("urgent", "Urgent"),
@@ -52,12 +47,10 @@ class Recipient(BaseModel):
         blank=True,
     )
     emergency_level = models.CharField(max_length=20, choices=EMERGENCY_LEVEL_CHOICES, default="normal")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="active")
 
     class Meta:
         db_table = "recipients"
         indexes = [
-            models.Index(fields=["status"]),
             models.Index(fields=["required_blood_group"]),
             models.Index(fields=["emergency_level"]),
             models.Index(fields=["full_name"]),

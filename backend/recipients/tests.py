@@ -26,18 +26,12 @@ class RecipientApiTests(APITestCase):
 
         RolePermission.objects.get_or_create(role_name="admin", permission=cls.permissions["view"])
         RolePermission.objects.get_or_create(role_name="admin", permission=cls.permissions["change"])
-        RolePermission.objects.get_or_create(role_name="viewer", permission=cls.permissions["view"])
 
     def setUp(self):
         self.admin_user = User.objects.create_user(
             username="recipient_admin",
             password="StrongPass123!",
             role_name="admin",
-        )
-        self.viewer_user = User.objects.create_user(
-            username="recipient_viewer",
-            password="StrongPass123!",
-            role_name="viewer",
         )
         self.client.force_authenticate(user=self.admin_user)
 
@@ -66,7 +60,7 @@ class RecipientApiTests(APITestCase):
         response = self.client.post(self.base_url, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    def test_list_supports_search_filters_ordering_and_pagination(self):
+    def test_list_supports_filters_ordering_and_pagination(self):
         kabul_hospital = self._create_hospital(name="Kabul Hospital", city="Kabul")
         herat_hospital = self._create_hospital(name="Herat Hospital", city="Herat", phone="0700100010")
 
@@ -76,7 +70,6 @@ class RecipientApiTests(APITestCase):
             required_blood_group="O-",
             hospital=kabul_hospital,
             emergency_level="critical",
-            status="blocked",
         )
         Recipient.objects.create(
             full_name="Bahar Filter",
@@ -84,17 +77,14 @@ class RecipientApiTests(APITestCase):
             required_blood_group="A+",
             hospital=herat_hospital,
             emergency_level="urgent",
-            status="active",
         )
 
         response = self.client.get(
             self.base_url,
             {
-                "search": "Ali",
                 "required_blood_group": "O-",
                 "emergency_level": "critical",
                 "city": "Kabul",
-                "status": "blocked",
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -114,7 +104,6 @@ class RecipientApiTests(APITestCase):
             required_blood_group="B-",
             hospital=hospital,
             emergency_level="urgent",
-            status="active",
         )
         response = self.client.get(f"{self.base_url}{recipient.id}/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -132,31 +121,11 @@ class RecipientApiTests(APITestCase):
             required_blood_group="AB-",
             hospital=None,
             emergency_level="normal",
-            status="active",
         )
         response = self.client.get(f"{self.base_url}{recipient.id}/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsNone(response.data["hospital_name"])
         self.assertIsNone(response.data["hospital_is_active"])
-
-    def test_block_and_unblock_actions_change_status(self):
-        hospital = self._create_hospital()
-        recipient = Recipient.objects.create(
-            full_name="Action Recipient",
-            phone="0700000071",
-            required_blood_group="A-",
-            hospital=hospital,
-            emergency_level="normal",
-            status="active",
-        )
-
-        block_response = self.client.patch(f"{self.base_url}{recipient.id}/block/", {}, format="json")
-        self.assertEqual(block_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(block_response.data["status"], "blocked")
-
-        unblock_response = self.client.patch(f"{self.base_url}{recipient.id}/unblock/", {}, format="json")
-        self.assertEqual(unblock_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(unblock_response.data["status"], "active")
 
     def test_delete_recipient_endpoint_is_disabled(self):
         hospital = self._create_hospital()
@@ -166,22 +135,7 @@ class RecipientApiTests(APITestCase):
             required_blood_group="AB+",
             hospital=hospital,
             emergency_level="normal",
-            status="active",
         )
         delete_response = self.client.delete(f"{self.base_url}{recipient.id}/")
         self.assertEqual(delete_response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    def test_viewer_cannot_block(self):
-        hospital = self._create_hospital()
-        recipient = Recipient.objects.create(
-            full_name="Viewer Check",
-            phone="0700000091",
-            required_blood_group="O+",
-            hospital=hospital,
-            emergency_level="urgent",
-            status="active",
-        )
-        self.client.force_authenticate(user=self.viewer_user)
-
-        block_response = self.client.patch(f"{self.base_url}{recipient.id}/block/", {}, format="json")
-        self.assertEqual(block_response.status_code, status.HTTP_403_FORBIDDEN)

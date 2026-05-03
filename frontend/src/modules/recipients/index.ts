@@ -5,9 +5,7 @@ export { default as RecipientViewPage } from "./pages/RecipientViewPage";
 
 export { default as RecipientTable } from "./components/RecipientTable";
 export { default as RecipientFilters } from "./components/RecipientFilters";
-export { default as RecipientStatusBadge } from "./components/RecipientStatusBadge";
 export { default as EmergencyLevelBadge } from "./components/EmergencyLevelBadge";
-export { default as BlockUnblockRecipientDialog } from "./components/BlockUnblockRecipientDialog";
 
 export { useRecipientFilters } from "./hooks/useRecipientFilters";
 

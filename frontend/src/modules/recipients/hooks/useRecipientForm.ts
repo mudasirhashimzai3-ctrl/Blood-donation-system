@@ -11,7 +11,6 @@ const defaultValues: RecipientFormValues = {
   required_blood_group: "A+",
   hospital: 0,
   emergency_level: "normal",
-  status: "active",
 };
 
 export const mapRecipientToFormValues = (recipient?: Partial<Recipient>): RecipientFormValues => {
@@ -24,7 +23,6 @@ export const mapRecipientToFormValues = (recipient?: Partial<Recipient>): Recipi
     required_blood_group: recipient.required_blood_group ?? "A+",
     hospital: recipient.hospital ?? 0,
     emergency_level: recipient.emergency_level ?? "normal",
-    status: recipient.status ?? "active",
   };
 };
 

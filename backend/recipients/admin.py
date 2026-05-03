@@ -12,7 +12,6 @@ class RecipientAdmin(admin.ModelAdmin):
         "required_blood_group",
         "hospital",
         "emergency_level",
-        "status",
     )
-    list_filter = ("required_blood_group", "emergency_level", "status", "hospital__city")
+    list_filter = ("required_blood_group", "emergency_level", "hospital__city")
     search_fields = ("full_name", "phone", "email", "hospital__name")

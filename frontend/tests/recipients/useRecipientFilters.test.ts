@@ -7,11 +7,9 @@ import { useRecipientUiStore } from "@/modules/recipients/stores/useRecipientUiS
 describe("useRecipientFilters", () => {
   afterEach(() => {
     useRecipientUiStore.setState({
-      search: "",
       bloodGroup: "",
       emergencyLevel: "",
       city: "",
-      status: "",
       page: 1,
       pageSize: 10,
     });
@@ -19,11 +17,9 @@ describe("useRecipientFilters", () => {
 
   it("maps store values into query params", () => {
     useRecipientUiStore.setState({
-      search: "Ali",
       bloodGroup: "O+",
       emergencyLevel: "critical",
       city: "Kabul",
-      status: "blocked",
       page: 2,
       pageSize: 25,
     });
@@ -33,12 +29,9 @@ describe("useRecipientFilters", () => {
     expect(result.current.queryParams).toEqual({
       page: 2,
       page_size: 25,
-      search: "Ali",
       required_blood_group: "O+",
       emergency_level: "critical",
       city: "Kabul",
-      status: "blocked",
     });
   });
 });
-

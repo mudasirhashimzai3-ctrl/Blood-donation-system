@@ -10,8 +10,8 @@ vi.mock("react-i18next", () => ({
 }));
 
 describe("RecipientTable", () => {
-  it("renders row data and triggers block toggle callback", () => {
-    const onToggleBlock = vi.fn();
+  it("renders row data and triggers view callback", () => {
+    const onView = vi.fn();
 
     render(
       <RecipientTable
@@ -24,7 +24,6 @@ describe("RecipientTable", () => {
             hospital_name: "City Hospital",
             emergency_level: "critical",
             city: "Kabul",
-            status: "blocked",
             created_at: "2026-02-24T10:00:00Z",
           },
         ]}
@@ -33,8 +32,7 @@ describe("RecipientTable", () => {
         page={1}
         pageSize={10}
         onPageChange={vi.fn()}
-        onView={vi.fn()}
-        onToggleBlock={onToggleBlock}
+        onView={onView}
       />
     );
 
@@ -42,7 +40,7 @@ describe("RecipientTable", () => {
     expect(screen.getByText("City Hospital")).toBeInTheDocument();
     expect(screen.getByText("Kabul")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByTitle("Unblock"));
-    expect(onToggleBlock).toHaveBeenCalledWith(1, "blocked");
+    fireEvent.click(screen.getByTitle("View"));
+    expect(onView).toHaveBeenCalledWith(1);
   });
 });

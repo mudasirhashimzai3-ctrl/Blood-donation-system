@@ -1,10 +1,9 @@
-import { Ban, Eye, ShieldCheck } from "lucide-react";
+import { Eye } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Card, CardContent, Pagination, PaginationInfo, Skeleton } from "@components/ui";
 import type { RecipientListItem } from "../types/recipient.types";
 import EmergencyLevelBadge from "./EmergencyLevelBadge";
-import RecipientStatusBadge from "./RecipientStatusBadge";
 
 interface RecipientTableProps {
   recipients: RecipientListItem[];
@@ -14,7 +13,6 @@ interface RecipientTableProps {
   pageSize: number;
   onPageChange: (page: number) => void;
   onView: (id: number) => void;
-  onToggleBlock: (id: number, currentStatus: RecipientListItem["status"]) => void;
 }
 
 function LoadingRows() {
@@ -23,7 +21,7 @@ function LoadingRows() {
       {Array.from({ length: 6 }).map((_, index) => (
         <div
           key={index}
-          className="grid grid-cols-[2fr_1fr_1fr_2fr_1fr_1fr_1fr_auto] items-center gap-4 rounded-lg border border-border p-3"
+          className="grid grid-cols-[2fr_1fr_1fr_2fr_1fr_1fr_auto] items-center gap-4 rounded-lg border border-border p-3"
         >
           <Skeleton className="h-4 w-28" />
           <Skeleton className="h-4 w-24" />
@@ -31,8 +29,7 @@ function LoadingRows() {
           <Skeleton className="h-4 w-28" />
           <Skeleton className="h-4 w-20" />
           <Skeleton className="h-4 w-20" />
-          <Skeleton className="h-4 w-20" />
-          <Skeleton className="h-8 w-28" />
+          <Skeleton className="h-8 w-10" />
         </div>
       ))}
     </div>
@@ -47,7 +44,6 @@ export default function RecipientTable({
   pageSize,
   onPageChange,
   onView,
-  onToggleBlock,
 }: RecipientTableProps) {
   const { t } = useTranslation();
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
@@ -85,9 +81,6 @@ export default function RecipientTable({
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-text-secondary">
                       {t("recipients.table.city", "City")}
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-text-secondary">
-                      {t("recipients.table.status", "Status")}
-                    </th>
                     <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-text-secondary">
                       {t("recipients.table.actions", "Actions")}
                     </th>
@@ -106,9 +99,6 @@ export default function RecipientTable({
                         <EmergencyLevelBadge level={recipient.emergency_level} />
                       </td>
                       <td className="px-4 py-3 text-sm text-text-primary">{recipient.city}</td>
-                      <td className="px-4 py-3 text-sm">
-                        <RecipientStatusBadge status={recipient.status} />
-                      </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-1">
                           <button
@@ -118,22 +108,6 @@ export default function RecipientTable({
                             type="button"
                           >
                             <Eye className="h-4 w-4" />
-                          </button>
-                          <button
-                            className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-warning/10 hover:text-warning"
-                            onClick={() => onToggleBlock(recipient.id, recipient.status)}
-                            title={
-                              recipient.status === "blocked"
-                                ? t("recipients.actions.unblock", "Unblock")
-                                : t("recipients.actions.block", "Block")
-                            }
-                            type="button"
-                          >
-                            {recipient.status === "blocked" ? (
-                              <ShieldCheck className="h-4 w-4" />
-                            ) : (
-                              <Ban className="h-4 w-4" />
-                            )}
                           </button>
                         </div>
                       </td>
@@ -153,4 +127,3 @@ export default function RecipientTable({
     </Card>
   );
 }
-

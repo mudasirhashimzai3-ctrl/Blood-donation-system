@@ -5,11 +5,7 @@ import { Button, Input, Select } from "@components/ui";
 import { formatLocalDateTime } from "@/utils/formatLocalDateTime";
 import { HospitalSearchSelect } from "@/modules/hospitals";
 import { type RecipientFormValues } from "../schemas/recipientSchemas";
-import {
-  BLOOD_GROUP_OPTIONS,
-  EMERGENCY_LEVEL_OPTIONS,
-  RECIPIENT_STATUS_OPTIONS,
-} from "../types/recipient.types";
+import { BLOOD_GROUP_OPTIONS, EMERGENCY_LEVEL_OPTIONS } from "../types/recipient.types";
 
 interface RecipientFormProps {
   form: UseFormReturn<RecipientFormValues>;
@@ -83,26 +79,15 @@ export default function RecipientForm({
         )}
       />
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Select
-          label={t("recipients.form.emergencyLevel", "Emergency Level")}
-          error={errors.emergency_level?.message}
-          options={EMERGENCY_LEVEL_OPTIONS.map((level) => ({
-            value: level,
-            label: t(`recipients.emergency.${level}`, level),
-          }))}
-          {...register("emergency_level")}
-        />
-        <Select
-          label={t("recipients.form.status", "Status")}
-          error={errors.status?.message}
-          options={RECIPIENT_STATUS_OPTIONS.map((status) => ({
-            value: status,
-            label: t(`recipients.status.${status}`, status),
-          }))}
-          {...register("status")}
-        />
-      </div>
+      <Select
+        label={t("recipients.form.emergencyLevel", "Emergency Level")}
+        error={errors.emergency_level?.message}
+        options={EMERGENCY_LEVEL_OPTIONS.map((level) => ({
+          value: level,
+          label: t(`recipients.emergency.${level}`, level),
+        }))}
+        {...register("emergency_level")}
+      />
 
       {(createdAt || updatedAt) && (
         <div className="grid gap-4 md:grid-cols-2">

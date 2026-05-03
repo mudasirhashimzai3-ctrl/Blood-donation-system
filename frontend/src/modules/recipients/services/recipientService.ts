@@ -19,9 +19,5 @@ export const recipientService = {
     apiClient.patch<Recipient>(`/recipients/${id}/`, payload),
 
   deleteRecipient: (id: number) => apiClient.delete(`/recipients/${id}/`),
-
-  blockRecipient: (id: number) => apiClient.patch<Recipient>(`/recipients/${id}/block/`, {}),
-
-  unblockRecipient: (id: number) => apiClient.patch<Recipient>(`/recipients/${id}/unblock/`, {}),
 };
 

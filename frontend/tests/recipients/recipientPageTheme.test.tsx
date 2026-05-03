@@ -33,18 +33,14 @@ vi.mock("@/hooks/useCan", () => ({
 
 vi.mock("@/modules/recipients/hooks/useRecipientFilters", () => ({
   useRecipientFilters: () => ({
-    search: "",
     bloodGroup: "",
     emergencyLevel: "",
     city: "",
-    status: "",
     page: 1,
     pageSize: 10,
-    setSearch: vi.fn(),
     setBloodGroup: vi.fn(),
     setEmergencyLevel: vi.fn(),
     setCity: vi.fn(),
-    setStatus: vi.fn(),
     setPage: vi.fn(),
     resetFilters: vi.fn(),
     queryParams: {},
@@ -72,10 +68,6 @@ vi.mock("@/modules/recipients/components/DeleteRecipientDialog", () => ({
   default: () => null,
 }));
 
-vi.mock("@/modules/recipients/components/BlockUnblockRecipientDialog", () => ({
-  default: () => null,
-}));
-
 vi.mock("@/modules/recipients/components/RecipientForm", () => ({
   default: () => null,
 }));
@@ -89,8 +81,6 @@ vi.mock("@/modules/recipients/hooks/useRecipientForm", () => ({
 vi.mock("@/modules/recipients/queries/useRecipientQueries", () => ({
   useRecipientsList: () => ({ data: { results: [], count: 0 }, isLoading: false, error: null }),
   useDeleteRecipient: () => ({ mutateAsync: vi.fn(), isPending: false }),
-  useBlockRecipient: () => ({ mutateAsync: vi.fn(), isPending: false }),
-  useUnblockRecipient: () => ({ mutateAsync: vi.fn(), isPending: false }),
   useCreateRecipient: () => ({ mutateAsync: vi.fn(), isPending: false }),
   useUpdateRecipient: () => ({ mutateAsync: vi.fn(), isPending: false }),
   useRecipient: () => ({ data: null, isLoading: false, error: null }),

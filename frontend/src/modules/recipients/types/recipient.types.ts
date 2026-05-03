@@ -9,11 +9,9 @@ export const BLOOD_GROUP_OPTIONS = [
   "O-",
 ] as const;
 
-export const RECIPIENT_STATUS_OPTIONS = ["active", "blocked"] as const;
 export const EMERGENCY_LEVEL_OPTIONS = ["normal", "urgent", "critical"] as const;
 
 export type BloodGroup = (typeof BLOOD_GROUP_OPTIONS)[number];
-export type RecipientStatus = (typeof RECIPIENT_STATUS_OPTIONS)[number];
 export type EmergencyLevel = (typeof EMERGENCY_LEVEL_OPTIONS)[number];
 
 export interface Recipient {
@@ -32,7 +30,6 @@ export interface Recipient {
   longitude: string | null;
   hospital_is_active: boolean;
   emergency_level: EmergencyLevel;
-  status: RecipientStatus;
   created_at: string;
   updated_at: string;
 }
@@ -46,7 +43,6 @@ export type RecipientListItem = Pick<
   | "hospital_name"
   | "emergency_level"
   | "city"
-  | "status"
   | "created_at"
 >;
 
@@ -57,17 +53,14 @@ export interface RecipientPayload {
   required_blood_group: BloodGroup;
   hospital: number;
   emergency_level: EmergencyLevel;
-  status: RecipientStatus;
 }
 
 export interface RecipientQueryParams {
   page?: number;
   page_size?: number;
-  search?: string;
   required_blood_group?: BloodGroup | "";
   emergency_level?: EmergencyLevel | "";
   city?: string;
-  status?: RecipientStatus | "";
   ordering?: string;
 }
 

@@ -68,35 +68,3 @@ export const useDeleteRecipient = () => {
     },
   });
 };
-
-export const useBlockRecipient = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: number) => recipientService.blockRecipient(id).then((res) => res.data),
-    onSuccess: (_data, id) => {
-      toast.success("Recipient blocked successfully");
-      queryClient.invalidateQueries({ queryKey: recipientKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: recipientKeys.detail(id) });
-    },
-    onError: (error) => {
-      toast.error(extractAxiosError(error, "Failed to block recipient"));
-    },
-  });
-};
-
-export const useUnblockRecipient = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: number) => recipientService.unblockRecipient(id).then((res) => res.data),
-    onSuccess: (_data, id) => {
-      toast.success("Recipient unblocked successfully");
-      queryClient.invalidateQueries({ queryKey: recipientKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: recipientKeys.detail(id) });
-    },
-    onError: (error) => {
-      toast.error(extractAxiosError(error, "Failed to unblock recipient"));
-    },
-  });
-};

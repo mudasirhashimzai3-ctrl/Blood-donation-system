@@ -1,4 +1,4 @@
-import { ArrowLeft, Ban, Pencil, ShieldCheck, Trash2 } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
@@ -7,16 +7,9 @@ import { PageHeader } from "@/components";
 import useCan from "@/hooks/useCan";
 import { formatLocalDateTime } from "@/utils/formatLocalDateTime";
 import { Badge, Button, Card, CardContent } from "@components/ui";
-import BlockUnblockRecipientDialog from "../components/BlockUnblockRecipientDialog";
 import DeleteRecipientDialog from "../components/DeleteRecipientDialog";
 import EmergencyLevelBadge from "../components/EmergencyLevelBadge";
-import RecipientStatusBadge from "../components/RecipientStatusBadge";
-import {
-  useBlockRecipient,
-  useDeleteRecipient,
-  useRecipient,
-  useUnblockRecipient,
-} from "../queries/useRecipientQueries";
+import { useDeleteRecipient, useRecipient } from "../queries/useRecipientQueries";
 
 export default function RecipientViewPage() {
   const { t } = useTranslation();
@@ -25,28 +18,15 @@ export default function RecipientViewPage() {
   const { id } = useParams<{ id: string }>();
   const recipientId = Number(id);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
 
   const { data: recipient, isLoading, error } = useRecipient(recipientId, { enabled: Number.isFinite(recipientId) });
   const deleteMutation = useDeleteRecipient();
-  const blockMutation = useBlockRecipient();
-  const unblockMutation = useUnblockRecipient();
 
   const handleDelete = async () => {
     if (!recipient) return;
     await deleteMutation.mutateAsync(recipient.id);
     setIsDeleteOpen(false);
     navigate("/recipients");
-  };
-
-  const handleToggleStatus = async () => {
-    if (!recipient) return;
-    if (recipient.status === "blocked") {
-      await unblockMutation.mutateAsync(recipient.id);
-    } else {
-      await blockMutation.mutateAsync(recipient.id);
-    }
-    setIsStatusDialogOpen(false);
   };
 
   if (!can("recipients")) {
@@ -114,7 +94,6 @@ export default function RecipientViewPage() {
                 <span className="text-sm text-text-secondary">—</span>
               )}
               <EmergencyLevelBadge level={recipient.emergency_level} />
-              <RecipientStatusBadge status={recipient.status} />
             </div>
           </div>
 
@@ -178,15 +157,6 @@ export default function RecipientViewPage() {
             >
               {t("recipients.actions.edit", "Edit")}
             </Button>
-            <Button
-              variant={recipient.status === "blocked" ? "primary" : "danger"}
-              onClick={() => setIsStatusDialogOpen(true)}
-              leftIcon={recipient.status === "blocked" ? <ShieldCheck className="h-4 w-4" /> : <Ban className="h-4 w-4" />}
-            >
-              {recipient.status === "blocked"
-                ? t("recipients.actions.unblock", "Unblock")
-                : t("recipients.actions.block", "Block")}
-            </Button>
             <Button variant="danger" onClick={() => setIsDeleteOpen(true)} leftIcon={<Trash2 className="h-4 w-4" />}>
               {t("recipients.actions.delete", "Delete")}
             </Button>
@@ -199,14 +169,6 @@ export default function RecipientViewPage() {
         onClose={() => setIsDeleteOpen(false)}
         onConfirm={handleDelete}
         loading={deleteMutation.isPending}
-      />
-
-      <BlockUnblockRecipientDialog
-        isOpen={isStatusDialogOpen}
-        onClose={() => setIsStatusDialogOpen(false)}
-        onConfirm={handleToggleStatus}
-        isBlocked={recipient.status === "blocked"}
-        loading={blockMutation.isPending || unblockMutation.isPending}
       />
     </div>
   );

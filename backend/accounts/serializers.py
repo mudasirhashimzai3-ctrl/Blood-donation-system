@@ -201,8 +201,7 @@ class SignupSerializer(serializers.Serializer):
                 recipient.email = user.email or None
                 if recipient_required_blood_group is not None:
                     recipient.required_blood_group = recipient_required_blood_group
-                recipient.status = "active"
-                update_fields = ["user", "full_name", "email", "status", "updated_at"]
+                update_fields = ["user", "full_name", "email", "updated_at"]
                 if recipient_required_blood_group is not None:
                     update_fields.append("required_blood_group")
                 recipient.save(update_fields=update_fields)
@@ -214,7 +213,6 @@ class SignupSerializer(serializers.Serializer):
                     phone=user.phone,
                     required_blood_group=recipient_required_blood_group,
                     emergency_level="normal",
-                    status="active",
                 )
         return user
 

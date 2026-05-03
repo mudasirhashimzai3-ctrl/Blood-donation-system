@@ -207,7 +207,6 @@ class AuthSignupTests(APITestCase):
         self.assertEqual(created.role_name, "recipient")
         recipient_profile = Recipient.objects.get(user=created)
         self.assertIsNone(recipient_profile.required_blood_group)
-        self.assertEqual(recipient_profile.status, "active")
 
     def test_signup_rejects_invalid_role(self):
         response = self.client.post(

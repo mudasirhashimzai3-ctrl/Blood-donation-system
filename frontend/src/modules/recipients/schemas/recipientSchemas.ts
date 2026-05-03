@@ -1,10 +1,6 @@
 import { z } from "zod";
 
-import {
-  BLOOD_GROUP_OPTIONS,
-  EMERGENCY_LEVEL_OPTIONS,
-  RECIPIENT_STATUS_OPTIONS,
-} from "../types/recipient.types";
+import { BLOOD_GROUP_OPTIONS, EMERGENCY_LEVEL_OPTIONS } from "../types/recipient.types";
 
 export const recipientFormSchema = z.object({
   full_name: z.string().trim().min(2, "Full name must be at least 2 characters"),
@@ -20,7 +16,6 @@ export const recipientFormSchema = z.object({
   required_blood_group: z.enum(BLOOD_GROUP_OPTIONS),
   hospital: z.coerce.number().int().positive("Hospital is required"),
   emergency_level: z.enum(EMERGENCY_LEVEL_OPTIONS),
-  status: z.enum(RECIPIENT_STATUS_OPTIONS),
 });
 
 export type RecipientFormValues = z.infer<typeof recipientFormSchema>;
