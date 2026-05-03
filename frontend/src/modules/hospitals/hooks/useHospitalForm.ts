@@ -17,7 +17,6 @@ const defaultValues: HospitalFormValues = {
   province: "Kabul",
   latitude: "",
   longitude: "",
-  is_active: true,
 };
 
 export const mapHospitalToFormValues = (hospital?: Partial<Hospital>): HospitalFormValues => {
@@ -31,7 +30,6 @@ export const mapHospitalToFormValues = (hospital?: Partial<Hospital>): HospitalF
     province: normalizeProvince(hospital.province ?? hospital.city),
     latitude: hospital.latitude ?? "",
     longitude: hospital.longitude ?? "",
-    is_active: hospital.is_active ?? true,
   };
 };
 
@@ -49,7 +47,6 @@ export const normalizeHospitalPayload = (values: HospitalFormValues): HospitalPa
   city: values.province,
   latitude: emptyToNull(values.latitude),
   longitude: emptyToNull(values.longitude),
-  is_active: values.is_active,
 });
 
 export const useHospitalForm = (hospital?: Partial<Hospital>) =>

@@ -6,9 +6,7 @@ export { default as HospitalEditPage } from "./pages/HospitalEditPage";
 export { default as HospitalTable } from "./components/HospitalTable";
 export { default as HospitalFilters } from "./components/HospitalFilters";
 export { default as HospitalForm } from "./components/HospitalForm";
-export { default as HospitalStatusBadge } from "./components/HospitalStatusBadge";
 export { default as DeleteHospitalDialog } from "./components/DeleteHospitalDialog";
-export { default as ToggleHospitalStatusDialog } from "./components/ToggleHospitalStatusDialog";
 export { default as HospitalQuickCreateModal } from "./components/HospitalQuickCreateModal";
 export { default as HospitalSearchSelect } from "./components/HospitalSearchSelect";
 

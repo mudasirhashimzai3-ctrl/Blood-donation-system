@@ -29,7 +29,6 @@ export const hospitalFormSchema = z.object({
   province: z.enum(AFGHANISTAN_PROVINCES),
   latitude: numericCoordinate("Latitude", -90, 90),
   longitude: numericCoordinate("Longitude", -180, 180),
-  is_active: z.boolean(),
 });
 
 export type HospitalFormValues = z.infer<typeof hospitalFormSchema>;

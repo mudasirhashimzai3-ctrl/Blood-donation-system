@@ -9,10 +9,9 @@ describe("hospitalFormSchema", () => {
       phone: "0700100001",
       email: "city@example.com",
       address: "Main Street",
-      city: "Kabul",
+      province: "Kabul",
       latitude: "34.5553",
       longitude: "69.2075",
-      is_active: true,
     });
 
     expect(result.success).toBe(true);
@@ -24,10 +23,9 @@ describe("hospitalFormSchema", () => {
       phone: "",
       email: "",
       address: "",
-      city: "Kabul",
+      province: "Kabul",
       latitude: "100",
       longitude: "190",
-      is_active: true,
     });
 
     expect(result.success).toBe(false);

@@ -18,9 +18,5 @@ export const hospitalService = {
     apiClient.patch<Hospital>(`/hospitals/${id}/`, payload),
 
   deleteHospital: (id: number) => apiClient.delete(`/hospitals/${id}/`),
-
-  activateHospital: (id: number) => apiClient.patch<Hospital>(`/hospitals/${id}/activate/`, {}),
-
-  deactivateHospital: (id: number) => apiClient.patch<Hospital>(`/hospitals/${id}/deactivate/`, {}),
 };
 

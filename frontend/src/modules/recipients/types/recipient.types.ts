@@ -28,7 +28,6 @@ export interface Recipient {
   city: string | null;
   latitude: string | null;
   longitude: string | null;
-  hospital_is_active: boolean;
   emergency_level: EmergencyLevel;
   created_at: string;
   updated_at: string;

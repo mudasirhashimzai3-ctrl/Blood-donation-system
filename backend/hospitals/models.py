@@ -50,7 +50,6 @@ class Hospital(BaseModel):
     city = models.CharField(max_length=100)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
-    is_active = models.BooleanField(default=True)
 
     class Meta:
         db_table = "hospitals"
@@ -60,7 +59,6 @@ class Hospital(BaseModel):
             models.Index(fields=["city"]),
             models.Index(fields=["phone"]),
             models.Index(fields=["email"]),
-            models.Index(fields=["is_active"]),
         ]
         constraints = [
             models.UniqueConstraint(

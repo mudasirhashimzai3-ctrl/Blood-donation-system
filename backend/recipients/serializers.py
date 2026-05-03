@@ -29,7 +29,6 @@ class RecipientDetailSerializer(serializers.ModelSerializer):
     city = serializers.CharField(source="hospital.city", read_only=True, allow_null=True)
     latitude = serializers.DecimalField(source="hospital.latitude", read_only=True, max_digits=9, decimal_places=6)
     longitude = serializers.DecimalField(source="hospital.longitude", read_only=True, max_digits=9, decimal_places=6)
-    hospital_is_active = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipient
@@ -47,7 +46,6 @@ class RecipientDetailSerializer(serializers.ModelSerializer):
             "city",
             "latitude",
             "longitude",
-            "hospital_is_active",
             "emergency_level",
             "created_at",
             "updated_at",
@@ -63,13 +61,7 @@ class RecipientDetailSerializer(serializers.ModelSerializer):
             "city",
             "latitude",
             "longitude",
-            "hospital_is_active",
         ]
-
-    def get_hospital_is_active(self, obj):
-        if not obj.hospital:
-            return None
-        return obj.hospital.is_active
 
     def validate_full_name(self, value):
         normalized = value.strip()

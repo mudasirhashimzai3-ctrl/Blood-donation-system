@@ -56,7 +56,7 @@ export default function BloodRequestForm({
   const [province, setProvince] = useState<Province | "">("");
   const { data: selectedHospital } = useHospital(selectedHospitalId, { enabled: selectedHospitalId > 0 });
   const { data: hospitalsData } = useHospitalsList(
-    { page_size: 100, is_active: true, province: province || undefined },
+    { page_size: 100, province: province || undefined },
     { enabled: Boolean(province) }
   );
 

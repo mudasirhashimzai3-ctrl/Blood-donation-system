@@ -13,7 +13,6 @@ class HospitalListSerializer(serializers.ModelSerializer):
             "email",
             "province",
             "city",
-            "is_active",
             "created_at",
         ]
 
@@ -31,7 +30,6 @@ class HospitalDetailSerializer(serializers.ModelSerializer):
             "city",
             "latitude",
             "longitude",
-            "is_active",
             "created_at",
             "updated_at",
         ]

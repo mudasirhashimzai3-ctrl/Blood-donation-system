@@ -1,7 +1,7 @@
-import { Controller, type UseFormReturn } from "react-hook-form";
+import { type UseFormReturn } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
-import { Button, Input, Select, Switch } from "@components/ui";
+import { Button, Input, Select } from "@components/ui";
 import { formatLocalDateTime } from "@/utils/formatLocalDateTime";
 import { type HospitalFormValues } from "../schemas/hospitalSchemas";
 import { AFGHANISTAN_PROVINCES } from "../types/hospital.types";
@@ -29,7 +29,6 @@ export default function HospitalForm({
   const {
     register,
     handleSubmit,
-    control,
     formState: { errors },
   } = form;
 
@@ -85,19 +84,6 @@ export default function HospitalForm({
           {...register("longitude")}
         />
       </div>
-
-      <Controller
-        control={control}
-        name="is_active"
-        render={({ field }) => (
-          <Switch
-            checked={field.value}
-            onChange={(event) => field.onChange(event.target.checked)}
-            label={t("hospitals.form.isActive", "Hospital is active")}
-            description={t("hospitals.form.isActiveHint", "Inactive hospitals are hidden from recipient selection")}
-          />
-        )}
-      />
 
       {(createdAt || updatedAt) && (
         <div className="grid gap-4 md:grid-cols-2">

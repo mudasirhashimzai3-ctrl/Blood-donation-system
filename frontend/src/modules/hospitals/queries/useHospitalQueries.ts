@@ -66,36 +66,3 @@ export const useDeleteHospital = () => {
     },
   });
 };
-
-export const useActivateHospital = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: number) => hospitalService.activateHospital(id).then((res) => res.data),
-    onSuccess: (_data, id) => {
-      toast.success("Hospital activated successfully");
-      queryClient.invalidateQueries({ queryKey: hospitalKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: hospitalKeys.detail(id) });
-    },
-    onError: (error) => {
-      toast.error(extractAxiosError(error, "Failed to activate hospital"));
-    },
-  });
-};
-
-export const useDeactivateHospital = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: number) => hospitalService.deactivateHospital(id).then((res) => res.data),
-    onSuccess: (_data, id) => {
-      toast.success("Hospital deactivated successfully");
-      queryClient.invalidateQueries({ queryKey: hospitalKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: hospitalKeys.detail(id) });
-    },
-    onError: (error) => {
-      toast.error(extractAxiosError(error, "Failed to deactivate hospital"));
-    },
-  });
-};
-

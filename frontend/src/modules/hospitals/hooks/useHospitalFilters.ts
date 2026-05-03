@@ -7,12 +7,10 @@ export const useHospitalFilters = () => {
   const {
     search,
     province,
-    isActive,
     page,
     pageSize,
     setSearch,
     setProvince,
-    setIsActive,
     setPage,
     setPageSize,
     resetFilters,
@@ -24,20 +22,17 @@ export const useHospitalFilters = () => {
       page_size: pageSize,
       search: search || undefined,
       province: province || undefined,
-      is_active: isActive === "" ? undefined : isActive === "true",
     }),
-    [isActive, page, pageSize, province, search]
+    [page, pageSize, province, search]
   );
 
   return {
     search,
     province: province as Province | "",
-    isActive,
     page,
     pageSize,
     setSearch,
     setProvince,
-    setIsActive,
     setPage,
     setPageSize,
     resetFilters,

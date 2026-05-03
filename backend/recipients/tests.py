@@ -44,7 +44,6 @@ class RecipientApiTests(APITestCase):
             "city": "Kabul",
             "latitude": "34.555300",
             "longitude": "69.207500",
-            "is_active": True,
         }
         defaults.update(kwargs)
         return Hospital.objects.create(**defaults)
@@ -125,7 +124,6 @@ class RecipientApiTests(APITestCase):
         response = self.client.get(f"{self.base_url}{recipient.id}/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsNone(response.data["hospital_name"])
-        self.assertIsNone(response.data["hospital_is_active"])
 
     def test_delete_recipient_endpoint_is_disabled(self):
         hospital = self._create_hospital()

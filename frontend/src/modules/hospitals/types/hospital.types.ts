@@ -47,7 +47,6 @@ export interface Hospital {
   city: string;
   latitude: string | null;
   longitude: string | null;
-  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -59,7 +58,6 @@ export interface HospitalListItem {
   email: string | null;
   province: Province;
   city: string;
-  is_active: boolean;
   created_at: string;
 }
 
@@ -72,7 +70,6 @@ export interface HospitalPayload {
   city?: string | null;
   latitude?: string | null;
   longitude?: string | null;
-  is_active?: boolean;
 }
 
 export interface HospitalQueryParams {
@@ -81,7 +78,6 @@ export interface HospitalQueryParams {
   search?: string;
   province?: Province;
   city?: string;
-  is_active?: boolean;
   ordering?: string;
 }
 

@@ -1,4 +1,4 @@
-import { ArrowLeft, Ban, Pencil, ShieldCheck, Trash2 } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
@@ -8,9 +8,7 @@ import useCan from "@/hooks/useCan";
 import { formatLocalDateTime } from "@/utils/formatLocalDateTime";
 import { Button, Card, CardContent } from "@components/ui";
 import DeleteHospitalDialog from "../components/DeleteHospitalDialog";
-import HospitalStatusBadge from "../components/HospitalStatusBadge";
-import ToggleHospitalStatusDialog from "../components/ToggleHospitalStatusDialog";
-import { useActivateHospital, useDeactivateHospital, useDeleteHospital, useHospital } from "../queries/useHospitalQueries";
+import { useDeleteHospital, useHospital } from "../queries/useHospitalQueries";
 
 export default function HospitalViewPage() {
   const { t } = useTranslation();
@@ -19,28 +17,15 @@ export default function HospitalViewPage() {
   const { id } = useParams<{ id: string }>();
   const hospitalId = Number(id);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
 
   const { data: hospital, isLoading, error } = useHospital(hospitalId, { enabled: Number.isFinite(hospitalId) });
   const deleteMutation = useDeleteHospital();
-  const activateMutation = useActivateHospital();
-  const deactivateMutation = useDeactivateHospital();
 
   const handleDelete = async () => {
     if (!hospital) return;
     await deleteMutation.mutateAsync(hospital.id);
     setIsDeleteOpen(false);
     navigate("/hospitals");
-  };
-
-  const handleToggleStatus = async () => {
-    if (!hospital) return;
-    if (hospital.is_active) {
-      await deactivateMutation.mutateAsync(hospital.id);
-    } else {
-      await activateMutation.mutateAsync(hospital.id);
-    }
-    setIsStatusDialogOpen(false);
   };
 
   if (!can("hospitals")) {
@@ -93,7 +78,6 @@ export default function HospitalViewPage() {
               <h2 className="text-xl font-semibold text-text-primary">{hospital.name}</h2>
               <p className="text-sm text-text-secondary">{hospital.province}</p>
             </div>
-            <HospitalStatusBadge isActive={hospital.is_active} />
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -138,15 +122,6 @@ export default function HospitalViewPage() {
             >
               {t("hospitals.actions.edit", "Edit")}
             </Button>
-            <Button
-              variant={hospital.is_active ? "danger" : "primary"}
-              onClick={() => setIsStatusDialogOpen(true)}
-              leftIcon={hospital.is_active ? <Ban className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
-            >
-              {hospital.is_active
-                ? t("hospitals.actions.deactivate", "Deactivate")
-                : t("hospitals.actions.activate", "Activate")}
-            </Button>
             <Button variant="danger" onClick={() => setIsDeleteOpen(true)} leftIcon={<Trash2 className="h-4 w-4" />}>
               {t("hospitals.actions.delete", "Delete")}
             </Button>
@@ -159,14 +134,6 @@ export default function HospitalViewPage() {
         onClose={() => setIsDeleteOpen(false)}
         onConfirm={handleDelete}
         loading={deleteMutation.isPending}
-      />
-
-      <ToggleHospitalStatusDialog
-        isOpen={isStatusDialogOpen}
-        onClose={() => setIsStatusDialogOpen(false)}
-        onConfirm={handleToggleStatus}
-        isActive={hospital.is_active}
-        loading={activateMutation.isPending || deactivateMutation.isPending}
       />
     </div>
   );

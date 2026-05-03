@@ -38,7 +38,6 @@ export default function HospitalQuickCreateModal({
       province: province || "Kabul",
       latitude: "",
       longitude: "",
-      is_active: true,
     },
   });
 
@@ -59,7 +58,6 @@ export default function HospitalQuickCreateModal({
       province: province || "Kabul",
       latitude: "",
       longitude: "",
-      is_active: true,
     });
   }, [isOpen, province, reset]);
 
@@ -73,7 +71,6 @@ export default function HospitalQuickCreateModal({
       city: values.province,
       latitude: emptyToNull(values.latitude),
       longitude: emptyToNull(values.longitude),
-      is_active: true,
     });
     onCreated(hospital);
     reset();

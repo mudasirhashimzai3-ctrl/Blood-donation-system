@@ -65,7 +65,6 @@ class ReportsApiTests(APITestCase):
             phone=f"0702{Hospital.objects.count() + 1000}",
             latitude="34.555300",
             longitude="69.207500",
-            is_active=True,
         )
         self.recipient = Recipient.objects.create(
             full_name="Recipient Report",

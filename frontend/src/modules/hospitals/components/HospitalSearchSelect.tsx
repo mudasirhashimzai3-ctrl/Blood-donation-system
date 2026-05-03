@@ -25,7 +25,6 @@ export default function HospitalSearchSelect({ value, onChange, error }: Hospita
       page_size: 10,
       province: province || undefined,
       search: search || undefined,
-      is_active: true,
     },
     { enabled: Boolean(province) && (isOpen || search.length > 0) }
   );

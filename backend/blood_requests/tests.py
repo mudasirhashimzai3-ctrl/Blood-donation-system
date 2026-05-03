@@ -94,7 +94,6 @@ class BloodRequestApiTests(APITestCase):
             city="Kabul",
             latitude="34.555300",
             longitude="69.207500",
-            is_active=True,
         )
         self.recipient = Recipient.objects.create(
             user=self.recipient_user,

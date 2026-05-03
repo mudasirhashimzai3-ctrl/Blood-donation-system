@@ -51,7 +51,6 @@ class HospitalApiTests(APITestCase):
             "city": "Kabul",
             "latitude": "34.555300",
             "longitude": "69.207500",
-            "is_active": True,
         }
         payload.update(kwargs)
         return payload
@@ -63,7 +62,6 @@ class HospitalApiTests(APITestCase):
         self.assertEqual(create_response.data["phone"], "0700100001")
         self.assertEqual(create_response.data["email"], "contact@cityhospital.com")
         self.assertEqual(create_response.data["province"], "Kabul")
-        self.assertTrue(create_response.data["is_active"])
 
         list_response = self.client.get(self.base_url, {"search": "City", "province": "Kabul"})
         self.assertEqual(list_response.status_code, status.HTTP_200_OK)
@@ -71,13 +69,12 @@ class HospitalApiTests(APITestCase):
 
         update_response = self.client.patch(
             f"{self.base_url}{hospital_id}/",
-            {"province": "Herat", "is_active": False},
+            {"province": "Herat"},
             format="json",
         )
         self.assertEqual(update_response.status_code, status.HTTP_200_OK)
         self.assertEqual(update_response.data["province"], "Herat")
         self.assertEqual(update_response.data["city"], "Herat")
-        self.assertFalse(update_response.data["is_active"])
 
         delete_response = self.client.delete(f"{self.base_url}{hospital_id}/")
         self.assertEqual(delete_response.status_code, status.HTTP_204_NO_CONTENT)
@@ -95,23 +92,6 @@ class HospitalApiTests(APITestCase):
         self.assertIn("latitude", response.data)
         self.assertIn("longitude", response.data)
 
-    def test_activate_and_deactivate_actions(self):
-        hospital = Hospital.objects.create(
-            name="Action Hospital",
-            phone="0700111111",
-            province="Kabul",
-            city="Kabul",
-            is_active=True,
-        )
-
-        deactivate_response = self.client.patch(f"{self.base_url}{hospital.id}/deactivate/", {}, format="json")
-        self.assertEqual(deactivate_response.status_code, status.HTTP_200_OK)
-        self.assertFalse(deactivate_response.data["is_active"])
-
-        activate_response = self.client.patch(f"{self.base_url}{hospital.id}/activate/", {}, format="json")
-        self.assertEqual(activate_response.status_code, status.HTTP_200_OK)
-        self.assertTrue(activate_response.data["is_active"])
-
     def test_viewer_cannot_mutate(self):
         self.client.force_authenticate(user=self.viewer_user)
 
@@ -124,7 +104,6 @@ class HospitalApiTests(APITestCase):
             phone="0700999999",
             province="Kabul",
             city="Kabul",
-            is_active=True,
         )
         Recipient.objects.create(
             full_name="Linked Recipient",

@@ -9,31 +9,22 @@ import { Card, CardContent } from "@components/ui";
 import DeleteHospitalDialog from "../components/DeleteHospitalDialog";
 import HospitalFilters from "../components/HospitalFilters";
 import HospitalTable from "../components/HospitalTable";
-import ToggleHospitalStatusDialog from "../components/ToggleHospitalStatusDialog";
 import { useHospitalFilters } from "../hooks/useHospitalFilters";
-import {
-  useActivateHospital,
-  useDeactivateHospital,
-  useDeleteHospital,
-  useHospitalsList,
-} from "../queries/useHospitalQueries";
+import { useDeleteHospital, useHospitalsList } from "../queries/useHospitalQueries";
 
 export default function HospitalListPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { can } = useCan();
   const [deleteHospitalId, setDeleteHospitalId] = useState<number | null>(null);
-  const [statusActionTarget, setStatusActionTarget] = useState<{ id: number; isActive: boolean } | null>(null);
 
   const {
     search,
     province,
-    isActive,
     page,
     pageSize,
     setSearch,
     setProvince,
-    setIsActive,
     setPage,
     resetFilters,
     queryParams,
@@ -41,8 +32,6 @@ export default function HospitalListPage() {
 
   const { data, isLoading, error } = useHospitalsList(queryParams);
   const deleteMutation = useDeleteHospital();
-  const activateMutation = useActivateHospital();
-  const deactivateMutation = useDeactivateHospital();
 
   const hospitals = data?.results ?? [];
   const totalCount = data?.count ?? 0;
@@ -51,16 +40,6 @@ export default function HospitalListPage() {
     if (!deleteHospitalId) return;
     await deleteMutation.mutateAsync(deleteHospitalId);
     setDeleteHospitalId(null);
-  };
-
-  const handleStatusToggle = async () => {
-    if (!statusActionTarget) return;
-    if (statusActionTarget.isActive) {
-      await deactivateMutation.mutateAsync(statusActionTarget.id);
-    } else {
-      await activateMutation.mutateAsync(statusActionTarget.id);
-    }
-    setStatusActionTarget(null);
   };
 
   if (!can("hospitals")) {
@@ -92,10 +71,8 @@ export default function HospitalListPage() {
           <HospitalFilters
             search={search}
             province={province}
-            isActive={isActive}
             onSearchChange={setSearch}
             onProvinceChange={setProvince}
-            onIsActiveChange={setIsActive}
             onReset={resetFilters}
           />
         </CardContent>
@@ -118,7 +95,6 @@ export default function HospitalListPage() {
           onView={(id) => navigate(`/hospitals/${id}`)}
           onEdit={(id) => navigate(`/hospitals/${id}/edit`)}
           onDelete={(id) => setDeleteHospitalId(id)}
-          onToggleStatus={(id, active) => setStatusActionTarget({ id, isActive: active })}
         />
       )}
 
@@ -127,14 +103,6 @@ export default function HospitalListPage() {
         onClose={() => setDeleteHospitalId(null)}
         onConfirm={handleDelete}
         loading={deleteMutation.isPending}
-      />
-
-      <ToggleHospitalStatusDialog
-        isOpen={statusActionTarget !== null}
-        onClose={() => setStatusActionTarget(null)}
-        onConfirm={handleStatusToggle}
-        isActive={statusActionTarget?.isActive ?? false}
-        loading={activateMutation.isPending || deactivateMutation.isPending}
       />
     </div>
   );
