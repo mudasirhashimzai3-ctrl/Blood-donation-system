@@ -62,8 +62,6 @@ def apply_request_filters(queryset, filters):
         queryset = queryset.filter(blood_group=filters["blood_group"])
     if filters.get("request_type"):
         queryset = queryset.filter(request_type=filters["request_type"])
-    if filters.get("priority"):
-        queryset = queryset.filter(priority=filters["priority"])
     if filters.get("status"):
         queryset = queryset.filter(status=filters["status"])
 
@@ -87,8 +85,6 @@ def apply_donation_filters(queryset, filters):
         queryset = queryset.filter(request__blood_group=filters["blood_group"])
     if filters.get("request_type"):
         queryset = queryset.filter(request__request_type=filters["request_type"])
-    if filters.get("priority"):
-        queryset = queryset.filter(request__priority=filters["priority"])
     if filters.get("status"):
         queryset = queryset.filter(status=filters["status"])
 

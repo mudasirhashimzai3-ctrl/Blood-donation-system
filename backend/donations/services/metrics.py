@@ -1,13 +1,6 @@
 import math
 from decimal import Decimal
 
-PRIORITY_WEIGHTS = {
-    "low": Decimal("10"),
-    "medium": Decimal("20"),
-    "high": Decimal("30"),
-    "critical": Decimal("40"),
-}
-
 REQUEST_TYPE_WEIGHTS = {
     "normal": Decimal("10"),
     "urgent": Decimal("20"),
@@ -42,16 +35,10 @@ def calculate_estimated_arrival_time(distance_km: Decimal | None) -> int | None:
     return max(5, min(180, raw_minutes))
 
 
-def calculate_priority_score(
-    *,
-    distance_km: Decimal,
-    request_priority: str,
-    request_type: str,
-) -> Decimal:
-    priority_weight = PRIORITY_WEIGHTS.get(request_priority, Decimal("20"))
+def calculate_priority_score(*, distance_km: Decimal, request_type: str) -> Decimal:
     request_type_weight = REQUEST_TYPE_WEIGHTS.get(request_type, Decimal("10"))
     distance_score = max(Decimal("0"), Decimal("100") - (distance_km * Decimal("5")))
-    score = priority_weight + request_type_weight + (distance_score / Decimal("10"))
+    score = request_type_weight + (distance_score / Decimal("10"))
     return score.quantize(Decimal("0.01"))
 
 
@@ -65,7 +52,6 @@ def build_distance_eta_priority_snapshot(*, blood_request, donor):
     estimated_arrival_time = calculate_estimated_arrival_time(distance_km)
     priority_score = calculate_priority_score(
         distance_km=distance_km,
-        request_priority=blood_request.priority,
         request_type=blood_request.request_type,
     )
     return distance_km, estimated_arrival_time, priority_score

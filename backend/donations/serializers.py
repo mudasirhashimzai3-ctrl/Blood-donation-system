@@ -76,7 +76,6 @@ class DonationListSerializer(serializers.ModelSerializer):
 
 class DonationDetailSerializer(DonationListSerializer):
     request_blood_group = serializers.CharField(source="request.blood_group", read_only=True)
-    request_priority = serializers.CharField(source="request.priority", read_only=True)
     request_type = serializers.CharField(source="request.request_type", read_only=True)
     recipient_name = serializers.CharField(source="request.recipient.full_name", read_only=True)
     hospital_name = serializers.CharField(source="request.hospital.name", read_only=True)
@@ -88,7 +87,6 @@ class DonationDetailSerializer(DonationListSerializer):
             "responded_at",
             "reminder_count",
             "request_blood_group",
-            "request_priority",
             "request_type",
             "recipient_name",
             "hospital_name",

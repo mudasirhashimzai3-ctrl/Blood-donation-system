@@ -17,13 +17,11 @@ export const BLOOD_REQUEST_STATUS_OPTIONS = [
 ] as const;
 
 export const REQUEST_TYPE_OPTIONS = ["normal", "urgent", "critical"] as const;
-export const PRIORITY_OPTIONS = ["low", "medium", "high", "critical"] as const;
 export const CANCELLED_BY_OPTIONS = ["admin", "recipient"] as const;
 
 export type BloodGroup = (typeof BLOOD_GROUP_OPTIONS)[number];
 export type BloodRequestStatus = (typeof BLOOD_REQUEST_STATUS_OPTIONS)[number];
 export type RequestType = (typeof REQUEST_TYPE_OPTIONS)[number];
-export type Priority = (typeof PRIORITY_OPTIONS)[number];
 export type CancelledBy = (typeof CANCELLED_BY_OPTIONS)[number];
 
 export interface BloodRequestAttachment {
@@ -42,7 +40,6 @@ export interface BloodRequest {
   blood_group: BloodGroup;
   units_needed: number;
   request_type: RequestType;
-  priority: Priority;
   estimated_time_to_fulfill: number | null;
   nearby_donors_count: number;
   total_notified_donors: number;
@@ -82,7 +79,6 @@ export type BloodRequestListItem = Pick<
   | "blood_group"
   | "units_needed"
   | "request_type"
-  | "priority"
   | "status"
   | "is_verified"
   | "is_emergency"
@@ -99,7 +95,6 @@ export interface BloodRequestPayload {
   blood_group: BloodGroup;
   units_needed: number;
   request_type: RequestType;
-  priority: Priority;
   auto_match_enabled?: boolean;
   location_lat: string;
   location_lon: string;
@@ -119,10 +114,8 @@ export interface BloodRequestQueryParams {
   status?: BloodRequestStatus | "";
   blood_group?: BloodGroup | "";
   request_type?: RequestType | "";
-  priority?: Priority | "";
   is_verified?: boolean;
   is_emergency?: boolean;
-  is_active?: boolean;
   hospital?: number;
   assigned_donor?: number;
   ordering?: string;

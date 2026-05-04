@@ -9,7 +9,6 @@ interface ReportFiltersBarProps {
   city: string;
   bloodGroup: string;
   requestType: string;
-  priority: string;
   emergencyOnly: boolean;
   status: string;
   onDateFromChange: (value: string) => void;
@@ -18,7 +17,6 @@ interface ReportFiltersBarProps {
   onCityChange: (value: string) => void;
   onBloodGroupChange: (value: string) => void;
   onRequestTypeChange: (value: string) => void;
-  onPriorityChange: (value: string) => void;
   onEmergencyOnlyChange: (value: boolean) => void;
   onStatusChange: (value: string) => void;
   onReset: () => void;
@@ -43,7 +41,6 @@ export default function ReportsFilterBar({
   city,
   bloodGroup,
   requestType,
-  priority,
   emergencyOnly,
   status,
   onDateFromChange,
@@ -52,7 +49,6 @@ export default function ReportsFilterBar({
   onCityChange,
   onBloodGroupChange,
   onRequestTypeChange,
-  onPriorityChange,
   onEmergencyOnlyChange,
   onStatusChange,
   onReset,
@@ -65,7 +61,7 @@ export default function ReportsFilterBar({
           Global Analytics Filters
         </div>
 
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           <Input
             label="Date From"
             type="date"
@@ -111,18 +107,6 @@ export default function ReportsFilterBar({
               { value: "", label: "All request types" },
               { value: "normal", label: "Normal" },
               { value: "urgent", label: "Urgent" },
-              { value: "critical", label: "Critical" },
-            ]}
-          />
-          <Select
-            label="Priority"
-            value={priority}
-            onChange={(event) => onPriorityChange(event.target.value)}
-            options={[
-              { value: "", label: "All priorities" },
-              { value: "low", label: "Low" },
-              { value: "medium", label: "Medium" },
-              { value: "high", label: "High" },
               { value: "critical", label: "Critical" },
             ]}
           />

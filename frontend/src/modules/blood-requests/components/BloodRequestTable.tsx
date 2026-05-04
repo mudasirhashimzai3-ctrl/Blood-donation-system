@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent, Pagination, PaginationInfo, Skeleton } from "@components/ui";
 import { formatLocalDateTime } from "@/utils/formatLocalDateTime";
 import type { BloodRequestListItem } from "../types/bloodRequest.types";
-import BloodRequestPriorityBadge from "./BloodRequestPriorityBadge";
 import BloodRequestStatusBadge from "./BloodRequestStatusBadge";
 import BloodRequestTypeBadge from "./BloodRequestTypeBadge";
 
@@ -27,12 +26,11 @@ function LoadingRows() {
       {Array.from({ length: 6 }).map((_, index) => (
         <div
           key={index}
-          className="grid grid-cols-[2fr_2fr_1fr_1fr_1fr_1fr_1fr_auto] items-center gap-4 rounded-lg border border-border p-3"
+          className="grid grid-cols-[2fr_2fr_1fr_1fr_1fr_1fr_auto] items-center gap-4 rounded-lg border border-border p-3"
         >
           <Skeleton className="h-4 w-28" />
           <Skeleton className="h-4 w-28" />
           <Skeleton className="h-4 w-10" />
-          <Skeleton className="h-4 w-16" />
           <Skeleton className="h-4 w-16" />
           <Skeleton className="h-4 w-16" />
           <Skeleton className="h-4 w-16" />
@@ -86,9 +84,6 @@ export default function BloodRequestTable({
                       {t("bloodRequests.table.type", "Type")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-text-secondary">
-                      {t("bloodRequests.table.priority", "Priority")}
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-text-secondary">
                       {t("bloodRequests.table.status", "Status")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-text-secondary">
@@ -107,9 +102,6 @@ export default function BloodRequestTable({
                       <td className="px-4 py-3 text-sm text-text-primary">{bloodRequest.blood_group}</td>
                       <td className="px-4 py-3 text-sm">
                         <BloodRequestTypeBadge requestType={bloodRequest.request_type} />
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        <BloodRequestPriorityBadge priority={bloodRequest.priority} />
                       </td>
                       <td className="px-4 py-3 text-sm">
                         <BloodRequestStatusBadge status={bloodRequest.status} />

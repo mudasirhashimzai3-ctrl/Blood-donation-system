@@ -46,10 +46,8 @@ class BloodRequestFilter(filterset.FilterSet):
             "status",
             "blood_group",
             "request_type",
-            "priority",
             "is_verified",
             "is_emergency",
-            "is_active",
             "hospital",
             "recipient",
             "assigned_donor",
@@ -66,14 +64,12 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = BloodRequestFilter
     search_fields = [
-        "recipient__full_name",
-        "recipient__phone",
         "hospital__name",
         "assigned_donor__first_name",
         "assigned_donor__last_name",
         "assigned_donor__phone",
     ]
-    ordering_fields = ["created_at", "updated_at", "response_deadline", "priority", "units_needed"]
+    ordering_fields = ["created_at", "updated_at", "response_deadline", "units_needed"]
     ordering = ["-created_at"]
 
     def get_queryset(self):
@@ -120,7 +116,7 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
             sent_via=["in_app"],
             role_names=["admin", "receptionist"],
             request_id=instance.id,
-            metadata={"status": instance.status, "priority": instance.priority},
+            metadata={"status": instance.status, "request_type": instance.request_type},
         )
         if instance.auto_match_enabled:
             auto_match_blood_request(instance)

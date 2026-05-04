@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
+import sys
 import dj_database_url
 from dotenv import load_dotenv
 
@@ -270,3 +271,9 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": 86400.0,
     },
 }
+
+# Avoid requiring Redis/Broker during `manage.py test` (Celery task.delay/connect).
+RUNNING_TESTS = "test" in sys.argv or os.getenv("DJANGO_RUNNING_TESTS") == "1"
+if RUNNING_TESTS:
+    CELERY_TASK_ALWAYS_EAGER = True
+    CELERY_TASK_EAGER_PROPAGATES = True

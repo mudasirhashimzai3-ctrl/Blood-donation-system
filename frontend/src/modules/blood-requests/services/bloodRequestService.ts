@@ -23,7 +23,6 @@ export const buildBloodRequestFormData = (payload: Partial<BloodRequestPayload>)
   appendField(formData, "blood_group", payload.blood_group);
   appendField(formData, "units_needed", payload.units_needed);
   appendField(formData, "request_type", payload.request_type);
-  appendField(formData, "priority", payload.priority);
   appendField(formData, "auto_match_enabled", payload.auto_match_enabled);
   appendField(formData, "location_lat", payload.location_lat);
   appendField(formData, "location_lon", payload.location_lon);

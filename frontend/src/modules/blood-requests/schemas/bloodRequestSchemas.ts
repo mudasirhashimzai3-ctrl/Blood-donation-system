@@ -1,10 +1,6 @@
 import { z } from "zod";
 
-import {
-  BLOOD_GROUP_OPTIONS,
-  PRIORITY_OPTIONS,
-  REQUEST_TYPE_OPTIONS,
-} from "../types/bloodRequest.types";
+import { BLOOD_GROUP_OPTIONS, REQUEST_TYPE_OPTIONS } from "../types/bloodRequest.types";
 
 const validateDateTime = (value?: string) => {
   if (!value) return true;
@@ -29,7 +25,6 @@ export const bloodRequestFormSchema = z.object({
   blood_group: z.enum(BLOOD_GROUP_OPTIONS),
   units_needed: z.coerce.number().int().min(1, "Units needed must be at least 1"),
   request_type: z.enum(REQUEST_TYPE_OPTIONS),
-  priority: z.enum(PRIORITY_OPTIONS),
   auto_match_enabled: z.boolean(),
   location_lat: z
     .string()

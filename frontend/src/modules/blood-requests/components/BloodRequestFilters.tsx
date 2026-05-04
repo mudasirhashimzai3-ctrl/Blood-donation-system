@@ -4,11 +4,9 @@ import { Button, Input, Select } from "@components/ui";
 import {
   BLOOD_GROUP_OPTIONS,
   BLOOD_REQUEST_STATUS_OPTIONS,
-  PRIORITY_OPTIONS,
   REQUEST_TYPE_OPTIONS,
   type BloodGroup,
   type BloodRequestStatus,
-  type Priority,
   type RequestType,
 } from "../types/bloodRequest.types";
 
@@ -17,14 +15,10 @@ interface BloodRequestFiltersProps {
   status: BloodRequestStatus | "";
   bloodGroup: BloodGroup | "";
   requestType: RequestType | "";
-  priority: Priority | "";
-  isActive: boolean | null;
   onSearchChange: (value: string) => void;
   onStatusChange: (value: BloodRequestStatus | "") => void;
   onBloodGroupChange: (value: BloodGroup | "") => void;
   onRequestTypeChange: (value: RequestType | "") => void;
-  onPriorityChange: (value: Priority | "") => void;
-  onIsActiveChange: (value: boolean | null) => void;
   onReset: () => void;
 }
 
@@ -33,24 +27,23 @@ export default function BloodRequestFilters({
   status,
   bloodGroup,
   requestType,
-  priority,
-  isActive,
   onSearchChange,
   onStatusChange,
   onBloodGroupChange,
   onRequestTypeChange,
-  onPriorityChange,
-  onIsActiveChange,
   onReset,
 }: BloodRequestFiltersProps) {
   const { t } = useTranslation();
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-7">
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
       <Input
         value={search}
         onChange={(event) => onSearchChange(event.target.value)}
-        placeholder={t("bloodRequests.filters.searchPlaceholder", "Search by recipient or hospital")}
+        placeholder={t(
+          "bloodRequests.filters.searchPlaceholder",
+          "Search by hospital or assigned donor"
+        )}
       />
       <Select
         value={bloodGroup}
@@ -72,17 +65,6 @@ export default function BloodRequestFilters({
         ]}
       />
       <Select
-        value={priority}
-        onChange={(event) => onPriorityChange(event.target.value as Priority | "")}
-        options={[
-          { value: "", label: t("bloodRequests.filters.allPriorities", "All Priorities") },
-          ...PRIORITY_OPTIONS.map((value) => ({
-            value,
-            label: t(`bloodRequests.priority.${value}`, value),
-          })),
-        ]}
-      />
-      <Select
         value={status}
         onChange={(event) => onStatusChange(event.target.value as BloodRequestStatus | "")}
         options={[
@@ -91,26 +73,6 @@ export default function BloodRequestFilters({
             value,
             label: t(`bloodRequests.status.${value}`, value),
           })),
-        ]}
-      />
-      <Select
-        value={isActive === null ? "" : isActive ? "true" : "false"}
-        onChange={(event) => {
-          const value = event.target.value;
-          if (value === "true") {
-            onIsActiveChange(true);
-            return;
-          }
-          if (value === "false") {
-            onIsActiveChange(false);
-            return;
-          }
-          onIsActiveChange(null);
-        }}
-        options={[
-          { value: "", label: "All Activity" },
-          { value: "true", label: "Active Only" },
-          { value: "false", label: "Inactive Only" },
         ]}
       />
       <Button variant="outline" onClick={onReset}>

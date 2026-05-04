@@ -19,7 +19,6 @@ export interface ReportsFilterParams {
   city?: string;
   blood_group?: string;
   request_type?: string;
-  priority?: string;
   emergency_only?: boolean;
   status?: string;
   search?: string;
@@ -47,7 +46,6 @@ export interface RequestAnalyticsResponse {
   breakdowns: {
     blood_group: Array<{ blood_group: string; count: number }>;
     request_type: Array<{ request_type: string; count: number }>;
-    priority: Array<{ priority: string; count: number }>;
   };
   meta: Record<string, unknown>;
   cache: ReportCacheMeta;

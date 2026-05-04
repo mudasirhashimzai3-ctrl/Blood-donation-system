@@ -45,7 +45,6 @@ export default function ReportsWorkspacePage() {
     city,
     bloodGroup,
     requestType,
-    priority,
     emergencyOnly,
     status,
     setDateFrom,
@@ -54,7 +53,6 @@ export default function ReportsWorkspacePage() {
     setCity,
     setBloodGroup,
     setRequestType,
-    setPriority,
     setEmergencyOnly,
     setStatus,
     resetFilters,
@@ -107,7 +105,6 @@ export default function ReportsWorkspacePage() {
         city={city}
         bloodGroup={bloodGroup}
         requestType={requestType}
-        priority={priority}
         emergencyOnly={emergencyOnly}
         status={status}
         onDateFromChange={setDateFrom}
@@ -116,7 +113,6 @@ export default function ReportsWorkspacePage() {
         onCityChange={setCity}
         onBloodGroupChange={setBloodGroup}
         onRequestTypeChange={setRequestType}
-        onPriorityChange={setPriority}
         onEmergencyOnlyChange={setEmergencyOnly}
         onStatusChange={setStatus}
         onReset={resetFilters}

@@ -38,7 +38,6 @@ export interface Donation {
   responded_at: string | null;
   reminder_count: number;
   request_blood_group: string;
-  request_priority: string;
   request_type: string;
   recipient_name: string;
   hospital_name: string;

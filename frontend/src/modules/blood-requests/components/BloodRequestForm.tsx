@@ -6,11 +6,7 @@ import { AFGHANISTAN_PROVINCES, useHospital, useHospitalsList } from "@/modules/
 import type { Province } from "@/modules/hospitals";
 import { Button, Input, Select, Switch } from "@components/ui";
 import { type BloodRequestFormValues } from "../schemas/bloodRequestSchemas";
-import {
-  BLOOD_GROUP_OPTIONS,
-  PRIORITY_OPTIONS,
-  REQUEST_TYPE_OPTIONS,
-} from "../types/bloodRequest.types";
+import { BLOOD_GROUP_OPTIONS, REQUEST_TYPE_OPTIONS } from "../types/bloodRequest.types";
 
 interface BloodRequestFormProps {
   form: UseFormReturn<BloodRequestFormValues>;
@@ -136,7 +132,7 @@ export default function BloodRequestForm({
         />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-1">
         <Select
           label={t("bloodRequests.form.requestType", "Request Type")}
           error={errors.request_type?.message}
@@ -145,15 +141,6 @@ export default function BloodRequestForm({
             label: t(`bloodRequests.type.${value}`, value),
           }))}
           {...register("request_type")}
-        />
-        <Select
-          label={t("bloodRequests.form.priority", "Priority")}
-          error={errors.priority?.message}
-          options={PRIORITY_OPTIONS.map((value) => ({
-            value,
-            label: t(`bloodRequests.priority.${value}`, value),
-          }))}
-          {...register("priority")}
         />
       </div>
 

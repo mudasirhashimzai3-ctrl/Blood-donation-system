@@ -31,13 +31,6 @@ class BloodRequest(BaseModel):
         ("critical", "Critical"),
     ]
 
-    PRIORITY_CHOICES = [
-        ("low", "Low"),
-        ("medium", "Medium"),
-        ("high", "High"),
-        ("critical", "Critical"),
-    ]
-
     STATUS_CHOICES = [
         ("pending", "Pending"),
         ("matched", "Matched"),
@@ -55,7 +48,6 @@ class BloodRequest(BaseModel):
     blood_group = models.CharField(max_length=3, choices=BLOOD_GROUP_CHOICES)
     units_needed = models.PositiveSmallIntegerField()
     request_type = models.CharField(max_length=20, choices=REQUEST_TYPE_CHOICES, default="normal")
-    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default="medium")
     estimated_time_to_fulfill = models.PositiveIntegerField(null=True, blank=True)
     nearby_donors_count = models.PositiveIntegerField(default=0)
     total_notified_donors = models.PositiveIntegerField(default=0)
@@ -88,7 +80,6 @@ class BloodRequest(BaseModel):
         indexes = [
             models.Index(fields=["status"]),
             models.Index(fields=["blood_group"]),
-            models.Index(fields=["priority"]),
             models.Index(fields=["request_type"]),
             models.Index(fields=["response_deadline"]),
             models.Index(fields=["is_active"]),

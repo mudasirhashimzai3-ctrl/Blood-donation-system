@@ -82,7 +82,6 @@ class DonationApiTests(APITestCase):
             blood_group="O+",
             units_needed=2,
             request_type="urgent",
-            priority="high",
             auto_match_enabled=False,
             location_lat="34.555300",
             location_lon="69.207500",

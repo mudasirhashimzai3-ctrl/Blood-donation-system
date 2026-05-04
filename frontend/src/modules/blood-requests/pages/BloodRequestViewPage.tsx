@@ -17,7 +17,6 @@ import useCan from "@/hooks/useCan";
 import { formatLocalDateTime } from "@/utils/formatLocalDateTime";
 import { Badge, Button, Card, CardContent } from "@components/ui";
 import AssignDonorDialog from "../components/AssignDonorDialog";
-import BloodRequestPriorityBadge from "../components/BloodRequestPriorityBadge";
 import BloodRequestStatusBadge from "../components/BloodRequestStatusBadge";
 import BloodRequestTypeBadge from "../components/BloodRequestTypeBadge";
 import CancelBloodRequestDialog from "../components/CancelBloodRequestDialog";
@@ -121,7 +120,6 @@ export default function BloodRequestViewPage() {
             <div className="flex items-center gap-2">
               <Badge variant="outline">{bloodRequest.blood_group}</Badge>
               <BloodRequestTypeBadge requestType={bloodRequest.request_type} />
-              <BloodRequestPriorityBadge priority={bloodRequest.priority} />
               <BloodRequestStatusBadge status={bloodRequest.status} />
             </div>
           </div>

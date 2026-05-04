@@ -477,7 +477,7 @@
   "bloodRequests.table.deadline": "Deadline",
   "bloodRequests.table.actions": "Actions",
   "bloodRequests.list.empty": "No blood requests found",
-  "bloodRequests.filters.searchPlaceholder": "Search by recipient or hospital",
+  "bloodRequests.filters.searchPlaceholder": "Search by hospital or assigned donor",
   "bloodRequests.filters.allBloodGroups": "All Blood Groups",
   "bloodRequests.filters.allTypes": "All Request Types",
   "bloodRequests.filters.allPriorities": "All Priorities",

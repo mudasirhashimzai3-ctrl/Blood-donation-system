@@ -37,9 +37,6 @@ def build_request_analytics(filters: dict):
         "request_type": list(
             queryset.values("request_type").annotate(count=Count("id")).order_by("request_type")
         ),
-        "priority": list(
-            queryset.values("priority").annotate(count=Count("id")).order_by("priority")
-        ),
     }
 
     return {

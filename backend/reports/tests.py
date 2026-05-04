@@ -79,7 +79,6 @@ class ReportsApiTests(APITestCase):
             blood_group="A+",
             units_needed=2,
             request_type="critical",
-            priority="critical",
             auto_match_enabled=True,
             location_lat="34.555300",
             location_lon="69.207500",
