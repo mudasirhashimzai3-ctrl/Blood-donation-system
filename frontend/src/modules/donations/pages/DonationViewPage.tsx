@@ -99,30 +99,24 @@ export default function DonationViewPage() {
                 {donation.estimated_arrival_time ? `${donation.estimated_arrival_time} min` : "-"}
               </p>
             </div>
-            <div>
-              <p className="text-xs uppercase text-text-secondary">
-                {t("donations.fields.responseTime", "Response Time")}
-              </p>
-              <p className="text-sm text-text-primary">
-                {donation.response_time !== null ? `${donation.response_time} min` : "-"}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs uppercase text-text-secondary">
-                {t("donations.fields.priorityScore", "Priority Score")}
-              </p>
-              <p className="text-sm text-text-primary">{donation.priority_score}</p>
-            </div>
-            <div>
-              <p className="text-xs uppercase text-text-secondary">
-                {t("donations.fields.requestDeadline", "Request Deadline")}
-              </p>
-              <p className="text-sm text-text-primary">
-                {donation.request_response_deadline
-                  ? formatLocalDateTime(donation.request_response_deadline)
-                  : "-"}
-              </p>
-            </div>
+<div>
+               <p className="text-xs uppercase text-text-secondary">
+                 {t("donations.fields.responseTime", "Response Time")}
+               </p>
+               <p className="text-sm text-text-primary">
+                 {donation.response_time !== null ? `${donation.response_time} min` : "-"}
+               </p>
+             </div>
+             <div>
+               <p className="text-xs uppercase text-text-secondary">
+                 {t("donations.fields.requestDeadline", "Request Deadline")}
+               </p>
+               <p className="text-sm text-text-primary">
+                 {donation.request_response_deadline
+                   ? formatLocalDateTime(donation.request_response_deadline)
+                   : "-"}
+               </p>
+             </div>
             <div>
               <p className="text-xs uppercase text-text-secondary">
                 {t("donations.fields.remindersSent", "Reminders Sent")}

@@ -13,7 +13,6 @@ class DonationAdmin(admin.ModelAdmin):
         "is_primary",
         "distance_km",
         "estimated_arrival_time",
-        "priority_score",
         "created_at",
     )
     list_filter = ("status", "is_primary")

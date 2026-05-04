@@ -49,11 +49,6 @@ class DonationViewSet(PermissionMixin, viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["status", "request", "donor", "is_primary"]
     search_fields = [
-        "donor__first_name",
-        "donor__last_name",
-        "donor__phone",
-        "request__recipient__full_name",
-        "request__recipient__phone",
         "request__hospital__name",
     ]
     ordering_fields = [
@@ -63,7 +58,6 @@ class DonationViewSet(PermissionMixin, viewsets.ModelViewSet):
         "response_time",
         "distance_km",
         "estimated_arrival_time",
-        "priority_score",
     ]
     ordering = ["-created_at"]
 

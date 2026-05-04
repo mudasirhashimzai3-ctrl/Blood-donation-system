@@ -6,11 +6,7 @@ import type { DonationStatus } from "../types/donation.types";
 const statusVariant: Record<DonationStatus, "warning" | "info" | "primary" | "success" | "danger" | "error"> = {
   pending: "warning",
   accepted: "info",
-  en_route: "primary",
-  arrived: "primary",
   completed: "success",
-  cancelled: "danger",
-  declined: "error",
   expired: "error",
 };
 

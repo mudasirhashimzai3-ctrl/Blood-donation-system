@@ -16,7 +16,7 @@ class Donation(BaseModel):
         ("expired", "Expired"),
     ]
 
-    PRIMARY_ACTIVE_STATUSES = ("pending", "accepted", "en_route", "arrived")
+    PRIMARY_ACTIVE_STATUSES = ("pending", "accepted")
 
     request = models.ForeignKey(
         "blood_requests.BloodRequest",
@@ -35,7 +35,6 @@ class Donation(BaseModel):
     is_primary = models.BooleanField(default=False)
     notified_at = models.DateTimeField(null=True, blank=True)
     reminder_sent_at = models.DateTimeField(null=True, blank=True)
-    priority_score = models.DecimalField(max_digits=6, decimal_places=2, default=0)
     cancellation_reason = models.TextField(null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
     responded_at = models.DateTimeField(null=True, blank=True)
@@ -49,7 +48,6 @@ class Donation(BaseModel):
             models.Index(fields=["status"]),
             models.Index(fields=["is_primary"]),
             models.Index(fields=["notified_at"]),
-            models.Index(fields=["priority_score"]),
         ]
         constraints = [
             models.UniqueConstraint(
@@ -60,7 +58,7 @@ class Donation(BaseModel):
             models.UniqueConstraint(
                 fields=["request"],
                 condition=Q(deleted_at__isnull=True, is_primary=True)
-                & Q(status__in=("pending", "accepted", "en_route", "arrived")),
+                & Q(status__in=("pending", "accepted")),
                 name="uniq_primary_donation_request_active",
             ),
         ]

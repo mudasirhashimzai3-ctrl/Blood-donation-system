@@ -2,7 +2,7 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from donations.models import Donation
-from donations.services.metrics import build_distance_eta_priority_snapshot
+from donations.services.metrics import build_distance_eta_snapshot
 from donations.services.sync import sync_candidate_notification_for_donation
 from donations.services.transitions import can_transition, is_terminal_status
 
@@ -31,7 +31,6 @@ class DonationListSerializer(serializers.ModelSerializer):
             "is_primary",
             "notified_at",
             "reminder_sent_at",
-            "priority_score",
             "request_status",
             "request_response_deadline",
             "nearby_donors_count_dynamic",
@@ -141,14 +140,13 @@ class DonationEstimateRefreshSerializer(serializers.Serializer):
         if donor.latitude is None or donor.longitude is None:
             raise serializers.ValidationError({"detail": "Donor does not have coordinates configured."})
 
-        distance_km, eta, score = build_distance_eta_priority_snapshot(
+        distance_km, eta = build_distance_eta_snapshot(
             blood_request=blood_request,
             donor=donor,
         )
         donation.distance_km = distance_km
         donation.estimated_arrival_time = eta
-        donation.priority_score = score
-        donation.save(update_fields=["distance_km", "estimated_arrival_time", "priority_score", "updated_at"])
+        donation.save(update_fields=["distance_km", "estimated_arrival_time", "updated_at"])
         return donation
 
 

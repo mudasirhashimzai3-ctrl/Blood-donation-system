@@ -35,14 +35,7 @@ def calculate_estimated_arrival_time(distance_km: Decimal | None) -> int | None:
     return max(5, min(180, raw_minutes))
 
 
-def calculate_priority_score(*, distance_km: Decimal, request_type: str) -> Decimal:
-    request_type_weight = REQUEST_TYPE_WEIGHTS.get(request_type, Decimal("10"))
-    distance_score = max(Decimal("0"), Decimal("100") - (distance_km * Decimal("5")))
-    score = request_type_weight + (distance_score / Decimal("10"))
-    return score.quantize(Decimal("0.01"))
-
-
-def build_distance_eta_priority_snapshot(*, blood_request, donor):
+def build_distance_eta_snapshot(*, blood_request, donor):
     distance_km = haversine_distance_km(
         blood_request.location_lat,
         blood_request.location_lon,
@@ -50,8 +43,4 @@ def build_distance_eta_priority_snapshot(*, blood_request, donor):
         donor.longitude,
     )
     estimated_arrival_time = calculate_estimated_arrival_time(distance_km)
-    priority_score = calculate_priority_score(
-        distance_km=distance_km,
-        request_type=blood_request.request_type,
-    )
-    return distance_km, estimated_arrival_time, priority_score
+    return distance_km, estimated_arrival_time

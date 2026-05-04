@@ -1,11 +1,7 @@
 export const DONATION_STATUS_OPTIONS = [
   "pending",
   "accepted",
-  "en_route",
-  "arrived",
   "completed",
-  "cancelled",
-  "declined",
   "expired",
 ] as const;
 
@@ -27,7 +23,6 @@ export interface Donation {
   is_primary: boolean;
   notified_at: string | null;
   reminder_sent_at: string | null;
-  priority_score: string;
   request_status: string;
   request_response_deadline: string | null;
   nearby_donors_count_dynamic: number;
@@ -59,7 +54,6 @@ export type DonationListItem = Pick<
   | "is_primary"
   | "notified_at"
   | "reminder_sent_at"
-  | "priority_score"
   | "request_status"
   | "request_response_deadline"
   | "nearby_donors_count_dynamic"

@@ -76,15 +76,12 @@ export default function DonationTable({
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-text-secondary">
                       {t("donations.table.distance", "Distance")}
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-text-secondary">
-                      {t("donations.table.eta", "ETA")}
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-text-secondary">
-                      {t("donations.table.priorityScore", "Priority")}
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-text-secondary">
-                      {t("donations.table.notifiedAt", "Notified")}
-                    </th>
+<th className="px-4 py-3 text-left text-xs font-semibold uppercase text-text-secondary">
+                       {t("donations.table.eta", "ETA")}
+                     </th>
+                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-text-secondary">
+                       {t("donations.table.notifiedAt", "Notified")}
+                     </th>
                     <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-text-secondary">
                       {t("donations.table.actions", "Actions")}
                     </th>
@@ -102,13 +99,12 @@ export default function DonationTable({
                         <DonationStatusBadge status={donation.status} />
                       </td>
                       <td className="px-4 py-3 text-sm text-text-primary">{donation.distance_km} km</td>
-                      <td className="px-4 py-3 text-sm text-text-primary">
-                        {donation.estimated_arrival_time ? `${donation.estimated_arrival_time} min` : "-"}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-text-primary">{donation.priority_score}</td>
-                      <td className="px-4 py-3 text-sm text-text-primary">
-                        {donation.notified_at ? formatLocalDateTime(donation.notified_at) : "-"}
-                      </td>
+<td className="px-4 py-3 text-sm text-text-primary">
+                         {donation.estimated_arrival_time ? `${donation.estimated_arrival_time} min` : "-"}
+                       </td>
+                       <td className="px-4 py-3 text-sm text-text-primary">
+                         {donation.notified_at ? formatLocalDateTime(donation.notified_at) : "-"}
+                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-1">
                           <button

@@ -29,7 +29,7 @@ export default function DonationFilters({
       <Input
         value={search}
         onChange={(event) => onSearchChange(event.target.value)}
-        placeholder={t("donations.filters.searchPlaceholder", "Search by donor, recipient, hospital")}
+        placeholder={t("donations.filters.searchPlaceholder", "Search by hospital")}
       />
       <Select
         value={status}
@@ -50,7 +50,6 @@ export default function DonationFilters({
           { value: "created_at", label: t("donations.filters.orderOldest", "Oldest") },
           { value: "distance_km", label: t("donations.filters.orderDistance", "Nearest Distance") },
           { value: "estimated_arrival_time", label: t("donations.filters.orderEta", "Lowest ETA") },
-          { value: "-priority_score", label: t("donations.filters.orderPriority", "Highest Priority Score") },
         ]}
       />
       <Button variant="outline" onClick={onReset}>

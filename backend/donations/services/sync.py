@@ -1,7 +1,7 @@
 from django.utils import timezone
 
 from donations.models import Donation
-from donations.services.metrics import build_distance_eta_priority_snapshot
+from donations.services.metrics import build_distance_eta_snapshot
 from notifications.services import create_notifications
 
 from blood_requests.models import BloodRequestNotification
@@ -15,7 +15,7 @@ def _compute_response_time_minutes(notified_at, responded_at):
 
 
 def _notification_response_for_donation_status(status: str) -> str:
-    if status in {"accepted", "en_route", "arrived", "completed"}:
+    if status in {"accepted", "completed"}:
         return "accepted"
     if status == "declined":
         return "declined"
@@ -83,7 +83,7 @@ def sync_donations_for_matches(*, blood_request, selected_candidates):
 
     synced = []
     for donor_id, (donor, _) in selected_by_donor_id.items():
-        distance_km, eta_minutes, priority_score = build_distance_eta_priority_snapshot(
+        distance_km, eta_minutes = build_distance_eta_snapshot(
             blood_request=blood_request,
             donor=donor,
         )
@@ -97,14 +97,12 @@ def sync_donations_for_matches(*, blood_request, selected_candidates):
                 distance_km=distance_km,
                 estimated_arrival_time=eta_minutes,
                 notified_at=now,
-                priority_score=priority_score,
             )
             synced.append(donation)
             continue
 
         donation.distance_km = distance_km
         donation.estimated_arrival_time = eta_minutes
-        donation.priority_score = priority_score
 
         if donation.status in {"pending", "expired"}:
             donation.status = "pending"
@@ -118,7 +116,6 @@ def sync_donations_for_matches(*, blood_request, selected_candidates):
             update_fields=[
                 "distance_km",
                 "estimated_arrival_time",
-                "priority_score",
                 "status",
                 "notified_at",
                 "responded_at",
@@ -177,7 +174,7 @@ def expire_pending_donations_for_request(*, blood_request, cancellation_reason=N
     now = timezone.now()
     pending_items = Donation.objects.filter(
         request=blood_request,
-        status__in=["pending", "accepted", "en_route", "arrived"],
+        status__in=["pending", "accepted"],
         deleted_at__isnull=True,
     )
     for donation in pending_items:
