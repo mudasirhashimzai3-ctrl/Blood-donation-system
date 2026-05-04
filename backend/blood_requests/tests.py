@@ -9,7 +9,7 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from accounts.models import RolePermission, User
+from accounts.models import RolePermission, User, UserPermission
 from core.models import Permission
 from donors.models import Donor
 from hospitals.models import Hospital
@@ -66,6 +66,8 @@ class BloodRequestApiTests(APITestCase):
             RolePermission.objects.get_or_create(role_name="admin", permission=permissions[action])
         for action in ["view", "add", "change"]:
             RolePermission.objects.get_or_create(role_name="recipient", permission=permissions[action])
+        for action in ["view", "add", "change"]:
+            RolePermission.objects.get_or_create(role_name="donor", permission=permissions[action])
         RolePermission.objects.get_or_create(role_name="viewer", permission=permissions["view"])
 
     def setUp(self):
@@ -84,6 +86,12 @@ class BloodRequestApiTests(APITestCase):
             username="blood_req_viewer",
             password="StrongPass123!",
             role_name="viewer",
+        )
+        self.donor_creator = User.objects.create_user(
+            username="blood_req_donor_creator",
+            password="StrongPass123!",
+            role_name="donor",
+            phone="0700000099",
         )
         self.client.force_authenticate(user=self.recipient_user)
 
@@ -164,9 +172,42 @@ class BloodRequestApiTests(APITestCase):
         self.assertTrue(bool(obj.medical_report))
         self.assertTrue(bool(obj.emergency_proof))
 
+    def test_create_with_required_fields_only_uses_hospital_coordinates(self):
+        response = self.client.post(
+            self.base_url,
+            {
+                "hospital": self.hospital.id,
+                "blood_group": "O+",
+                "units_needed": 1,
+                "request_type": "urgent",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        obj = BloodRequest.objects.get(pk=response.data["id"])
+        self.assertEqual(obj.recipient_id, self.recipient.id)
+        self.assertEqual(str(obj.location_lat), "34.555300")
+        self.assertEqual(str(obj.location_lon), "69.207500")
+        self.assertEqual(obj.request_type, "urgent")
+
     def test_create_rejects_client_supplied_recipient_field(self):
+        other_user = User.objects.create_user(
+            username="recipient-other",
+            password="StrongPass123!",
+            role_name="recipient",
+            phone="0700000002",
+        )
+        other_recipient = Recipient.objects.create(
+            user=other_user,
+            full_name="Recipient Two",
+            phone="0700000002",
+            required_blood_group="A+",
+            hospital=self.hospital,
+            emergency_level="normal",
+        )
         payload = self._create_payload()
-        payload["recipient"] = self.recipient.id
+        payload["recipient"] = other_recipient.id
         response = self.client.post(self.base_url, payload, format="multipart")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("recipient", response.data)
@@ -188,6 +229,43 @@ class BloodRequestApiTests(APITestCase):
         self.client.force_authenticate(user=orphan_user)
         response = self.client.post(self.base_url, self._create_payload(), format="multipart")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_non_recipient_without_recipient_profile_cannot_create(self):
+        self.client.force_authenticate(user=self.donor_creator)
+        response = self.client.post(
+            self.base_url,
+            {
+                "hospital": self.hospital.id,
+                "blood_group": "O+",
+                "units_needed": 2,
+                "request_type": "urgent",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("detail", response.data)
+
+    def test_non_recipient_cannot_create_for_selected_recipient(self):
+        self.client.force_authenticate(user=self.admin)
+        response = self.client.post(
+            self.base_url,
+            {
+                "recipient": self.recipient.id,
+                "hospital": self.hospital.id,
+                "blood_group": "O+",
+                "units_needed": 2,
+                "request_type": "critical",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("detail", response.data)
+
+    def test_recipients_lookup_endpoint_supports_search(self):
+        self.client.force_authenticate(user=self.admin)
+        response = self.client.get(f"{self.base_url}recipients/", {"search": "Recipient One"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreaterEqual(response.data["count"], 1)
 
     def test_assign_rejects_donor_outside_radius_or_cooldown(self):
         self.client.force_authenticate(user=self.admin)
@@ -302,6 +380,8 @@ class BloodRequestApiTests(APITestCase):
         self.assertGreaterEqual(len(notifications_response.data), 1)
 
     def test_viewer_cannot_mutate(self):
+        permission = Permission.objects.get(module="blood_requests", action="add")
+        UserPermission.objects.create(user=self.viewer, permission=permission, allow=False)
         self.client.force_authenticate(user=self.viewer)
         response = self.client.post(self.base_url, self._create_payload(), format="multipart")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

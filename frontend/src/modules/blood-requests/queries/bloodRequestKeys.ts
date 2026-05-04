@@ -7,4 +7,5 @@ export const bloodRequestKeys = {
   details: () => [...bloodRequestKeys.all, "detail"] as const,
   detail: (id: number) => [...bloodRequestKeys.details(), id] as const,
   notifications: (id: number) => [...bloodRequestKeys.detail(id), "notifications"] as const,
+  recipients: (search = "") => [...bloodRequestKeys.all, "recipients", search] as const,
 };

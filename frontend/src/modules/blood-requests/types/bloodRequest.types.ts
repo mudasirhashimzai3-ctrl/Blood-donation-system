@@ -96,8 +96,8 @@ export interface BloodRequestPayload {
   units_needed: number;
   request_type: RequestType;
   auto_match_enabled?: boolean;
-  location_lat: string;
-  location_lon: string;
+  location_lat?: string;
+  location_lon?: string;
   is_active?: boolean;
   is_verified?: boolean;
   is_emergency?: boolean;
@@ -105,6 +105,20 @@ export interface BloodRequestPayload {
   medical_report?: File | null;
   prescription_image?: File | null;
   emergency_proof?: File | null;
+}
+
+export interface BloodRequestRecipientOption {
+  id: number;
+  full_name: string;
+  phone: string;
+  required_blood_group: BloodGroup | null;
+}
+
+export interface PaginatedBloodRequestRecipients {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: BloodRequestRecipientOption[];
 }
 
 export interface BloodRequestQueryParams {

@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django_filters import rest_framework as filterset
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, parsers, status, viewsets
@@ -17,12 +18,15 @@ from donations.services.sync import (
     sync_candidate_notification_for_donation,
 )
 
+from recipients.models import Recipient
+
 from .models import BloodRequest, BloodRequestNotification
 from .serializers import (
     AssignDonorSerializer,
     BloodRequestDetailSerializer,
     BloodRequestListSerializer,
     BloodRequestNotificationSerializer,
+    BloodRequestRecipientOptionSerializer,
     BloodRequestWriteSerializer,
     CancelBloodRequestSerializer,
     VerifyBloodRequestSerializer,
@@ -99,10 +103,6 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
         return BloodRequestDetailSerializer
 
     def perform_create(self, serializer):
-        role_name = normalize_role_name(getattr(self.request.user, "role_name", None))
-        if role_name != "recipient":
-            raise PermissionDenied("Only recipient users can create blood requests.")
-
         recipient_profile = getattr(self.request.user, "recipient", None)
         if recipient_profile is None:
             raise ValidationError({"detail": "Recipient profile is not configured for this account."})
@@ -120,6 +120,19 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
         )
         if instance.auto_match_enabled:
             auto_match_blood_request(instance)
+
+    @action(detail=False, methods=["get"], url_path="recipients")
+    def recipients(self, request):
+        queryset = Recipient.objects.filter(deleted_at__isnull=True).order_by("full_name")
+        search = request.query_params.get("search", "").strip()
+        if search:
+            queryset = queryset.filter(Q(full_name__icontains=search) | Q(phone__icontains=search))
+
+        page = self.paginate_queryset(queryset)
+        serializer = BloodRequestRecipientOptionSerializer(page if page is not None else queryset, many=True)
+        if page is not None:
+            return self.get_paginated_response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def perform_update(self, serializer):
         current = self.get_object()

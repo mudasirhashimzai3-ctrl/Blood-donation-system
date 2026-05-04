@@ -63,6 +63,13 @@ class HospitalApiTests(APITestCase):
         self.assertEqual(create_response.data["email"], "contact@cityhospital.com")
         self.assertEqual(create_response.data["province"], "Kabul")
 
+        Hospital.objects.create(
+            name="Herat Regional",
+            phone="0700100002",
+            province="Herat",
+            city="Herat",
+        )
+
         list_response = self.client.get(self.base_url, {"search": "City", "province": "Kabul"})
         self.assertEqual(list_response.status_code, status.HTTP_200_OK)
         self.assertEqual(list_response.data["count"], 1)

@@ -19,4 +19,17 @@ describe("buildBloodRequestFormData", () => {
     expect(formData.get("auto_match_enabled")).toBe("true");
     expect(formData.get("response_deadline")).toBe("");
   });
+
+  it("does not append omitted optional location fields", () => {
+    const formData = buildBloodRequestFormData({
+      hospital: 2,
+      blood_group: "A+",
+      units_needed: 1,
+      request_type: "normal",
+    });
+
+    expect(formData.has("location_lat")).toBe(false);
+    expect(formData.has("location_lon")).toBe(false);
+    expect(formData.has("recipient")).toBe(false);
+  });
 });

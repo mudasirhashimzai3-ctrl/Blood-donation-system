@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { extractAxiosError } from "@/utils/extractError";
 import type {
   BloodRequestPayload,
+  PaginatedBloodRequestRecipients,
   BloodRequestQueryParams,
   PaginatedBloodRequests,
 } from "../types/bloodRequest.types";
@@ -27,6 +28,16 @@ export const useBloodRequestNotifications = (id: number, options?: { enabled?: b
   useQuery({
     queryKey: bloodRequestKeys.notifications(id),
     queryFn: () => bloodRequestService.getNotifications(id).then((res) => res.data),
+    enabled: options?.enabled ?? true,
+  });
+
+export const useBloodRequestRecipientsList = (search = "", options?: { enabled?: boolean }) =>
+  useQuery<PaginatedBloodRequestRecipients>({
+    queryKey: bloodRequestKeys.recipients(search),
+    queryFn: () =>
+      bloodRequestService
+        .getRecipients({ search: search || undefined, page_size: 25 })
+        .then((res) => res.data),
     enabled: options?.enabled ?? true,
   });
 

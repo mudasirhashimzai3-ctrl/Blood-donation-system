@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 
 import { PageHeader } from "@/components";
 import useCan from "@/hooks/useCan";
-import { useUserStore } from "@/modules/auth/stores/useUserStore";
 import { Card, CardContent } from "@components/ui";
 import BloodRequestFilters from "../components/BloodRequestFilters";
 import BloodRequestTable from "../components/BloodRequestTable";
@@ -19,7 +18,6 @@ export default function BloodRequestListPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { can } = useCan();
-  const userRole = useUserStore((state) => state.userProfile?.role);
   const {
     search,
     status,
@@ -64,17 +62,13 @@ export default function BloodRequestListPage() {
           "bloodRequests.subtitle",
           "Manage blood request workflow from pending to completion"
         )}
-        actions={
-          userRole === "recipient"
-            ? [
-                {
-                  label: t("bloodRequests.actions.add", "Add Request"),
-                  icon: <Plus className="h-4 w-4" />,
-                  onClick: () => navigate("/blood-requests/new"),
-                },
-              ]
-            : undefined
-        }
+        actions={[
+          {
+            label: t("bloodRequests.actions.add", "Add Request"),
+            icon: <Plus className="h-4 w-4" />,
+            onClick: () => navigate("/blood-requests/new"),
+          },
+        ]}
       />
 
       <Card>

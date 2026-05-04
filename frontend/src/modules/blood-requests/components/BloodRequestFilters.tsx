@@ -36,48 +36,56 @@ export default function BloodRequestFilters({
   const { t } = useTranslation();
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-      <Input
-        value={search}
-        onChange={(event) => onSearchChange(event.target.value)}
-        placeholder={t(
-          "bloodRequests.filters.searchPlaceholder",
-          "Search by hospital or assigned donor"
-        )}
-      />
-      <Select
-        value={bloodGroup}
-        onChange={(event) => onBloodGroupChange(event.target.value as BloodGroup | "")}
-        options={[
-          { value: "", label: t("bloodRequests.filters.allBloodGroups", "All Blood Groups") },
-          ...BLOOD_GROUP_OPTIONS.map((group) => ({ value: group, label: group })),
-        ]}
-      />
-      <Select
-        value={requestType}
-        onChange={(event) => onRequestTypeChange(event.target.value as RequestType | "")}
-        options={[
-          { value: "", label: t("bloodRequests.filters.allTypes", "All Request Types") },
-          ...REQUEST_TYPE_OPTIONS.map((value) => ({
-            value,
-            label: t(`bloodRequests.type.${value}`, value),
-          })),
-        ]}
-      />
-      <Select
-        value={status}
-        onChange={(event) => onStatusChange(event.target.value as BloodRequestStatus | "")}
-        options={[
-          { value: "", label: t("bloodRequests.filters.allStatuses", "All Statuses") },
-          ...BLOOD_REQUEST_STATUS_OPTIONS.map((value) => ({
-            value,
-            label: t(`bloodRequests.status.${value}`, value),
-          })),
-        ]}
-      />
-      <Button variant="outline" onClick={onReset}>
-        {t("bloodRequests.filters.reset", "Reset")}
-      </Button>
+    <div className="space-y-4">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Input
+          label={t("bloodRequests.filters.search", "Search")}
+          value={search}
+          onChange={(event) => onSearchChange(event.target.value)}
+          placeholder={t(
+            "bloodRequests.filters.searchPlaceholder",
+            "Search by hospital or assigned donor"
+          )}
+        />
+        <Select
+          label={t("bloodRequests.filters.bloodGroup", "Blood Group")}
+          value={bloodGroup}
+          onChange={(event) => onBloodGroupChange(event.target.value as BloodGroup | "")}
+          options={[
+            { value: "", label: t("bloodRequests.filters.allBloodGroups", "All Blood Groups") },
+            ...BLOOD_GROUP_OPTIONS.map((group) => ({ value: group, label: group })),
+          ]}
+        />
+        <Select
+          label={t("bloodRequests.filters.requestType", "Urgency")}
+          value={requestType}
+          onChange={(event) => onRequestTypeChange(event.target.value as RequestType | "")}
+          options={[
+            { value: "", label: t("bloodRequests.filters.allTypes", "All Request Types") },
+            ...REQUEST_TYPE_OPTIONS.map((value) => ({
+              value,
+              label: t(`bloodRequests.type.${value}`, value),
+            })),
+          ]}
+        />
+        <Select
+          label={t("bloodRequests.filters.status", "Status")}
+          value={status}
+          onChange={(event) => onStatusChange(event.target.value as BloodRequestStatus | "")}
+          options={[
+            { value: "", label: t("bloodRequests.filters.allStatuses", "All Statuses") },
+            ...BLOOD_REQUEST_STATUS_OPTIONS.map((value) => ({
+              value,
+              label: t(`bloodRequests.status.${value}`, value),
+            })),
+          ]}
+        />
+      </div>
+      <div className="flex justify-end">
+        <Button variant="outline" onClick={onReset}>
+          {t("bloodRequests.filters.reset", "Reset")}
+        </Button>
+      </div>
     </div>
   );
 }

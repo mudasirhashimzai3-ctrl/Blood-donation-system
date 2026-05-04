@@ -29,16 +29,16 @@ export const bloodRequestFormSchema = z.object({
   location_lat: z
     .string()
     .trim()
-    .min(1, "Latitude is required")
     .refine((value) => {
+      if (!value) return true;
       const parsed = Number(value);
       return !Number.isNaN(parsed) && parsed >= -90 && parsed <= 90;
     }, "Latitude must be between -90 and 90"),
   location_lon: z
     .string()
     .trim()
-    .min(1, "Longitude is required")
     .refine((value) => {
+      if (!value) return true;
       const parsed = Number(value);
       return !Number.isNaN(parsed) && parsed >= -180 && parsed <= 180;
     }, "Longitude must be between -180 and 180"),

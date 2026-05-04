@@ -2,7 +2,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { extractAxiosError } from "@/utils/extractError";
-import type { HospitalPayload, HospitalQueryParams, PaginatedHospitals } from "../types/hospital.types";
+import type {
+  HospitalListItem,
+  HospitalPayload,
+  HospitalQueryParams,
+  PaginatedHospitals,
+} from "../types/hospital.types";
 import { hospitalService } from "../services/hospitalService";
 import { hospitalKeys } from "./hospitalKeys";
 
@@ -10,6 +15,34 @@ export const useHospitalsList = (params?: HospitalQueryParams, options?: { enabl
   useQuery<PaginatedHospitals>({
     queryKey: hospitalKeys.list(params),
     queryFn: () => hospitalService.getHospitals(params).then((res) => res.data),
+    enabled: options?.enabled ?? true,
+  });
+
+export const useAllHospitalsList = (
+  params?: Omit<HospitalQueryParams, "page">,
+  options?: { enabled?: boolean }
+) =>
+  useQuery<HospitalListItem[]>({
+    queryKey: hospitalKeys.allList(params),
+    queryFn: async () => {
+      const pageSize = params?.page_size ?? 200;
+      const aggregated: HospitalListItem[] = [];
+      let page = 1;
+      let hasNext = true;
+
+      while (hasNext) {
+        const response = await hospitalService.getHospitals({
+          ...params,
+          page,
+          page_size: pageSize,
+        });
+        aggregated.push(...response.data.results);
+        hasNext = Boolean(response.data.next);
+        page += 1;
+      }
+
+      return aggregated;
+    },
     enabled: options?.enabled ?? true,
   });
 

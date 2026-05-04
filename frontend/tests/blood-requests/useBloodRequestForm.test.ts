@@ -41,4 +41,23 @@ describe("useBloodRequestForm helpers", () => {
     expect(payload.location_lon).toBe("69.207500");
     expect(payload.response_deadline).toBeNull();
   });
+
+  it("omits empty location fields for recipient-friendly create flow", () => {
+    const payload = normalizeBloodRequestPayload({
+      hospital: 1,
+      blood_group: "O+",
+      units_needed: 1,
+      request_type: "normal",
+      auto_match_enabled: true,
+      location_lat: "",
+      location_lon: " ",
+      response_deadline: "",
+      medical_report: null,
+      prescription_image: null,
+      emergency_proof: null,
+    });
+
+    expect(payload.location_lat).toBeUndefined();
+    expect(payload.location_lon).toBeUndefined();
+  });
 });

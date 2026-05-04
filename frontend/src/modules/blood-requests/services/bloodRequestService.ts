@@ -3,6 +3,7 @@ import type {
   BloodRequest,
   BloodRequestNotification,
   BloodRequestPayload,
+  PaginatedBloodRequestRecipients,
   BloodRequestQueryParams,
   PaginatedBloodRequests,
 } from "../types/bloodRequest.types";
@@ -43,6 +44,9 @@ export const bloodRequestService = {
     apiClient.get<PaginatedBloodRequests>("/blood-requests/", { params }),
 
   getBloodRequest: (id: number) => apiClient.get<BloodRequest>(`/blood-requests/${id}/`),
+
+  getRecipients: (params?: { search?: string; page?: number; page_size?: number }) =>
+    apiClient.get<PaginatedBloodRequestRecipients>("/blood-requests/recipients/", { params }),
 
   createBloodRequest: (payload: BloodRequestPayload) =>
     apiClient.post<BloodRequest>("/blood-requests/", buildBloodRequestFormData(payload), {

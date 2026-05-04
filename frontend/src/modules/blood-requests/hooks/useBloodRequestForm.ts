@@ -46,6 +46,11 @@ const emptyToNull = (value?: string) => {
   return value.trim();
 };
 
+const emptyToUndefined = (value?: string) => {
+  if (!value || value.trim() === "") return undefined;
+  return value.trim();
+};
+
 export const normalizeBloodRequestPayload = (
   values: BloodRequestFormValues
 ): BloodRequestPayload => ({
@@ -54,8 +59,8 @@ export const normalizeBloodRequestPayload = (
   units_needed: values.units_needed,
   request_type: values.request_type,
   auto_match_enabled: values.auto_match_enabled,
-  location_lat: values.location_lat.trim(),
-  location_lon: values.location_lon.trim(),
+  location_lat: emptyToUndefined(values.location_lat),
+  location_lon: emptyToUndefined(values.location_lon),
   response_deadline: emptyToNull(values.response_deadline),
   medical_report: values.medical_report ?? null,
   prescription_image: values.prescription_image ?? null,

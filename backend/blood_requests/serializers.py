@@ -4,6 +4,7 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from donors.models import Donor
+from recipients.models import Recipient
 
 from .models import BloodRequest, BloodRequestNotification
 from .services.matching import get_max_match_radius_km, haversine_distance_km
@@ -253,6 +254,14 @@ class BloodRequestWriteSerializer(serializers.ModelSerializer):
             "emergency_proof",
         ]
         read_only_fields = ["id"]
+        extra_kwargs = {
+            "hospital": {"required": True},
+            "blood_group": {"required": True},
+            "units_needed": {"required": True},
+            "request_type": {"required": True},
+            "location_lat": {"required": False},
+            "location_lon": {"required": False},
+        }
 
     def validate_units_needed(self, value):
         if value < 1:
@@ -302,6 +311,12 @@ class BloodRequestWriteSerializer(serializers.ModelSerializer):
         if errors:
             raise serializers.ValidationError(errors)
         return attrs
+
+
+class BloodRequestRecipientOptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipient
+        fields = ["id", "full_name", "phone", "required_blood_group"]
 
 
 class BloodRequestNotificationSerializer(serializers.ModelSerializer):

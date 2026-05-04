@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { PageHeader } from "@/components";
 import useCan from "@/hooks/useCan";
+import { useUserStore } from "@/modules/auth/stores/useUserStore";
 import { Card, CardContent } from "@components/ui";
 import BloodRequestForm from "../components/BloodRequestForm";
 import {
@@ -16,8 +17,10 @@ export default function BloodRequestCreatePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { can } = useCan();
+  const userRole = useUserStore((state) => state.userProfile?.role);
   const form = useBloodRequestForm();
   const createMutation = useCreateBloodRequest();
+  const isRecipient = userRole === "recipient";
 
   const onSubmit = async (values: BloodRequestFormValues) => {
     await createMutation.mutateAsync(normalizeBloodRequestPayload(values));
@@ -52,6 +55,7 @@ export default function BloodRequestCreatePage() {
             onCancel={() => navigate("/blood-requests")}
             submitLabel={t("bloodRequests.actions.save", "Save Request")}
             loading={createMutation.isPending}
+            recipientMode={isRecipient}
           />
         </CardContent>
       </Card>
