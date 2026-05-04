@@ -19,7 +19,6 @@ export const useReportFilters = () => {
       blood_group: state.bloodGroup || undefined,
       request_type: state.requestType || undefined,
       emergency_only: state.emergencyOnly || undefined,
-      status: state.status || undefined,
       search: state.search || undefined,
       ordering: state.ordering || undefined,
       page: state.page,
@@ -38,7 +37,6 @@ export const useReportFilters = () => {
       state.pageSize,
       state.requestType,
       state.search,
-      state.status,
     ]
   );
 

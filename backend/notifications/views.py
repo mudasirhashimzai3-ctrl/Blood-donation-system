@@ -27,7 +27,7 @@ class NotificationFilter(filterset.FilterSet):
 
     class Meta:
         model = Notification
-        fields = ["is_read", "status", "type", "sent_via", "priority", "event_key"]
+        fields = ["is_read", "status", "type", "sent_via", "event_key"]
 
 
 class NotificationViewSet(
@@ -44,7 +44,7 @@ class NotificationViewSet(
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = NotificationFilter
     search_fields = ["title", "message"]
-    ordering_fields = ["created_at", "updated_at", "sent_at", "read_at", "priority", "status"]
+    ordering_fields = ["created_at", "updated_at", "sent_at", "read_at", "status"]
     ordering = ["-created_at"]
 
     def get_queryset(self):

@@ -10,7 +10,6 @@ interface ReportFiltersBarProps {
   bloodGroup: string;
   requestType: string;
   emergencyOnly: boolean;
-  status: string;
   onDateFromChange: (value: string) => void;
   onDateToChange: (value: string) => void;
   onGroupByChange: (value: "day" | "week" | "month") => void;
@@ -18,7 +17,6 @@ interface ReportFiltersBarProps {
   onBloodGroupChange: (value: string) => void;
   onRequestTypeChange: (value: string) => void;
   onEmergencyOnlyChange: (value: boolean) => void;
-  onStatusChange: (value: string) => void;
   onReset: () => void;
 }
 
@@ -42,7 +40,6 @@ export default function ReportsFilterBar({
   bloodGroup,
   requestType,
   emergencyOnly,
-  status,
   onDateFromChange,
   onDateToChange,
   onGroupByChange,
@@ -50,7 +47,6 @@ export default function ReportsFilterBar({
   onBloodGroupChange,
   onRequestTypeChange,
   onEmergencyOnlyChange,
-  onStatusChange,
   onReset,
 }: ReportFiltersBarProps) {
   return (
@@ -99,26 +95,20 @@ export default function ReportsFilterBar({
             onChange={(event) => onBloodGroupChange(event.target.value)}
             options={bloodGroupOptions}
           />
-          <Select
-            label="Request Type"
-            value={requestType}
-            onChange={(event) => onRequestTypeChange(event.target.value)}
-            options={[
-              { value: "", label: "All request types" },
-              { value: "normal", label: "Normal" },
-              { value: "urgent", label: "Urgent" },
-              { value: "critical", label: "Critical" },
-            ]}
-          />
-          <Input
-            label="Status"
-            value={status}
-            onChange={(event) => onStatusChange(event.target.value)}
-            placeholder="Request/Donation status"
-          />
-        </div>
+        <Select
+          label="Request Type"
+          value={requestType}
+          onChange={(event) => onRequestTypeChange(event.target.value)}
+          options={[
+            { value: "", label: "All request types" },
+            { value: "normal", label: "Normal" },
+            { value: "urgent", label: "Urgent" },
+            { value: "critical", label: "Critical" },
+          ]}
+        />
+      </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
           <label className="inline-flex items-center gap-2 text-sm text-text-secondary">
             <input
               type="checkbox"

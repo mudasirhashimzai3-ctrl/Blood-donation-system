@@ -97,10 +97,6 @@ export default function NotificationViewPage() {
               </p>
             </div>
             <div>
-              <p className="text-xs uppercase text-text-secondary">{t("notifications.fields.priority", "Priority")}</p>
-              <p className="text-sm text-text-primary">{notification.priority}</p>
-            </div>
-            <div>
               <p className="text-xs uppercase text-text-secondary">{t("notifications.fields.sentAt", "Sent At")}</p>
               <p className="text-sm text-text-primary">
                 {notification.sent_at ? formatLocalDateTime(notification.sent_at) : "-"}
@@ -110,6 +106,12 @@ export default function NotificationViewPage() {
               <p className="text-xs uppercase text-text-secondary">{t("notifications.fields.readAt", "Read At")}</p>
               <p className="text-sm text-text-primary">
                 {notification.read_at ? formatLocalDateTime(notification.read_at) : "-"}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs uppercase text-text-secondary">{t("notifications.fields.createdAt", "Created At")}</p>
+              <p className="text-sm text-text-primary">
+                {formatLocalDateTime(notification.created_at)}
               </p>
             </div>
           </div>

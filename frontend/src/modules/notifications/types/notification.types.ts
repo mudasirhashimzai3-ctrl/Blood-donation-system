@@ -1,6 +1,5 @@
 export const NOTIFICATION_CHANNEL_OPTIONS = ["in_app", "email", "sms"] as const;
 export const NOTIFICATION_STATUS_OPTIONS = ["queued", "sent", "delivered", "failed"] as const;
-export const NOTIFICATION_PRIORITY_OPTIONS = ["low", "normal", "high", "critical"] as const;
 export const NOTIFICATION_TYPE_OPTIONS = [
   "request_update",
   "donation_update",
@@ -11,7 +10,6 @@ export const NOTIFICATION_TYPE_OPTIONS = [
 
 export type NotificationChannel = (typeof NOTIFICATION_CHANNEL_OPTIONS)[number];
 export type NotificationStatus = (typeof NOTIFICATION_STATUS_OPTIONS)[number];
-export type NotificationPriority = (typeof NOTIFICATION_PRIORITY_OPTIONS)[number];
 export type NotificationType = (typeof NOTIFICATION_TYPE_OPTIONS)[number];
 
 export interface Notification {
@@ -26,7 +24,6 @@ export interface Notification {
   message: string;
   sent_via: NotificationChannel;
   status: NotificationStatus;
-  priority: NotificationPriority;
   is_read: boolean;
   read_at: string | null;
   sent_at: string | null;
@@ -53,7 +50,6 @@ export type NotificationListItem = Pick<
   | "message"
   | "sent_via"
   | "status"
-  | "priority"
   | "is_read"
   | "read_at"
   | "sent_at"
@@ -69,7 +65,6 @@ export interface NotificationQueryParams {
   status?: NotificationStatus | "";
   type?: NotificationType | "";
   sent_via?: NotificationChannel | "";
-  priority?: NotificationPriority | "";
   event_key?: string;
   date_from?: string;
   date_to?: string;

@@ -1,49 +1,34 @@
-import { Button, Input, Select } from "@components/ui";
+import { Button, Select } from "@components/ui";
 import {
   NOTIFICATION_CHANNEL_OPTIONS,
-  NOTIFICATION_PRIORITY_OPTIONS,
   NOTIFICATION_STATUS_OPTIONS,
   NOTIFICATION_TYPE_OPTIONS,
   type NotificationChannel,
-  type NotificationPriority,
   type NotificationStatus,
   type NotificationType,
 } from "../types/notification.types";
 
 interface NotificationFiltersProps {
-  search: string;
   status: NotificationStatus | "";
   type: NotificationType | "";
   sentVia: NotificationChannel | "";
-  priority: NotificationPriority | "";
-  onSearchChange: (value: string) => void;
   onStatusChange: (value: NotificationStatus | "") => void;
   onTypeChange: (value: NotificationType | "") => void;
   onSentViaChange: (value: NotificationChannel | "") => void;
-  onPriorityChange: (value: NotificationPriority | "") => void;
   onReset: () => void;
 }
 
 export default function NotificationFilters({
-  search,
   status,
   type,
   sentVia,
-  priority,
-  onSearchChange,
   onStatusChange,
   onTypeChange,
   onSentViaChange,
-  onPriorityChange,
   onReset,
 }: NotificationFiltersProps) {
   return (
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-      <Input
-        value={search}
-        onChange={(event) => onSearchChange(event.target.value)}
-        placeholder="Search title/message"
-      />
+    <div className="flex flex-col gap-4 md:flex-row">
       <Select
         value={status}
         onChange={(event) => onStatusChange(event.target.value as NotificationStatus | "")}
@@ -51,6 +36,7 @@ export default function NotificationFilters({
           { value: "", label: "All statuses" },
           ...NOTIFICATION_STATUS_OPTIONS.map((item) => ({ value: item, label: item })),
         ]}
+        className="flex-1"
       />
       <Select
         value={type}
@@ -59,6 +45,7 @@ export default function NotificationFilters({
           { value: "", label: "All types" },
           ...NOTIFICATION_TYPE_OPTIONS.map((item) => ({ value: item, label: item })),
         ]}
+        className="flex-1"
       />
       <Select
         value={sentVia}
@@ -67,16 +54,9 @@ export default function NotificationFilters({
           { value: "", label: "All channels" },
           ...NOTIFICATION_CHANNEL_OPTIONS.map((item) => ({ value: item, label: item })),
         ]}
+        className="flex-1"
       />
-      <Select
-        value={priority}
-        onChange={(event) => onPriorityChange(event.target.value as NotificationPriority | "")}
-        options={[
-          { value: "", label: "All priorities" },
-          ...NOTIFICATION_PRIORITY_OPTIONS.map((item) => ({ value: item, label: item })),
-        ]}
-      />
-      <Button variant="outline" onClick={onReset}>
+      <Button variant="outline" onClick={onReset} className="flex-shrink-0">
         Reset
       </Button>
     </div>

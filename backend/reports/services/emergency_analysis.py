@@ -75,14 +75,6 @@ def build_emergency_analysis(filters: dict):
             "avg_match_time_minutes": avg_match,
             "avg_completion_time_minutes": avg_complete,
         },
-        "delay_buckets": [
-            {"label": label, "count": delay_counter.get(label, 0), "percentage": pct(delay_counter.get(label, 0), total)}
-            for label in ["0-15m", "16-30m", "31-60m", "60m+", "unknown"]
-        ],
-        "top_bottlenecks": [
-            {"reason": reason, "count": count}
-            for reason, count in reason_counter.most_common(10)
-        ],
         "meta": {
             "date_from": filters["date_from"].isoformat(),
             "date_to": filters["date_to"].isoformat(),

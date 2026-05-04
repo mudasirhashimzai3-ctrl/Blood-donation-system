@@ -46,7 +46,6 @@ export default function ReportsWorkspacePage() {
     bloodGroup,
     requestType,
     emergencyOnly,
-    status,
     setDateFrom,
     setDateTo,
     setGroupBy,
@@ -54,7 +53,6 @@ export default function ReportsWorkspacePage() {
     setBloodGroup,
     setRequestType,
     setEmergencyOnly,
-    setStatus,
     resetFilters,
     queryParams,
   } = useReportFilters();
@@ -98,25 +96,23 @@ export default function ReportsWorkspacePage() {
         )}
       />
 
-      <ReportsFilterBar
-        dateFrom={dateFrom}
-        dateTo={dateTo}
-        groupBy={groupBy}
-        city={city}
-        bloodGroup={bloodGroup}
-        requestType={requestType}
-        emergencyOnly={emergencyOnly}
-        status={status}
-        onDateFromChange={setDateFrom}
-        onDateToChange={setDateTo}
-        onGroupByChange={setGroupBy}
-        onCityChange={setCity}
-        onBloodGroupChange={setBloodGroup}
-        onRequestTypeChange={setRequestType}
-        onEmergencyOnlyChange={setEmergencyOnly}
-        onStatusChange={setStatus}
-        onReset={resetFilters}
-      />
+        <ReportsFilterBar
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          groupBy={groupBy}
+          city={city}
+          bloodGroup={bloodGroup}
+          requestType={requestType}
+          emergencyOnly={emergencyOnly}
+          onDateFromChange={setDateFrom}
+          onDateToChange={setDateTo}
+          onGroupByChange={setGroupBy}
+          onCityChange={setCity}
+          onBloodGroupChange={setBloodGroup}
+          onRequestTypeChange={setRequestType}
+          onEmergencyOnlyChange={setEmergencyOnly}
+          onReset={resetFilters}
+        />
 
       <ReportExportPanel
         isAdmin={isAdmin}

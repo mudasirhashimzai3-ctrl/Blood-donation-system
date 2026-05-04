@@ -18,18 +18,14 @@ export default function NotificationListPage() {
   const navigate = useNavigate();
   const { can } = useCan();
   const {
-    search,
     status,
     type,
     sentVia,
-    priority,
     page,
     pageSize,
-    setSearch,
     setStatus,
     setType,
     setSentVia,
-    setPriority,
     setPage,
     resetFilters,
     queryParams,
@@ -59,16 +55,12 @@ export default function NotificationListPage() {
       <Card>
         <CardContent>
           <NotificationFilters
-            search={search}
             status={status}
             type={type}
             sentVia={sentVia}
-            priority={priority}
-            onSearchChange={setSearch}
             onStatusChange={setStatus}
             onTypeChange={setType}
             onSentViaChange={setSentVia}
-            onPriorityChange={setPriority}
             onReset={resetFilters}
           />
         </CardContent>

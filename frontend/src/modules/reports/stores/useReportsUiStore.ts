@@ -17,7 +17,6 @@ interface ReportsUiState {
   bloodGroup: string;
   requestType: string;
   emergencyOnly: boolean;
-  status: string;
   search: string;
   ordering: string;
   page: number;
@@ -32,7 +31,6 @@ interface ReportsUiState {
   setBloodGroup: (value: string) => void;
   setRequestType: (value: string) => void;
   setEmergencyOnly: (value: boolean) => void;
-  setStatus: (value: string) => void;
   setSearch: (value: string) => void;
   setOrdering: (value: string) => void;
   setPage: (value: number) => void;
@@ -50,7 +48,6 @@ const defaultFilters = {
   bloodGroup: "",
   requestType: "",
   emergencyOnly: false,
-  status: "",
   search: "",
   ordering: "",
   page: 1,
@@ -72,7 +69,6 @@ export const useReportsUiStore = create<ReportsUiState>()(
       setBloodGroup: (bloodGroup) => set({ bloodGroup, page: 1 }),
       setRequestType: (requestType) => set({ requestType, page: 1 }),
       setEmergencyOnly: (emergencyOnly) => set({ emergencyOnly, page: 1 }),
-      setStatus: (status) => set({ status, page: 1 }),
       setSearch: (search) => set({ search, page: 1 }),
       setOrdering: (ordering) => set({ ordering, page: 1 }),
       setPage: (page) => set({ page }),
@@ -92,7 +88,6 @@ export const useReportsUiStore = create<ReportsUiState>()(
         bloodGroup: state.bloodGroup,
         requestType: state.requestType,
         emergencyOnly: state.emergencyOnly,
-        status: state.status,
         pageSize: state.pageSize,
         compareMode: state.compareMode,
       }),

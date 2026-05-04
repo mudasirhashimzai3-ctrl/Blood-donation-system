@@ -18,7 +18,6 @@ class ReportFiltersSerializer(serializers.Serializer):
     blood_group = serializers.ChoiceField(choices=BloodRequest.BLOOD_GROUP_CHOICES, required=False)
     request_type = serializers.ChoiceField(choices=BloodRequest.REQUEST_TYPE_CHOICES, required=False)
     emergency_only = serializers.BooleanField(required=False, default=False)
-    status = serializers.CharField(required=False, allow_blank=False)
     search = serializers.CharField(required=False, allow_blank=True, default="")
     ordering = serializers.CharField(required=False, allow_blank=True, default="")
     page = serializers.IntegerField(required=False, default=1, min_value=1)

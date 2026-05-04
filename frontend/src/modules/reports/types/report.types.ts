@@ -114,8 +114,6 @@ export interface EmergencyAnalysisResponse {
     avg_match_time_minutes: number | null;
     avg_completion_time_minutes: number | null;
   };
-  delay_buckets: Array<{ label: string; count: number; percentage: number }>;
-  top_bottlenecks: Array<{ reason: string; count: number }>;
   meta: Record<string, unknown>;
   cache: ReportCacheMeta;
 }

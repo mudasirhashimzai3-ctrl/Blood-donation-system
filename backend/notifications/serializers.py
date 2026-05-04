@@ -19,7 +19,6 @@ class NotificationListSerializer(serializers.ModelSerializer):
             "message",
             "sent_via",
             "status",
-            "priority",
             "is_read",
             "read_at",
             "sent_at",

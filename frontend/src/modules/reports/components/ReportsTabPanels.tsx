@@ -210,38 +210,14 @@ export default function ReportsTabPanels({
       emergency,
       emergency.data ? (
         <div className="space-y-4">
-          <ReportsKpiGrid
-            items={[
-              { label: "Emergency Requests", value: emergency.data.summary.total_emergency_requests },
-              { label: "Critical", value: emergency.data.summary.critical_requests },
-              { label: "Completion", value: `${emergency.data.summary.completion_rate}%` },
-              { label: "Overdue", value: emergency.data.summary.overdue_pending_count },
-            ]}
-          />
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-            <ReportChartCard title="Emergency Delay Buckets">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={emergency.data.delay_buckets}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="label" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="var(--color-primary)" />
-                </BarChart>
-              </ResponsiveContainer>
-            </ReportChartCard>
-            <ReportChartCard title="Top Bottlenecks">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={emergency.data.top_bottlenecks} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis dataKey="reason" type="category" width={120} />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="var(--color-warning)" />
-                </BarChart>
-              </ResponsiveContainer>
-            </ReportChartCard>
-          </div>
+           <ReportsKpiGrid
+             items={[
+               { label: "Emergency Requests", value: emergency.data.summary.total_emergency_requests },
+               { label: "Critical", value: emergency.data.summary.critical_requests },
+               { label: "Completion", value: `${emergency.data.summary.completion_rate}%` },
+               { label: "Overdue", value: emergency.data.summary.overdue_pending_count },
+             ]}
+           />
         </div>
       ) : (
         <ReportEmptyState message="No emergency analytics found." onReset={onResetFilters} />
