@@ -20,7 +20,6 @@ function ManageRolesPolicyFormHarness() {
   const form = useForm<UserRolePolicyFormValues>({
     defaultValues: {
       allow_user_invite: true,
-      default_new_user_role: "donor",
       allow_role_editing: false,
       allow_self_profile_edit: true,
       enforce_2fa_for_admin: false,
@@ -51,13 +50,5 @@ describe("settings role label mapping", () => {
     expect(screen.getByText("Donor Permissions")).toBeInTheDocument();
     expect(screen.getByText("Recipient Permissions")).toBeInTheDocument();
     expect(screen.getByText("Admin Permissions")).toBeInTheDocument();
-  });
-
-  it("shows donor/recipient/admin labels in default role dropdown", () => {
-    render(<ManageRolesPolicyFormHarness />);
-
-    expect(screen.getByRole("option", { name: "Donor" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Recipient" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Admin" })).toBeInTheDocument();
   });
 });

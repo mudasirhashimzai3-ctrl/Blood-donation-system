@@ -113,19 +113,19 @@ class SettingsApiTests(APITestCase):
         response = self.client.get(f"{self.base_url}user-roles/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("allow_user_invite", response.data)
-        self.assertIn(response.data["default_new_user_role"], {"admin", "recipient", "donor"})
+        self.assertNotIn("default_new_user_role", response.data)
 
     def test_admin_can_update_user_roles_and_writes_audit_log(self):
         self.client.force_authenticate(self.admin)
         payload = {
             "allow_user_invite": False,
-            "default_new_user_role": "recipient",
             "allow_role_editing": True,
         }
         response = self.client.put(f"{self.base_url}user-roles/", payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data["allow_user_invite"])
-        self.assertEqual(response.data["default_new_user_role"], "recipient")
+        self.assertTrue(response.data["allow_role_editing"])
+        self.assertNotIn("default_new_user_role", response.data)
 
         self.assertTrue(SettingAuditLog.objects.filter(section="user_roles").exists())
 

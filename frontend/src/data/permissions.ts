@@ -1,7 +1,6 @@
 // MIS Permissions
 export const permissions = [
   // Core MIS Permissions
-  { name: "dashboard", value: "Dashboard" },
   { name: "students", value: "Students" },
   { name: "teachers", value: "Teachers" },
   { name: "classes", value: "Classes" },
@@ -25,7 +24,6 @@ export const permissions = [
 export type Permission = (typeof permissions)[number]["name"];
 
 export const routePermissions: Record<string, Permission | Permission[]> = {
-  "/mis": "dashboard",
   "/mis/students": "students",
   "/mis/students/new": "students",
   "/mis/students/:id": "students",

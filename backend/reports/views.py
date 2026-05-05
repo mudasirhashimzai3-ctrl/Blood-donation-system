@@ -17,7 +17,6 @@ from reports.serializers import (
 )
 from reports.services import (
     build_donation_analytics,
-    build_dashboard_overview,
     build_emergency_analysis,
     build_geographic_distance,
     build_hospital_performance,
@@ -35,7 +34,6 @@ REPORT_BUILDERS = {
     "emergency-analysis": build_emergency_analysis,
     "geographic-distance": build_geographic_distance,
     "system-performance": build_system_performance,
-    "dashboard-overview": build_dashboard_overview,
 }
 
 
@@ -186,52 +184,6 @@ class SystemPerformanceView(BaseReportAPIView):
             "next": paginator.get_next_link(),
             "previous": paginator.get_previous_link(),
         }
-        return Response(payload, status=status.HTTP_200_OK)
-
-
-class DashboardOverviewView(BaseReportAPIView):
-    endpoint_name = "dashboard-overview"
-
-    def _can_view_module(self, request, module_name: str) -> bool:
-        user = request.user
-        if user.is_superuser or user.role_name == "admin":
-            return True
-        return _user_has_permission(user, module_name, "view")
-
-    def get(self, request):
-        payload, _ = self._build_payload(request)
-
-        access = {
-            "donors": self._can_view_module(request, "donors"),
-            "recipients": self._can_view_module(request, "recipients"),
-            "blood_requests": self._can_view_module(request, "blood_requests"),
-            "donations": self._can_view_module(request, "donations"),
-        }
-
-        kpis = payload.get("kpis", {})
-        charts = payload.get("charts", {})
-        statistics = payload.get("statistics", {})
-
-        if not access["donors"]:
-            kpis["total_donors"] = None
-        if not access["recipients"]:
-            kpis["total_recipients"] = None
-        if not access["blood_requests"]:
-            kpis["active_requests"] = None
-            charts["requests_status_distribution"] = None
-            statistics["request_completion_rate"] = None
-        if not access["donations"]:
-            kpis["completed_donations"] = None
-            charts["donations_trend"] = None
-            statistics["donation_completion_rate"] = None
-            statistics["avg_donation_response_time_minutes"] = None
-        if not (access["donors"] and access["blood_requests"]):
-            charts["blood_group_supply_vs_demand"] = None
-
-        payload["access"] = access
-        payload["kpis"] = kpis
-        payload["charts"] = charts
-        payload["statistics"] = statistics
         return Response(payload, status=status.HTTP_200_OK)
 
 

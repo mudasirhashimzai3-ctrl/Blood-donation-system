@@ -1,6 +1,6 @@
 import { Controller, type UseFormReturn } from "react-hook-form";
 
-import { Select, Switch } from "@components/ui";
+import { Switch } from "@components/ui";
 import type { UserRolePolicyFormValues } from "../schemas/userRolePolicy.schema";
 import SettingsSaveBar from "./SettingsSaveBar";
 
@@ -12,12 +12,6 @@ interface ManageRolesPolicyFormProps {
   onCancel?: () => void;
 }
 
-const roleOptions = [
-  { value: "admin", label: "Admin" },
-  { value: "recipient", label: "Recipient" },
-  { value: "donor", label: "Donor" },
-];
-
 export default function ManageRolesPolicyForm({
   form,
   onSubmit,
@@ -27,21 +21,12 @@ export default function ManageRolesPolicyForm({
 }: ManageRolesPolicyFormProps) {
   const {
     control,
-    register,
     handleSubmit,
-    formState: { errors, isDirty },
+    formState: { isDirty },
   } = form;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <Select
-        label="Default Role For New Users"
-        disabled={readOnly}
-        error={errors.default_new_user_role?.message}
-        options={roleOptions}
-        {...register("default_new_user_role")}
-      />
-
       <Controller
         name="allow_user_invite"
         control={control}

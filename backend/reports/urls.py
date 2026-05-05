@@ -2,7 +2,6 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from reports.views import (
-    DashboardOverviewView,
     DonationAnalyticsView,
     EmergencyAnalysisView,
     GeographicDistanceView,
@@ -19,7 +18,6 @@ router.register(r"exports", ReportExportJobViewSet, basename="report-export")
 
 urlpatterns = [
     path("", include(router.urls)),
-    path("dashboard-overview/", DashboardOverviewView.as_view(), name="dashboard-overview"),
     path("request-analytics/", RequestAnalyticsView.as_view(), name="request-analytics"),
     path("donation-analytics/", DonationAnalyticsView.as_view(), name="donation-analytics"),
     path("hospital-performance/", HospitalPerformanceView.as_view(), name="hospital-performance"),

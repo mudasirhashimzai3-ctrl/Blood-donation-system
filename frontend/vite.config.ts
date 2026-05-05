@@ -15,7 +15,6 @@ export default defineConfig({
       "@components": path.resolve(__dirname, "./src/components"),
       "@auth": path.resolve(__dirname, "./src/modules/auth"),
       "@settings": path.resolve(__dirname, "./src/modules/settings"),
-      "@mis-dashboard": path.resolve(__dirname, "./src/modules/dashboard"),
     },
   },
 });

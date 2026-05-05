@@ -699,32 +699,6 @@ class ActivityLogViewSet(PermissionMixin, viewsets.ReadOnlyModelViewSet):
     ordering = ['-timestamp']
 
     @action(detail=False, methods=['get'])
-    def dashboard_stats(self, request):
-        """Get activity statistics for dashboard"""
-        from datetime import timedelta
-        
-        now = timezone.now()
-        today = now.date()
-        week_ago = today - timedelta(days=7)
-        month_ago = today - timedelta(days=30)
-        
-        queryset = self.get_queryset()
-        
-        stats = {
-            'today': queryset.filter(timestamp__date=today).count(),
-            'this_week': queryset.filter(timestamp__date__gte=week_ago).count(),
-            'this_month': queryset.filter(timestamp__date__gte=month_ago).count(),
-            'by_action': list(queryset.values('action').annotate(count=Count('id')).order_by('-count')[:5]),
-            'by_user': list(queryset.values('user__username', 'user__first_name', 'user__last_name')
-                          .annotate(count=Count('id')).order_by('-count')[:5]),
-            'recent_activities': ActivityLogSerializer(
-                queryset[:10], many=True, context={'request': request}
-            ).data
-        }
-        
-        return Response(stats)
-
-    @action(detail=False, methods=['get'])
     def export(self, request):
         """Export activity logs (simplified - returns data for now)"""
         queryset = self.filter_queryset(self.get_queryset())

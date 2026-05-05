@@ -9,7 +9,6 @@ import {
 } from "@/modules/auth/index";
 import NotFoundPage from "@/pages/PageNotFounded";
 import { MISLayout } from "@/components";
-import { Dashboard } from "@/modules/dashboard";
 // import { GeneralSettings, SettingsOverview, UserManagement } from "@settings/index";
 import { UserProfile } from "@/modules/profile";
 import { ReportsWorkspacePage } from "@/modules/reports";
@@ -38,8 +37,8 @@ function AppRouterProvider() {
       ),
       errorElement: <NotFoundPage />,
       children: [
-        // Dashboard
-        { index: true, element: <Dashboard /> },
+        // Dashboard - Redirect to settings
+        { index: true, element: <Navigate to="/settings" replace /> },
         // Settings
         { path: "settings", element: <AdminSettingsPage /> },
         { path: "settings/general", element: <Navigate to="/settings?tab=system_settings&section=general" replace /> },

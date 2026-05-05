@@ -81,7 +81,6 @@ export interface SecuritySettings {
 
 export interface UserRoleSettings {
   allow_user_invite: boolean;
-  default_new_user_role: RoleName;
   allow_role_editing: boolean;
   allow_self_profile_edit: boolean;
   enforce_2fa_for_admin: boolean;

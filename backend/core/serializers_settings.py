@@ -91,10 +91,6 @@ class SecuritySettingsSerializer(serializers.Serializer):
 
 class UserRoleSettingsSerializer(serializers.Serializer):
     allow_user_invite = serializers.BooleanField(required=False)
-    default_new_user_role = serializers.ChoiceField(
-        required=False,
-        choices=list(PUBLIC_ROLE_NAMES),
-    )
     allow_role_editing = serializers.BooleanField(required=False)
     allow_self_profile_edit = serializers.BooleanField(required=False)
     enforce_2fa_for_admin = serializers.BooleanField(required=False)
