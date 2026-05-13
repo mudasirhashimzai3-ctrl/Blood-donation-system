@@ -11,4 +11,5 @@ router.register(r'auth', views.AuthViewSet, basename='auth')
 urlpatterns = [
     path('', include(router.urls)),
     path("token/refresh/", views.CookieTokenRefreshView.as_view(), name="token_refresh"),
+    path("token/mobile-refresh/", views.MobileTokenRefreshView.as_view(), name="token_mobile_refresh"),
 ]

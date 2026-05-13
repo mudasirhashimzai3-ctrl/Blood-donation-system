@@ -3,6 +3,7 @@ import json
 from django.core.cache import cache
 from rest_framework import status
 from rest_framework.test import APITestCase
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from accounts.models import User
 from core.models import Settings
@@ -317,3 +318,44 @@ class AuthSignupTests(APITestCase):
         )
         self.assertEqual(login_response.status_code, status.HTTP_200_OK)
         self.assertIn("access", login_response.data)
+
+
+class AuthMobileTokenFlowTests(APITestCase):
+    mobile_refresh_url = "/api/accounts/token/mobile-refresh/"
+    logout_url = "/api/accounts/auth/logout/"
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="mobile-flow-user",
+            password="StrongPass123!",
+            role_name="donor",
+            email="mobile-flow@example.com",
+        )
+
+    def test_mobile_refresh_rotates_tokens_from_json_body(self):
+        refresh = RefreshToken.for_user(self.user)
+        refresh_str = str(refresh)
+
+        response = self.client.post(
+            self.mobile_refresh_url,
+            {"refresh": refresh_str},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("access", response.data)
+        self.assertIn("refresh", response.data)
+        self.assertNotEqual(response.data["refresh"], refresh_str)
+
+    def test_logout_accepts_refresh_token_in_json_body(self):
+        refresh = RefreshToken.for_user(self.user)
+        access = str(refresh.access_token)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {access}")
+        response = self.client.post(
+            self.logout_url,
+            {"refresh": str(refresh)},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("detail"), "Logged out")

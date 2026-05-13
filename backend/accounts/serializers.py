@@ -374,7 +374,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
                 text_content = f'Welcome! Click the link below to verify your email:\n\n{verification_url}\n\nThis link will expire in 24 hours.'
 
                 email_msg = EmailMultiAlternatives(
-                    subject='Welcome to School MIS - Verify Your Email',
+                    subject='Welcome to BDS - Verify Your Email',
                     body=text_content,
                     from_email=settings.DEFAULT_FROM_EMAIL,
                     to=[user.email]

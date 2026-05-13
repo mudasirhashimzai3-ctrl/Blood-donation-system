@@ -3,7 +3,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.utils import timezone
+from django.conf import settings
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.contrib.auth import update_session_auth_hash
 from django.core.files.storage import default_storage
@@ -38,6 +40,25 @@ def _create_system_notifications(**kwargs):
         create_notifications(**kwargs)
     except Exception:
         return
+
+
+def _cookie_secure_flag():
+    return not settings.DEBUG
+
+
+def _set_refresh_cookie(response: Response, refresh_token: str):
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=_cookie_secure_flag(),
+        samesite="Lax",
+        max_age=7 * 24 * 60 * 60,
+    )
+
+
+def _clear_refresh_cookie(response: Response):
+    response.delete_cookie("refresh_token")
 
 
 def _get_security_policy():
@@ -267,37 +288,37 @@ class AuthViewSet(viewsets.ViewSet):
         # ✅ Return response with user data and access token
         res = Response({
             "access": access_token,
+            "refresh": refresh_token,
             "user": UserProfileSerializer(user, context={"request": request}).data,
             "message": "Login successful"
         })
 
         # ✅ Set httpOnly cookie for refresh token
-        res.set_cookie(
-            key="refresh_token",
-            value=refresh_token,
-            httponly=True,
-            secure=True,  # Use False if not using HTTPS in dev
-            samesite="Lax",
-            max_age=7 * 24 * 60 * 60  # 7 days
-        )
+        _set_refresh_cookie(res, refresh_token)
 
         return res
         
     @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
     def logout(self, request):
         """User logout"""
-        try:
+        refresh_token = request.data.get("refresh")
+        if not refresh_token:
             refresh_token = request.COOKIES.get("refresh_token")
+
+        if not refresh_token:
+            response = Response({"detail": "Logged out"})
+            _clear_refresh_cookie(response)
+            return response
+
+        try:
             token = RefreshToken(refresh_token)
             token.blacklist()
-
-            response = Response({"detail": "Logged out"})
-            response.delete_cookie("refresh_token")
-            return response
         except Exception:
-            return Response({"detail": "Invalid token"}, status=400)
-        # logout(request)
-        # return Response({'message': 'Logout successful'})
+            pass
+
+        response = Response({"detail": "Logged out"})
+        _clear_refresh_cookie(response)
+        return response
 
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
     def me(self, request):
@@ -742,13 +763,30 @@ class CookieTokenRefreshView(TokenRefreshView):
         res = Response({"access": access_token, "message": "Token refreshed successfully"})
 
         # ✅ Set the new refresh token in the httpOnly cookie
-        res.set_cookie(
-            key="refresh_token",
-            value=new_refresh_token,
-            httponly=True,
-            secure=True,  # Set to False if not using HTTPS in development
-            samesite="Lax",
-            max_age=7 * 24 * 60 * 60  # Should match REFRESH_TOKEN_LIFETIME
-        )
+        _set_refresh_cookie(res, new_refresh_token)
         
         return res
+
+
+class MobileTokenRefreshView(TokenRefreshView):
+    """
+    Mobile-friendly refresh endpoint.
+    Expects {"refresh": "..."} and returns {"access": "...", "refresh": "..."}.
+    Also mirrors the refresh token to cookie for compatibility.
+    """
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        access_token = serializer.validated_data["access"]
+        new_refresh_token = serializer.validated_data.get("refresh")
+
+        payload = {"access": access_token, "message": "Token refreshed successfully"}
+        if new_refresh_token:
+            payload["refresh"] = new_refresh_token
+
+        response = Response(payload, status=status.HTTP_200_OK)
+        if new_refresh_token:
+            _set_refresh_cookie(response, new_refresh_token)
+        return response
