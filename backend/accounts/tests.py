@@ -137,6 +137,16 @@ class AuthRoleLoginMappingTests(APITestCase):
         self.viewer.refresh_from_db()
         self.assertEqual(self.viewer.failed_login_attempts, 1)
 
+    def test_mobile_login_blocks_admin_role(self):
+        response = self.client.post(
+            self.login_url,
+            {"username": self.admin.username, "password": self.password, "role": "admin"},
+            format="json",
+            HTTP_X_CLIENT_PLATFORM="mobile",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data.get("attempts_remaining"), 4)
+
 
 class AuthSignupTests(APITestCase):
     signup_url = "/api/accounts/auth/signup/"

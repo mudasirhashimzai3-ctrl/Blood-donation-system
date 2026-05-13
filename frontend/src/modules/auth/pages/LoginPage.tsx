@@ -20,6 +20,8 @@ import AuthShell from "../components/AuthShell";
 
 const roleOptions = [
   { value: "admin", label: "Admin" },
+  { value: "donor", label: "Donor" },
+  { value: "recipient", label: "Recipient" },
 ];
 
 export default function LoginPage() {
@@ -54,7 +56,7 @@ export default function LoginPage() {
     defaultValues: {
       username: "",
       password: "",
-      role: "admin",
+      role: "donor",
     },
   });
 
@@ -220,7 +222,20 @@ export default function LoginPage() {
       </form>
 
       <div className="mt-6 text-center text-sm text-text-secondary">
-        <div className="mb-4">Admin web access only</div>
+        <div className="mb-4 flex flex-col items-center gap-2">
+          <Link
+            to="/auth/signup?role=donor"
+            className="font-medium text-primary hover:underline"
+          >
+            Sign up as Donor
+          </Link>
+          <Link
+            to="/auth/signup?role=recipient"
+            className="font-medium text-primary hover:underline"
+          >
+            Sign up as Recipient
+          </Link>
+        </div>
         <p>
           {t("auth.needHelp", "Need assistance?")}{" "}
           <a

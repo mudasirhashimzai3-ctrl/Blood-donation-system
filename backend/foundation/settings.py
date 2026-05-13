@@ -18,6 +18,24 @@ import dj_database_url
 from dotenv import load_dotenv
 
 
+def _parse_env_bool(raw: str | None, *, default: bool) -> bool:
+    if raw is None:
+        return default
+    value = raw.strip().lower()
+    if value in {"1", "true", "yes", "on"}:
+        return True
+    if value in {"0", "false", "no", "off"}:
+        return False
+    return default
+
+
+def _get_debug_env_raw() -> str | None:
+    django_debug = os.getenv("DJANGO_DEBUG")
+    if django_debug is not None:
+        return django_debug
+    return os.getenv("DEBUG")
+
+
 def _get_env_list(name: str, default: str = "") -> list[str]:
     value = os.getenv(name, default)
     if not value:
@@ -29,7 +47,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load environment variables from backend/.env if present.
 # In DEBUG, prefer .env values to avoid stale system-wide env vars.
 load_dotenv(BASE_DIR / ".env")
-if os.getenv("DEBUG", "true").lower() == "true":
+if _parse_env_bool(_get_debug_env_raw(), default=True):
     load_dotenv(BASE_DIR / ".env", override=True)
 
 
@@ -40,11 +58,11 @@ if os.getenv("DEBUG", "true").lower() == "true":
 SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-secret-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", "true").lower() == "true"
+DEBUG = _parse_env_bool(_get_debug_env_raw(), default=True)
 
 ALLOWED_HOSTS = _get_env_list("ALLOWED_HOSTS")
 if DEBUG and not ALLOWED_HOSTS:
-    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]", "0.0.0.0", "testserver"]
 
 
 # Application definition

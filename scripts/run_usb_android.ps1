@@ -38,6 +38,16 @@ function Ensure-BackendListening {
     Start-Sleep -Seconds 3
 }
 
+function Sync-RolePermissions {
+    Write-Host "Syncing default role permissions (admin/donor/recipient) ..."
+    Push-Location "backend"
+    try {
+        python manage.py sync_role_permissions --quiet
+    } finally {
+        Pop-Location
+    }
+}
+
 $adb = Resolve-AdbPath
 Write-Host "Using adb: $adb"
 
@@ -58,6 +68,7 @@ Write-Host "Configuring ADB reverse tcp:$BackendPort -> tcp:$BackendPort ..."
 & $adb -s $DeviceId reverse --list
 
 Ensure-BackendListening -Host $BackendHost -Port $BackendPort
+Sync-RolePermissions
 
 Write-Host "Checking backend health endpoint..."
 try {

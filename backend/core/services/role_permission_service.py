@@ -118,3 +118,44 @@ def replace_permission_matrix(rows: list[dict]) -> None:
 
         if create_rows:
             RolePermission.objects.bulk_create(create_rows, ignore_conflicts=True)
+
+
+DEFAULT_ROLE_PERMISSION_ACTIONS = {
+    "donor": {
+        "donors": {"view"},
+        "blood_requests": {"view"},
+        "donations": {"view", "add", "change"},
+        "notifications": {"view", "add", "change"},
+        "hospitals": {"view"},
+    },
+    "recipient": {
+        "recipients": {"view", "change"},
+        "blood_requests": {"view", "add", "change"},
+        "notifications": {"view", "add", "change"},
+        "hospitals": {"view"},
+        "donations": {"view"},
+    },
+}
+
+
+def build_default_role_permission_rows() -> list[dict]:
+    modules = set(get_permission_modules())
+    rows: list[dict] = []
+    for role_name, module_map in DEFAULT_ROLE_PERMISSION_ACTIONS.items():
+        for module, actions in module_map.items():
+            if module not in modules:
+                continue
+            rows.append(
+                {
+                    "role_name": role_name,
+                    "module": module,
+                    "actions": sorted(set(actions)),
+                }
+            )
+    return rows
+
+
+def sync_default_role_permissions() -> dict:
+    rows = build_default_role_permission_rows()
+    replace_permission_matrix(rows)
+    return get_permission_matrix_payload()
