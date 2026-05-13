@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
+from django.db import IntegrityError, transaction
 from core.models import Permission
 from .models import (
     ROLE_CHOICES,
@@ -24,10 +25,16 @@ class LoginSerializer(serializers.Serializer):
         username = attrs.get('username')
         password = attrs.get('password')
         selected_role = attrs.get('role')
+        request = self.context.get("request")
+        client_platform = ""
+        if request is not None:
+            client_platform = (request.headers.get("X-Client-Platform", "") or "").lower()
 
         if username and password and selected_role:
+            if client_platform == "mobile" and normalize_role_name(selected_role) == "admin":
+                raise serializers.ValidationError('Admin is not supported in the mobile app.')
             user = authenticate(
-                request=self.context.get('request'),
+                request=request,
                 username=username,
                 password=password
             )
@@ -38,6 +45,8 @@ class LoginSerializer(serializers.Serializer):
 
             if normalize_role_name(user.role_name) != normalize_role_name(selected_role):
                 raise serializers.ValidationError('Invalid credentials.')
+            if client_platform == "mobile" and normalize_role_name(user.role_name) == "admin":
+                raise serializers.ValidationError('Admin is not supported in the mobile app.')
             
             attrs['user'] = user
             return attrs
@@ -50,7 +59,7 @@ class SignupSerializer(serializers.Serializer):
     last_name = serializers.CharField(max_length=150)
     username = serializers.CharField(max_length=150)
     email = serializers.EmailField(max_length=254, required=False, allow_blank=True)
-    phone = serializers.CharField(max_length=20)
+    phone = serializers.CharField(max_length=10, min_length=10)
     donor_blood_group = serializers.ChoiceField(
         choices=[
             ("A+", "A+"),
@@ -95,6 +104,12 @@ class SignupSerializer(serializers.Serializer):
             raise serializers.ValidationError("Email already exists")
         return value
 
+    def validate_phone(self, value):
+        phone = (value or "").strip()
+        if len(phone) != 10 or not phone.isdigit():
+            raise serializers.ValidationError("Phone number must be exactly 10 digits.")
+        return phone
+
     def validate(self, attrs):
         from donors.models import Donor
         from recipients.models import Recipient
@@ -137,84 +152,88 @@ class SignupSerializer(serializers.Serializer):
         donor_blood_group = validated_data.pop("donor_blood_group", None)
         donor_latitude = validated_data.pop("donor_latitude", None)
         donor_longitude = validated_data.pop("donor_longitude", None)
-        recipient_required_blood_group = validated_data.pop("recipient_required_blood_group", None)
+        # Recipient blood group is chosen per realtime request, not at signup.
+        validated_data.pop("recipient_required_blood_group", None)
 
-        user = User.objects.create_user(
-            password=password,
-            role_name=role_name,
-            **validated_data,
-        )
+        try:
+            with transaction.atomic():
+                user = User.objects.create_user(
+                    password=password,
+                    role_name=role_name,
+                    **validated_data,
+                )
 
-        if role_name == "donor":
-            donor = Donor.objects.filter(
-                user__isnull=True,
-                phone=user.phone,
-                deleted_at__isnull=True,
-            ).first()
-            if donor:
-                donor.user = user
-                donor.first_name = user.first_name
-                donor.last_name = user.last_name
-                donor.email = user.email or None
-                donor.blood_group = donor_blood_group
-                if donor_latitude is not None:
-                    donor.latitude = donor_latitude
-                if donor_longitude is not None:
-                    donor.longitude = donor_longitude
-                donor.status = "active"
-                update_fields = [
-                    "user",
-                    "first_name",
-                    "last_name",
-                    "email",
-                    "blood_group",
-                    "status",
-                    "updated_at",
-                ]
-                if donor_latitude is not None:
-                    update_fields.append("latitude")
-                if donor_longitude is not None:
-                    update_fields.append("longitude")
-                donor.save(update_fields=update_fields)
-            else:
-                Donor.objects.create(
-                    user=user,
-                    first_name=user.first_name,
-                    last_name=user.last_name,
-                    phone=user.phone,
-                    email=user.email or None,
-                    blood_group=donor_blood_group,
-                    status="active",
-                    latitude=donor_latitude,
-                    longitude=donor_longitude,
-                )
-        elif role_name == "recipient":
-            full_name = f"{user.first_name} {user.last_name}".strip() or user.username
-            recipient = Recipient.objects.filter(
-                user__isnull=True,
-                phone=user.phone,
-                deleted_at__isnull=True,
-            ).first()
-            if recipient:
-                recipient.user = user
-                recipient.full_name = full_name
-                recipient.email = user.email or None
-                if recipient_required_blood_group is not None:
-                    recipient.required_blood_group = recipient_required_blood_group
-                update_fields = ["user", "full_name", "email", "updated_at"]
-                if recipient_required_blood_group is not None:
-                    update_fields.append("required_blood_group")
-                recipient.save(update_fields=update_fields)
-            else:
-                Recipient.objects.create(
-                    user=user,
-                    full_name=full_name,
-                    email=user.email or None,
-                    phone=user.phone,
-                    required_blood_group=recipient_required_blood_group,
-                    emergency_level="normal",
-                )
-        return user
+                if role_name == "donor":
+                    donor = Donor.objects.filter(
+                        user__isnull=True,
+                        phone=user.phone,
+                        deleted_at__isnull=True,
+                    ).first()
+                    if donor:
+                        donor.user = user
+                        donor.first_name = user.first_name
+                        donor.last_name = user.last_name
+                        donor.email = user.email or None
+                        donor.blood_group = donor_blood_group
+                        # Normalize potential legacy null/empty status values.
+                        donor.status = "active"
+                        if donor_latitude is not None:
+                            donor.latitude = donor_latitude
+                        if donor_longitude is not None:
+                            donor.longitude = donor_longitude
+                        update_fields = [
+                            "user",
+                            "first_name",
+                            "last_name",
+                            "email",
+                            "blood_group",
+                            "status",
+                            "updated_at",
+                        ]
+                        if donor_latitude is not None:
+                            update_fields.append("latitude")
+                        if donor_longitude is not None:
+                            update_fields.append("longitude")
+                        donor.save(update_fields=update_fields)
+                    else:
+                        Donor.objects.create(
+                            user=user,
+                            first_name=user.first_name,
+                            last_name=user.last_name,
+                            phone=user.phone,
+                            email=user.email or None,
+                            blood_group=donor_blood_group,
+                            status="active",
+                            latitude=donor_latitude,
+                            longitude=donor_longitude,
+                        )
+                elif role_name == "recipient":
+                    full_name = f"{user.first_name} {user.last_name}".strip() or user.username
+                    recipient = Recipient.objects.filter(
+                        user__isnull=True,
+                        phone=user.phone,
+                        deleted_at__isnull=True,
+                    ).first()
+                    if recipient:
+                        recipient.user = user
+                        recipient.full_name = full_name
+                        recipient.email = user.email or None
+                        # Normalize potential legacy null/empty recipient state.
+                        recipient.emergency_level = recipient.emergency_level or "normal"
+                        recipient.save(update_fields=["user", "full_name", "email", "emergency_level", "updated_at"])
+                    else:
+                        Recipient.objects.create(
+                            user=user,
+                            full_name=full_name,
+                            email=user.email or None,
+                            phone=user.phone,
+                            emergency_level="normal",
+                        )
+                return user
+        except IntegrityError as exc:
+            raise serializers.ValidationError(
+                {"detail": "Could not create account profile. Please verify phone/email uniqueness."}
+            ) from exc
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -263,6 +282,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
     
     def to_representation(self, instance):
         data = super().to_representation(instance)
+        role = normalize_role_name(data['role_name']) if data['role_name'] else None
+        profile_status = 'active'
+        if role == 'recipient':
+            profile_status = getattr(getattr(instance, 'recipient', None), 'emergency_level', None) or 'normal'
+        elif role == 'admin':
+            profile_status = 'admin'
+
         return {
             'id': str(data['id']),
             'firstName': data['first_name'],
@@ -270,7 +296,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'username': data['username'],
             'email': data['email'],
             'phone': data['phone'],
-            'role': normalize_role_name(data['role_name']) if data['role_name'] else None,
+            'role': role,
+            'profileStatus': profile_status,
+            'profile_status': profile_status,
             'permissions': data['permissions'],
             'preferences': {
                 'language': data['language_preference'],

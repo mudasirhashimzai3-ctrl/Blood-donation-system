@@ -1,5 +1,7 @@
 import { Navigate, useLocation, Outlet } from "react-router-dom";
+import { useEffect } from "react";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
+import { useUserStore } from "@/modules/auth/stores/useUserStore";
 import { Loader2 } from "lucide-react";
 
 interface AuthGuardProps {
@@ -8,7 +10,16 @@ interface AuthGuardProps {
 
 export default function AuthGuard({ children }: AuthGuardProps) {
   const { isLoading, isAuthenticated } = useAuth();
+  const userProfile = useUserStore((state) => state.userProfile);
+  const logout = useUserStore((state) => state.logout);
   const location = useLocation();
+  const nonAdminAuthenticated = isAuthenticated && userProfile?.role !== "admin";
+
+  useEffect(() => {
+    if (nonAdminAuthenticated) {
+      logout();
+    }
+  }, [logout, nonAdminAuthenticated]);
 
   // Show loading spinner while checking authentication
   if (isLoading) {
@@ -26,6 +37,10 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   if (!isAuthenticated) {
     // Save the attempted URL for redirecting after login
     return <Navigate to="/auth/login" state={{ from: location }} replace />;
+  }
+
+  if (nonAdminAuthenticated) {
+    return <Navigate to="/auth/login" replace />;
   }
 
   // Render children or Outlet for nested routes

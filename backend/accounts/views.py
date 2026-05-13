@@ -80,6 +80,16 @@ def _get_security_policy():
     }
 
 
+def _get_profile_status(user: User) -> str:
+    role = normalize_role_name(getattr(user, "role_name", None))
+    if role == "recipient":
+        recipient = getattr(user, "recipient", None)
+        return getattr(recipient, "emergency_level", None) or "normal"
+    if role == "admin":
+        return "admin"
+    return "active"
+
+
 class UserViewSet(PermissionMixin, viewsets.ModelViewSet):
     """ViewSet for User management"""
     serializer_class = UserProfileSerializer
@@ -169,13 +179,14 @@ class AuthViewSet(viewsets.ViewSet):
         serializer = SignupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         public_role = serializer.validated_data["role"]
+        user = serializer.save()
         profile_payload = {
             "donor_blood_group": serializer.validated_data.get("donor_blood_group"),
             "donor_latitude": serializer.validated_data.get("donor_latitude"),
             "donor_longitude": serializer.validated_data.get("donor_longitude"),
             "recipient_required_blood_group": serializer.validated_data.get("recipient_required_blood_group"),
+            "profile_status": _get_profile_status(user),
         }
-        user = serializer.save()
 
         return Response(
             {
@@ -188,6 +199,7 @@ class AuthViewSet(viewsets.ViewSet):
                     "email": user.email,
                     "phone": user.phone,
                     "role": public_role,
+                    "profile_status": _get_profile_status(user),
                 },
                 "profile": profile_payload,
             },

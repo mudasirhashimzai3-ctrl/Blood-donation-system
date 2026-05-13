@@ -15,6 +15,7 @@ class NotificationListSerializer(serializers.ModelSerializer):
             "donation_id",
             "event_key",
             "type",
+            "priority",
             "title",
             "message",
             "sent_via",
@@ -22,6 +23,7 @@ class NotificationListSerializer(serializers.ModelSerializer):
             "is_read",
             "read_at",
             "sent_at",
+            "metadata",
             "created_at",
             "updated_at",
         ]
@@ -30,7 +32,6 @@ class NotificationListSerializer(serializers.ModelSerializer):
 class NotificationDetailSerializer(NotificationListSerializer):
     class Meta(NotificationListSerializer.Meta):
         fields = NotificationListSerializer.Meta.fields + [
-            "metadata",
             "dedupe_key",
             "error_message",
             "provider_message_id",

@@ -146,6 +146,16 @@ export const useUserStore = create<UserState>()(
             "/accounts/auth/login/",
             credentials
           );
+          const role = response.data.user?.role;
+          if (role !== "admin") {
+            sessionStorage.removeItem("accessToken");
+            set({
+              userProfile: null,
+              loading: false,
+              error: "Admin access only on web.",
+            });
+            throw new Error("Admin access only on web.");
+          }
           // Set the access token from response
           setAccessToken(response.data.access);
 

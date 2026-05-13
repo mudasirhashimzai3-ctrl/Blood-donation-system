@@ -382,3 +382,57 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
         ).order_by("distance_km", "-queued_at")
         serializer = BloodRequestNotificationSerializer(queryset, many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["get"], url_path="donor-responses")
+    def donor_responses(self, request):
+        recipient_profile = getattr(request.user, "recipient", None)
+        if recipient_profile is None:
+            raise ValidationError({"detail": "Recipient profile is not configured for this account."})
+
+        requests_qs = (
+            BloodRequest.objects.filter(
+                recipient=recipient_profile,
+                deleted_at__isnull=True,
+            )
+            .order_by("-is_emergency", "-created_at")
+        )
+
+        payload = []
+        for blood_request in requests_qs:
+            notifications = BloodRequestNotification.objects.select_related("donor").filter(
+                blood_request=blood_request,
+                deleted_at__isnull=True,
+            ).order_by("-updated_at")
+            donation_rows = Donation.objects.filter(
+                request=blood_request,
+                deleted_at__isnull=True,
+            ).select_related("donor")
+            donation_by_donor = {row.donor_id: row for row in donation_rows}
+            responses = []
+            for item in notifications:
+                donation = donation_by_donor.get(item.donor_id)
+                responses.append(
+                    {
+                        "notification_id": item.id,
+                        "donor_id": item.donor_id,
+                        "donor_name": str(item.donor),
+                        "donor_phone": item.donor.phone,
+                        "channel": item.channel,
+                        "delivery_status": item.delivery_status,
+                        "response_status": item.response_status,
+                        "responded_at": item.responded_at,
+                        "distance_km": item.distance_km,
+                        "donation_status": donation.status if donation else None,
+                        "donation_id": donation.id if donation else None,
+                    }
+                )
+            payload.append(
+                {
+                    "request": BloodRequestListSerializer(
+                        blood_request,
+                        context={"request": request},
+                    ).data,
+                    "responses": responses,
+                }
+            )
+        return Response(payload, status=status.HTTP_200_OK)

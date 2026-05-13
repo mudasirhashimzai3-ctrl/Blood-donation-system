@@ -13,6 +13,8 @@ class AppConfig {
     'API_BASE_URL',
   );
 
+  static bool get isApiBaseUrlFromDefine => _apiBaseUrlFromDefine.isNotEmpty;
+
   static AppEnvironment get environment {
     switch (_envName) {
       case 'production':
@@ -43,7 +45,7 @@ class AppConfig {
     if (Platform.isAndroid) {
       return 'http://10.0.2.2:8000/api';
     }
-    return 'http://10.87.175.211:8000/api';
+    return 'http://localhost:8000/api';
   }
 
   static String get websocketBaseUrl {
