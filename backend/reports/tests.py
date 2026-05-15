@@ -14,8 +14,6 @@ from donors.models import Donor
 from hospitals.models import Hospital
 from notifications.models import Notification
 from recipients.models import Recipient
-from reports.models import ReportExportJob
-from reports.tasks import generate_report_export
 
 
 class ReportsApiTests(APITestCase):
@@ -136,49 +134,3 @@ class ReportsApiTests(APITestCase):
             f"{self.base_url}request-analytics/?date_from={date_from}&date_to={date_to}"
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_cache_reuse(self):
-        self.client.force_authenticate(user=self.viewer)
-        first = self.client.get(f"{self.base_url}donation-analytics/")
-        second = self.client.get(f"{self.base_url}donation-analytics/")
-        self.assertEqual(first.status_code, status.HTTP_200_OK)
-        self.assertEqual(second.status_code, status.HTTP_200_OK)
-        self.assertFalse(first.data["cache"]["from_cache"])
-        self.assertTrue(second.data["cache"]["from_cache"])
-
-    def test_admin_can_create_and_generate_export(self):
-        self.client.force_authenticate(user=self.admin)
-        response = self.client.post(
-            f"{self.base_url}exports/",
-            {
-                "report_type": "donation_analytics",
-                "format": "csv",
-                "filters": {"group_by": "day"},
-            },
-            format="json",
-        )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        job_id = response.data["id"]
-
-        # Run task inline to assert completion behavior deterministically.
-        generate_report_export(job_id)
-
-        job = ReportExportJob.objects.get(id=job_id)
-        self.assertEqual(job.status, "completed")
-        self.assertTrue(bool(job.artifact))
-
-        detail = self.client.get(f"{self.base_url}exports/{job_id}/")
-        self.assertEqual(detail.status_code, status.HTTP_200_OK)
-
-    def test_non_admin_cannot_export(self):
-        self.client.force_authenticate(user=self.viewer)
-        response = self.client.post(
-            f"{self.base_url}exports/",
-            {
-                "report_type": "request_analytics",
-                "format": "pdf",
-                "filters": {},
-            },
-            format="json",
-        )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

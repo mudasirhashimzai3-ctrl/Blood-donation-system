@@ -62,7 +62,7 @@ DEBUG = _parse_env_bool(_get_debug_env_raw(), default=True)
 
 ALLOWED_HOSTS = _get_env_list("ALLOWED_HOSTS")
 if DEBUG and not ALLOWED_HOSTS:
-    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]", "0.0.0.0", "testserver"]
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]", "0.0.0.0", "testserver", "*"]
 
 
 # Application definition
@@ -282,10 +282,6 @@ CELERY_BEAT_SCHEDULE = {
     },
     "cleanup-notifications-retention-daily": {
         "task": "notifications.cleanup_notifications_retention",
-        "schedule": 86400.0,
-    },
-    "cleanup-expired-report-exports-daily": {
-        "task": "reports.cleanup_expired_exports",
         "schedule": 86400.0,
     },
 }

@@ -45,19 +45,4 @@ export const reportFiltersSchema = reportFiltersBaseSchema
     }
   });
 
-export const createReportExportSchema = z.object({
-  report_type: z.enum([
-    "request_analytics",
-    "donation_analytics",
-    "hospital_performance",
-    "emergency_analysis",
-    "geographic_distance",
-    "system_performance",
-  ]),
-  format: z.enum(["csv", "pdf"]),
-  filters: reportFiltersBaseSchema.partial().optional(),
-  include_sections: z.array(z.string()).optional(),
-});
-
 export type ReportFiltersSchemaInput = z.infer<typeof reportFiltersSchema>;
-export type CreateReportExportSchemaInput = z.infer<typeof createReportExportSchema>;

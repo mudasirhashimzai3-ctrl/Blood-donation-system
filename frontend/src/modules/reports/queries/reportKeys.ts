@@ -8,6 +8,4 @@ export const reportKeys = {
   emergencyAnalysis: (params?: ReportsFilterParams) => [...reportKeys.all, "emergency", params] as const,
   geographicDistance: (params?: ReportsFilterParams) => [...reportKeys.all, "geographic", params] as const,
   systemPerformance: (params?: ReportsFilterParams) => [...reportKeys.all, "system", params] as const,
-  exportJobs: (params?: { page?: number; page_size?: number }) => [...reportKeys.all, "exports", params] as const,
-  exportJobDetail: (id: number) => [...reportKeys.all, "exports", id] as const,
 };

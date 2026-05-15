@@ -1,20 +1,11 @@
-from django.http import FileResponse
-from django.utils import timezone
-from rest_framework import mixins, status, viewsets
-from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.pagination import StandardResultsSetPagination
-from core.permissions import PermissionMixin, _user_has_permission
-from reports.models import ReportExportJob
-from reports.serializers import (
-    ReportExportCreateSerializer,
-    ReportExportJobSerializer,
-    ReportFiltersSerializer,
-)
+from core.permissions import PermissionMixin
+from reports.serializers import ReportFiltersSerializer
 from reports.services import (
     build_donation_analytics,
     build_emergency_analysis,
@@ -24,7 +15,6 @@ from reports.services import (
     build_system_performance,
 )
 from reports.services.cache import get_cached_or_build
-from reports.tasks import generate_report_export
 
 
 REPORT_BUILDERS = {
@@ -187,60 +177,4 @@ class SystemPerformanceView(BaseReportAPIView):
         return Response(payload, status=status.HTTP_200_OK)
 
 
-class ReportExportJobViewSet(
-    PermissionMixin,
-    mixins.CreateModelMixin,
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-    viewsets.GenericViewSet,
-):
-    permission_classes = [IsAuthenticated]
-    permission_module = "reports"
-    serializer_class = ReportExportJobSerializer
 
-    def get_queryset(self):
-        return ReportExportJob.objects.filter(owner=self.request.user).order_by("-created_at")
-
-    def _ensure_admin(self):
-        user = self.request.user
-        if not (user.is_superuser or user.role_name == "admin"):
-            raise PermissionDenied("Only admins can access report exports.")
-
-    def list(self, request, *args, **kwargs):
-        self._ensure_admin()
-        return super().list(request, *args, **kwargs)
-
-    def retrieve(self, request, *args, **kwargs):
-        self._ensure_admin()
-        return super().retrieve(request, *args, **kwargs)
-
-    def create(self, request, *args, **kwargs):
-        self._ensure_admin()
-        serializer = ReportExportCreateSerializer(data=request.data, context={"request": request})
-        serializer.is_valid(raise_exception=True)
-        job = serializer.save()
-
-        if hasattr(generate_report_export, "delay"):
-            generate_report_export.delay(job.id)
-        else:
-            generate_report_export(job.id)
-
-        output = ReportExportJobSerializer(job, context={"request": request})
-        return Response(output.data, status=status.HTTP_201_CREATED)
-
-    @action(detail=True, methods=["get"], url_path="download")
-    def download(self, request, pk=None):
-        self._ensure_admin()
-        job = self.get_object()
-
-        if job.status != "completed" or not job.artifact:
-            raise ValidationError({"detail": "Export is not ready."})
-
-        if job.expires_at and job.expires_at <= timezone.now():
-            raise ValidationError({"detail": "Export file has expired."})
-
-        return FileResponse(
-            job.artifact.open("rb"),
-            as_attachment=True,
-            filename=job.artifact.name.split("/")[-1],
-        )

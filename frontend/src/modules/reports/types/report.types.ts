@@ -178,40 +178,4 @@ export interface SystemPerformanceResponse {
   cache: ReportCacheMeta;
 }
 
-export interface ReportExportJob {
-  id: number;
-  owner_id: number;
-  report_type:
-    | "request_analytics"
-    | "donation_analytics"
-    | "hospital_performance"
-    | "emergency_analysis"
-    | "geographic_distance"
-    | "system_performance";
-  file_format: "csv" | "pdf";
-  status: "queued" | "processing" | "completed" | "failed" | "expired";
-  filters: Record<string, unknown>;
-  include_sections: string[];
-  artifact_url: string | null;
-  error_message: string | null;
-  started_at: string | null;
-  completed_at: string | null;
-  expires_at: string | null;
-  row_count: number | null;
-  created_at: string;
-  updated_at: string;
-}
 
-export interface PaginatedExportJobs {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: ReportExportJob[];
-}
-
-export interface CreateReportExportPayload {
-  report_type: ReportExportJob["report_type"];
-  format: ReportExportJob["file_format"];
-  filters?: ReportsFilterParams;
-  include_sections?: string[];
-}

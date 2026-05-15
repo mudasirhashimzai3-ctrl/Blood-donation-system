@@ -1,15 +1,12 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { PageHeader } from "@/components";
 import { Card, CardContent, Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui";
 import useCan from "@/hooks/useCan";
 import { useUserStore } from "@/modules/auth/stores/useUserStore";
-import ReportExportJobsTable from "../components/ReportExportJobsTable";
-import ReportExportPanel from "../components/ReportExportPanel";
 import ReportsFilterBar from "../components/ReportsFilterBar";
 import ReportsTabPanels from "../components/ReportsTabPanels";
-import { useReportExport } from "../hooks/useReportExport";
 import { useReportFilters } from "../hooks/useReportFilters";
 import { useReportTabs } from "../hooks/useReportTabs";
 import {
@@ -34,8 +31,6 @@ const tabConfig: Array<{ id: ReportTab; label: string }> = [
 export default function ReportsWorkspacePage() {
   const { t } = useTranslation();
   const { can } = useCan();
-  const userRole = useUserStore((state) => state.userProfile?.role);
-  const isAdmin = userRole === "admin";
 
   const { activeTab, setActiveTab } = useReportTabs();
   const {
@@ -57,24 +52,12 @@ export default function ReportsWorkspacePage() {
     queryParams,
   } = useReportFilters();
 
-  const [exportFormat, setExportFormat] = useState<"csv" | "pdf">("csv");
-
   const requestQuery = useRequestAnalytics(queryParams, { enabled: activeTab === "requests" && can("reports") });
   const donationQuery = useDonationAnalytics(queryParams, { enabled: activeTab === "donations" && can("reports") });
   const hospitalQuery = useHospitalPerformance(queryParams, { enabled: activeTab === "hospitals" && can("reports") });
   const emergencyQuery = useEmergencyAnalysis(queryParams, { enabled: activeTab === "emergency" && can("reports") });
   const geographyQuery = useGeographicDistance(queryParams, { enabled: activeTab === "geography" && can("reports") });
   const systemQuery = useSystemPerformance(queryParams, { enabled: activeTab === "system" && can("reports") });
-
-  const { createExport, downloadExport, jobs } = useReportExport(isAdmin && can("reports"));
-
-  const activeFilters = useMemo(
-    () => ({
-      ...queryParams,
-      cache: isAdmin ? ("false" as const) : ("true" as const),
-    }),
-    [isAdmin, queryParams]
-  );
 
   if (!can("reports")) {
     return (
@@ -96,32 +79,22 @@ export default function ReportsWorkspacePage() {
         )}
       />
 
-        <ReportsFilterBar
-          dateFrom={dateFrom}
-          dateTo={dateTo}
-          groupBy={groupBy}
-          city={city}
-          bloodGroup={bloodGroup}
-          requestType={requestType}
-          emergencyOnly={emergencyOnly}
-          onDateFromChange={setDateFrom}
-          onDateToChange={setDateTo}
-          onGroupByChange={setGroupBy}
-          onCityChange={setCity}
-          onBloodGroupChange={setBloodGroup}
-          onRequestTypeChange={setRequestType}
-          onEmergencyOnlyChange={setEmergencyOnly}
-          onReset={resetFilters}
-        />
-
-      <ReportExportPanel
-        isAdmin={isAdmin}
-        activeTab={activeTab}
-        filters={activeFilters}
-        format={exportFormat}
-        onFormatChange={setExportFormat}
-        loading={createExport.isPending}
-        onExport={(payload) => createExport.mutate(payload)}
+      <ReportsFilterBar
+        dateFrom={dateFrom}
+        dateTo={dateTo}
+        groupBy={groupBy}
+        city={city}
+        bloodGroup={bloodGroup}
+        requestType={requestType}
+        emergencyOnly={emergencyOnly}
+        onDateFromChange={setDateFrom}
+        onDateToChange={setDateTo}
+        onGroupByChange={setGroupBy}
+        onCityChange={setCity}
+        onBloodGroupChange={setBloodGroup}
+        onRequestTypeChange={setRequestType}
+        onEmergencyOnlyChange={setEmergencyOnly}
+        onReset={resetFilters}
       />
 
       <Card>
@@ -182,20 +155,6 @@ export default function ReportsWorkspacePage() {
           </Tabs>
         </CardContent>
       </Card>
-
-      {isAdmin ? (
-        <ReportExportJobsTable
-          jobs={jobs.data?.results ?? []}
-          loading={jobs.isLoading}
-          downloading={downloadExport.isPending}
-          onDownload={(job) =>
-            downloadExport.mutate({
-              id: job.id,
-              filename: `report_export_${job.id}.${job.file_format}`,
-            })
-          }
-        />
-      ) : null}
     </div>
   );
 }

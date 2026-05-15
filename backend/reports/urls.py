@@ -1,23 +1,17 @@
 from django.urls import include, path
-from rest_framework.routers import DefaultRouter
 
 from reports.views import (
     DonationAnalyticsView,
     EmergencyAnalysisView,
     GeographicDistanceView,
     HospitalPerformanceView,
-    ReportExportJobViewSet,
     RequestAnalyticsView,
     SystemPerformanceView,
 )
 
 app_name = "reports"
 
-router = DefaultRouter()
-router.register(r"exports", ReportExportJobViewSet, basename="report-export")
-
 urlpatterns = [
-    path("", include(router.urls)),
     path("request-analytics/", RequestAnalyticsView.as_view(), name="request-analytics"),
     path("donation-analytics/", DonationAnalyticsView.as_view(), name="donation-analytics"),
     path("hospital-performance/", HospitalPerformanceView.as_view(), name="hospital-performance"),
