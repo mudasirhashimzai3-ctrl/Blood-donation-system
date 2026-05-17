@@ -1,8 +1,10 @@
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { PageHeader } from "@/components";
 import useCan from "@/hooks/useCan";
+import { useUserStore } from "@/modules/auth/stores/useUserStore";
+import { getDonationsRouteByRole } from "@/modules/auth/utils/roleRouting";
 import { Card, CardContent } from "@components/ui";
 import DonationFilters from "../components/DonationFilters";
 import DonationTable from "../components/DonationTable";
@@ -12,7 +14,13 @@ import { useDonationsList } from "../queries/useDonationQueries";
 export default function DonationListPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const { can } = useCan();
+  const userRole = useUserStore((state) => state.userProfile?.role);
+  const donationBasePath =
+    userRole === "donor" && location.pathname.includes("/donor/donation-history")
+      ? getDonationsRouteByRole(userRole, { history: true })
+      : getDonationsRouteByRole(userRole);
   const {
     search,
     status,
@@ -76,7 +84,7 @@ export default function DonationListPage() {
           page={page}
           pageSize={pageSize}
           onPageChange={setPage}
-          onView={(id) => navigate(`/donations/${id}`)}
+          onView={(id) => navigate(`${donationBasePath}/${id}`)}
         />
       )}
     </div>

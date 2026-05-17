@@ -4,6 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { PageHeader } from "@/components";
 import useCan from "@/hooks/useCan";
+import { useUserStore } from "@/modules/auth/stores/useUserStore";
+import { getBloodRequestsRouteByRole } from "@/modules/auth/utils/roleRouting";
 import { Card, CardContent } from "@components/ui";
 import BloodRequestForm from "../components/BloodRequestForm";
 import {
@@ -18,6 +20,7 @@ export default function BloodRequestEditPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { can } = useCan();
+  const userRole = useUserStore((state) => state.userProfile?.role);
   const { id } = useParams<{ id: string }>();
   const bloodRequestId = Number(id);
   const form = useBloodRequestForm();
@@ -35,7 +38,7 @@ export default function BloodRequestEditPage() {
 
   const onSubmit = async (values: BloodRequestFormValues) => {
     await updateMutation.mutateAsync(normalizeBloodRequestPayload(values));
-    navigate(`/blood-requests/${bloodRequestId}`);
+    navigate(`${getBloodRequestsRouteByRole(userRole)}/${bloodRequestId}`);
   };
 
   if (!can("blood_requests")) {
@@ -91,7 +94,7 @@ export default function BloodRequestEditPage() {
           <BloodRequestForm
             form={form}
             onSubmit={onSubmit}
-            onCancel={() => navigate(`/blood-requests/${bloodRequestId}`)}
+            onCancel={() => navigate(`${getBloodRequestsRouteByRole(userRole)}/${bloodRequestId}`)}
             submitLabel={t("bloodRequests.actions.update", "Update Request")}
             loading={updateMutation.isPending}
             medicalReportUrl={bloodRequest.medical_report_url}

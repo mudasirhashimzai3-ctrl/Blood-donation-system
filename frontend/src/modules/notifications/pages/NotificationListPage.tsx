@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 import { PageHeader } from "@/components";
 import useCan from "@/hooks/useCan";
+import { useUserStore } from "@/modules/auth/stores/useUserStore";
+import { getNotificationsRouteByRole } from "@/modules/auth/utils/roleRouting";
 import { Card, CardContent } from "@components/ui";
 import NotificationFilters from "../components/NotificationFilters";
 import NotificationTable from "../components/NotificationTable";
@@ -17,6 +19,7 @@ export default function NotificationListPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { can } = useCan();
+  const userRole = useUserStore((state) => state.userProfile?.role);
   const {
     status,
     type,
@@ -80,7 +83,7 @@ export default function NotificationListPage() {
           page={page}
           pageSize={pageSize}
           onPageChange={setPage}
-          onView={(id) => navigate(`/notifications/${id}`)}
+          onView={(id) => navigate(`${getNotificationsRouteByRole(userRole)}/${id}`)}
           onToggleRead={async (id, isRead) => {
             await setReadMutation.mutateAsync({ id, isRead });
           }}

@@ -95,11 +95,11 @@ class SettingsApiTests(APITestCase):
         self.assertTrue(response.data["has_smtp_password"])
         self.assertEqual(response.data["smtp_password"], "")
 
-    def test_recipient_can_view_but_cannot_update(self):
+    def test_recipient_cannot_access_admin_settings(self):
         self.client.force_authenticate(self.recipient)
 
         view_response = self.client.get(f"{self.base_url}general/")
-        self.assertEqual(view_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(view_response.status_code, status.HTTP_403_FORBIDDEN)
 
         update_response = self.client.put(
             f"{self.base_url}general/",

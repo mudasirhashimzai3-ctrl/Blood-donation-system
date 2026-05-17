@@ -1,9 +1,11 @@
 from datetime import datetime, time
 
+from accounts.models import normalize_role_name
 from django.utils import timezone
 from django.utils.dateparse import parse_date, parse_datetime
 from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -57,6 +59,12 @@ class LegacyEmailSettingsSerializer(serializers.Serializer):
 class SettingsViewSet(PermissionMixin, viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
     permission_module = "settings"
+
+    def initial(self, request, *args, **kwargs):
+        super().initial(request, *args, **kwargs)
+        user = request.user
+        if not user.is_superuser and normalize_role_name(getattr(user, "role_name", None)) != "admin":
+            raise PermissionDenied("Only admin users can access system settings.")
 
     def _section_payload(self, section: str):
         payload = get_public_section_payload(section)

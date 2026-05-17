@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { PageHeader } from "@/components";
 import useCan from "@/hooks/useCan";
@@ -12,19 +13,30 @@ import {
 } from "../hooks/useBloodRequestForm";
 import type { BloodRequestFormValues } from "../schemas/bloodRequestSchemas";
 import { useCreateBloodRequest } from "../queries/useBloodRequestQueries";
+import {
+  getBloodRequestsRouteByRole,
+} from "@/modules/auth/utils/roleRouting";
 
 export default function BloodRequestCreatePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const { can } = useCan();
   const userRole = useUserStore((state) => state.userProfile?.role);
   const form = useBloodRequestForm();
   const createMutation = useCreateBloodRequest();
   const isRecipient = userRole === "recipient";
+  const isEmergencyRoute = location.pathname.includes("/recipient/emergency-request");
+
+  useEffect(() => {
+    if (isEmergencyRoute) {
+      form.setValue("request_type", "critical");
+    }
+  }, [form, isEmergencyRoute]);
 
   const onSubmit = async (values: BloodRequestFormValues) => {
     await createMutation.mutateAsync(normalizeBloodRequestPayload(values));
-    navigate("/blood-requests");
+    navigate(getBloodRequestsRouteByRole(userRole));
   };
 
   if (!can("blood_requests")) {
@@ -52,7 +64,7 @@ export default function BloodRequestCreatePage() {
           <BloodRequestForm
             form={form}
             onSubmit={onSubmit}
-            onCancel={() => navigate("/blood-requests")}
+            onCancel={() => navigate(getBloodRequestsRouteByRole(userRole))}
             submitLabel={t("bloodRequests.actions.save", "Save Request")}
             loading={createMutation.isPending}
             recipientMode={isRecipient}

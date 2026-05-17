@@ -1,5 +1,6 @@
 import apiClient from "@/lib/api";
 import type { Donor, DonorPayload, DonorQueryParams, PaginatedDonors } from "../types/donor.types";
+import type { DonorDashboardResponse } from "@/modules/role-access/types/roleAccess.types";
 
 const appendField = (formData: FormData, key: string, value: unknown) => {
   if (value === undefined || value === null) return;
@@ -38,6 +39,8 @@ export const donorService = {
     apiClient.get<PaginatedDonors>("/donors/", { params }),
 
   getDonor: (id: number) => apiClient.get<Donor>(`/donors/${id}/`),
+
+  getDonorDashboard: () => apiClient.get<DonorDashboardResponse>("/donors/mobile-dashboard/"),
 
   createDonor: (payload: DonorPayload) =>
     apiClient.post<Donor>("/donors/", buildDonorFormData(payload), {

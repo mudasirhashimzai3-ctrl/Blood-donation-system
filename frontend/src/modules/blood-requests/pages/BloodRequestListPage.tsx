@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import { PageHeader } from "@/components";
 import useCan from "@/hooks/useCan";
+import { useUserStore } from "@/modules/auth/stores/useUserStore";
 import { Card, CardContent } from "@components/ui";
 import BloodRequestFilters from "../components/BloodRequestFilters";
 import BloodRequestTable from "../components/BloodRequestTable";
@@ -13,11 +14,16 @@ import {
   useDeleteBloodRequest,
   useRunAutoMatch,
 } from "../queries/useBloodRequestQueries";
+import {
+  getBloodRequestsRouteByRole,
+  getCreateBloodRequestRouteByRole,
+} from "@/modules/auth/utils/roleRouting";
 
 export default function BloodRequestListPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { can } = useCan();
+  const userRole = useUserStore((state) => state.userProfile?.role);
   const {
     search,
     status,
@@ -40,6 +46,8 @@ export default function BloodRequestListPage() {
 
   const requests = data?.results ?? [];
   const totalCount = data?.count ?? 0;
+  const isAdmin = userRole === "admin";
+  const isRecipient = userRole === "recipient";
 
   if (!can("blood_requests")) {
     return (
@@ -62,13 +70,17 @@ export default function BloodRequestListPage() {
           "bloodRequests.subtitle",
           "Manage blood request workflow from pending to completion"
         )}
-        actions={[
-          {
-            label: t("bloodRequests.actions.add", "Add Request"),
-            icon: <Plus className="h-4 w-4" />,
-            onClick: () => navigate("/blood-requests/new"),
-          },
-        ]}
+        actions={
+          userRole === "donor"
+            ? []
+            : [
+                {
+                  label: t("bloodRequests.actions.add", "Add Request"),
+                  icon: <Plus className="h-4 w-4" />,
+                  onClick: () => navigate(getCreateBloodRequestRouteByRole(userRole)),
+                },
+              ]
+        }
       />
 
       <Card>
@@ -101,8 +113,8 @@ export default function BloodRequestListPage() {
           page={page}
           pageSize={pageSize}
           onPageChange={setPage}
-          onView={(id) => navigate(`/blood-requests/${id}`)}
-          onEdit={(id) => navigate(`/blood-requests/${id}/edit`)}
+          onView={(id) => navigate(`${getBloodRequestsRouteByRole(userRole)}/${id}`)}
+          onEdit={(id) => navigate(`${getBloodRequestsRouteByRole(userRole)}/${id}/edit`)}
           onDelete={async (id) => {
             if (!window.confirm(t("bloodRequests.delete.confirm", "Delete this blood request?"))) return;
             await deleteMutation.mutateAsync(id);
@@ -110,6 +122,9 @@ export default function BloodRequestListPage() {
           onRunAutoMatch={async (id) => {
             await runAutoMatchMutation.mutateAsync(id);
           }}
+          canEdit={isAdmin || isRecipient}
+          canDelete={isAdmin}
+          canRunAutoMatch={isAdmin}
         />
       )}
     </div>

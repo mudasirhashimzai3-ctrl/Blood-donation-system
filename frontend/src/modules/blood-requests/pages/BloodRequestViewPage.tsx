@@ -14,6 +14,8 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { PageHeader } from "@/components";
 import useCan from "@/hooks/useCan";
+import { useUserStore } from "@/modules/auth/stores/useUserStore";
+import { getBloodRequestsRouteByRole } from "@/modules/auth/utils/roleRouting";
 import { formatLocalDateTime } from "@/utils/formatLocalDateTime";
 import { Badge, Button, Card, CardContent } from "@components/ui";
 import AssignDonorDialog from "../components/AssignDonorDialog";
@@ -38,6 +40,7 @@ export default function BloodRequestViewPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { can } = useCan();
+  const userRole = useUserStore((state) => state.userProfile?.role);
   const { id } = useParams<{ id: string }>();
   const bloodRequestId = Number(id);
 
@@ -102,6 +105,8 @@ export default function BloodRequestViewPage() {
   }
 
   const isTerminal = bloodRequest.status === "completed" || bloodRequest.status === "cancelled";
+  const isRecipientUser = userRole === "recipient";
+  const requestBaseRoute = getBloodRequestsRouteByRole(userRole);
 
   return (
     <div className="space-y-6">
@@ -205,21 +210,21 @@ export default function BloodRequestViewPage() {
           </div>
 
           <div className="flex flex-wrap justify-end gap-2 border-t border-border pt-4">
-            <Button variant="outline" onClick={() => navigate("/blood-requests")} leftIcon={<ArrowLeft className="h-4 w-4" />}>
+            <Button variant="outline" onClick={() => navigate(requestBaseRoute)} leftIcon={<ArrowLeft className="h-4 w-4" />}>
               {t("bloodRequests.actions.backToList", "Back to list")}
             </Button>
 
             {!isTerminal ? (
               <Button
                 variant="outline"
-                onClick={() => navigate(`/blood-requests/${bloodRequest.id}/edit`)}
+                onClick={() => navigate(`${requestBaseRoute}/${bloodRequest.id}/edit`)}
                 leftIcon={<Pencil className="h-4 w-4" />}
               >
                 {t("bloodRequests.actions.edit", "Edit")}
               </Button>
             ) : null}
 
-            {bloodRequest.status === "pending" ? (
+            {!isRecipientUser && bloodRequest.status === "pending" ? (
               <>
                 <Button
                   variant="outline"
@@ -235,7 +240,7 @@ export default function BloodRequestViewPage() {
               </>
             ) : null}
 
-            {bloodRequest.status === "matched" ? (
+            {!isRecipientUser && bloodRequest.status === "matched" ? (
               <Button variant="primary" onClick={() => setIsCompleteOpen(true)} leftIcon={<CheckCircle2 className="h-4 w-4" />}>
                 {t("bloodRequests.actions.complete", "Complete")}
               </Button>
@@ -243,40 +248,46 @@ export default function BloodRequestViewPage() {
 
             {!isTerminal ? (
               <>
-                <Button variant="outline" onClick={() => setIsVerifyOpen(true)} leftIcon={<ShieldCheck className="h-4 w-4" />}>
-                  {bloodRequest.is_verified
-                    ? t("bloodRequests.actions.unverify", "Unverify")
-                    : t("bloodRequests.actions.verify", "Verify")}
-                </Button>
+                {!isRecipientUser ? (
+                  <Button variant="outline" onClick={() => setIsVerifyOpen(true)} leftIcon={<ShieldCheck className="h-4 w-4" />}>
+                    {bloodRequest.is_verified
+                      ? t("bloodRequests.actions.unverify", "Unverify")
+                      : t("bloodRequests.actions.verify", "Verify")}
+                  </Button>
+                ) : null}
                 <Button variant="danger" onClick={() => setIsCancelOpen(true)} leftIcon={<XCircle className="h-4 w-4" />}>
                   {t("bloodRequests.actions.cancelRequest", "Cancel Request")}
                 </Button>
               </>
             ) : null}
 
-            <Button
-              variant="danger"
-              leftIcon={<Trash2 className="h-4 w-4" />}
-              loading={deleteMutation.isPending}
-              onClick={async () => {
-                if (!window.confirm(t("bloodRequests.delete.confirm", "Delete this blood request?"))) return;
-                await deleteMutation.mutateAsync(bloodRequest.id);
-                navigate("/blood-requests");
-              }}
-            >
-              {t("bloodRequests.actions.delete", "Delete")}
-            </Button>
+            {!isRecipientUser ? (
+              <Button
+                variant="danger"
+                leftIcon={<Trash2 className="h-4 w-4" />}
+                loading={deleteMutation.isPending}
+                onClick={async () => {
+                  if (!window.confirm(t("bloodRequests.delete.confirm", "Delete this blood request?"))) return;
+                  await deleteMutation.mutateAsync(bloodRequest.id);
+                  navigate(requestBaseRoute);
+                }}
+              >
+                {t("bloodRequests.actions.delete", "Delete")}
+              </Button>
+            ) : null}
           </div>
         </CardContent>
       </Card>
 
-      <DonorCandidatesPanel
-        notifications={notifications}
-        onAssign={(donorId) => {
-          assignMutation.mutate(donorId);
-        }}
-        disabled={bloodRequest.status !== "pending" || assignMutation.isPending}
-      />
+      {!isRecipientUser ? (
+        <DonorCandidatesPanel
+          notifications={notifications}
+          onAssign={(donorId) => {
+            assignMutation.mutate(donorId);
+          }}
+          disabled={bloodRequest.status !== "pending" || assignMutation.isPending}
+        />
+      ) : null}
 
       <AssignDonorDialog
         isOpen={isAssignOpen}
@@ -293,7 +304,7 @@ export default function BloodRequestViewPage() {
         onClose={() => setIsCancelOpen(false)}
         onConfirm={async (reason) => {
           await cancelMutation.mutateAsync({
-            cancelled_by: "admin",
+            cancelled_by: isRecipientUser ? "recipient" : "admin",
             rejection_reason: reason,
           });
         }}

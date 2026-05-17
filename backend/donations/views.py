@@ -65,6 +65,8 @@ class DonationViewSet(PermissionMixin, viewsets.ModelViewSet):
         queryset = super().get_queryset()
         user = self.request.user
         role_name = normalize_role_name(getattr(user, "role_name", None))
+        if role_name == "admin":
+            return queryset
 
         if role_name == "donor":
             donor_profile = getattr(user, "donor", None)
@@ -78,7 +80,7 @@ class DonationViewSet(PermissionMixin, viewsets.ModelViewSet):
                 return queryset.none()
             return queryset.filter(request__recipient=recipient_profile)
 
-        return queryset
+        return queryset.none()
 
     def get_serializer_class(self):
         if self.action == "list":

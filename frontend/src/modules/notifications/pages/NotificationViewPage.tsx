@@ -4,6 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { PageHeader } from "@/components";
 import useCan from "@/hooks/useCan";
+import { useUserStore } from "@/modules/auth/stores/useUserStore";
+import { getNotificationsRouteByRole } from "@/modules/auth/utils/roleRouting";
 import { formatLocalDateTime } from "@/utils/formatLocalDateTime";
 import { Button, Card, CardContent } from "@components/ui";
 import NotificationStatusBadge from "../components/NotificationStatusBadge";
@@ -14,6 +16,7 @@ export default function NotificationViewPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { can } = useCan();
+  const userRole = useUserStore((state) => state.userProfile?.role);
   const { id } = useParams<{ id: string }>();
   const notificationId = Number(id);
 
@@ -131,7 +134,7 @@ export default function NotificationViewPage() {
             <Button
               variant="outline"
               leftIcon={<ArrowLeft className="h-4 w-4" />}
-              onClick={() => navigate("/notifications")}
+              onClick={() => navigate(getNotificationsRouteByRole(userRole))}
             >
               {t("notifications.actions.backToList", "Back to list")}
             </Button>
@@ -156,7 +159,7 @@ export default function NotificationViewPage() {
               loading={deleteMutation.isPending}
               onClick={async () => {
                 await deleteMutation.mutateAsync(notification.id);
-                navigate("/notifications");
+                navigate(getNotificationsRouteByRole(userRole));
               }}
             >
               {t("notifications.actions.delete", "Remove")}

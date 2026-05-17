@@ -22,6 +22,10 @@ import { useTheme } from "@/hooks/useTheme";
 import { useSidebarState } from "./sidebar/useSidebarState";
 import { useLanguagePreference } from "@/hooks/useLanguagePreference";
 import { extractAxiosError } from "@/utils/extractError";
+import {
+  getProfileRouteByRole,
+  getSettingsRouteByRole,
+} from "@/modules/auth/utils/roleRouting";
 
 export default function MISHeader() {
   const { t } = useTranslation();
@@ -65,6 +69,8 @@ export default function MISHeader() {
     ? userProfile.role.charAt(0).toUpperCase() +
       userProfile.role.slice(1).replace("_", " ")
     : "User";
+  const profileRoute = getProfileRouteByRole(userProfile?.role);
+  const settingsRoute = getSettingsRouteByRole(userProfile?.role);
 
   return (
     <header className="sticky top-0 z-30 border-b border-border/90 bg-[linear-gradient(135deg,rgba(249,226,231,0.97)_0%,rgba(230,235,250,0.96)_50%,rgba(219,242,236,0.95)_100%)] shadow-[0_14px_32px_-26px_rgba(15,23,42,0.75)] backdrop-blur dark:bg-[linear-gradient(135deg,rgba(7,14,27,0.995)_0%,rgba(11,24,44,0.985)_52%,rgba(16,38,66,0.97)_100%)]">
@@ -201,7 +207,7 @@ export default function MISHeader() {
                 </div>
                 <div className="py-1">
                   <Link
-                    to="/profile"
+                    to={profileRoute}
                     className="flex items-center gap-3 px-4 py-2 text-sm text-text-primary transition-colors hover:bg-surface"
                     onClick={() => setShowProfileMenu(false)}
                   >
@@ -209,7 +215,7 @@ export default function MISHeader() {
                     {t("auth.profile", "Profile")}
                   </Link>
                   <Link
-                    to="/settings"
+                    to={settingsRoute}
                     className="flex items-center gap-3 px-4 py-2 text-sm text-text-primary transition-colors hover:bg-surface"
                     onClick={() => setShowProfileMenu(false)}
                   >

@@ -1,6 +1,7 @@
 import apiClient from "@/lib/api";
 import type {
   BloodRequest,
+  BloodRequestListItem,
   BloodRequestNotification,
   BloodRequestPayload,
   PaginatedBloodRequestRecipients,
@@ -79,4 +80,24 @@ export const bloodRequestService = {
 
   getNotifications: (id: number) =>
     apiClient.get<BloodRequestNotification[]>(`/blood-requests/${id}/notifications/`),
+
+  getDonorResponses: () =>
+    apiClient.get<
+      {
+        request: BloodRequestListItem;
+        responses: Array<{
+          notification_id: number;
+          donor_id: number;
+          donor_name: string;
+          donor_phone: string;
+          channel: "in_app" | "sms" | "email";
+          delivery_status: "queued" | "sent" | "failed";
+          response_status: "pending" | "accepted" | "declined" | "expired";
+          responded_at: string | null;
+          distance_km: string;
+          donation_status: string | null;
+          donation_id: number | null;
+        }>;
+      }[]
+    >("/blood-requests/donor-responses/"),
 };

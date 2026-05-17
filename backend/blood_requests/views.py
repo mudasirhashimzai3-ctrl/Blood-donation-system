@@ -80,6 +80,8 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
         queryset = super().get_queryset()
         user = self.request.user
         role_name = normalize_role_name(getattr(user, "role_name", None))
+        if role_name == "admin":
+            return queryset
 
         if role_name == "recipient":
             recipient_profile = getattr(user, "recipient", None)
@@ -93,7 +95,7 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
                 return queryset.none()
             return queryset.filter(donations__donor=donor_profile).distinct()
 
-        return queryset
+        return queryset.none()
 
     def get_serializer_class(self):
         if self.action == "list":

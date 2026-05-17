@@ -1,9 +1,11 @@
 import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { PageHeader } from "@/components";
 import useCan from "@/hooks/useCan";
+import { useUserStore } from "@/modules/auth/stores/useUserStore";
+import { getDonationsRouteByRole } from "@/modules/auth/utils/roleRouting";
 import { formatLocalDateTime } from "@/utils/formatLocalDateTime";
 import { Badge, Button, Card, CardContent } from "@components/ui";
 import DonationActionsPanel from "../components/DonationActionsPanel";
@@ -15,7 +17,13 @@ import { useDonation } from "../queries/useDonationQueries";
 export default function DonationViewPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const { can } = useCan();
+  const userRole = useUserStore((state) => state.userProfile?.role);
+  const donationBasePath =
+    userRole === "donor" && location.pathname.includes("/donor/donation-history/")
+      ? getDonationsRouteByRole(userRole, { history: true })
+      : getDonationsRouteByRole(userRole);
   const { id } = useParams<{ id: string }>();
   const donationId = Number(id);
 
@@ -154,7 +162,7 @@ export default function DonationViewPage() {
             <Button
               variant="outline"
               leftIcon={<ArrowLeft className="h-4 w-4" />}
-              onClick={() => navigate("/donations")}
+              onClick={() => navigate(donationBasePath)}
             >
               {t("donations.actions.backToList", "Back to list")}
             </Button>

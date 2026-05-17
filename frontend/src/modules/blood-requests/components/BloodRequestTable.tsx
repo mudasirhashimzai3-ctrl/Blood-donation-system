@@ -18,6 +18,9 @@ interface BloodRequestTableProps {
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
   onRunAutoMatch: (id: number) => void;
+  canEdit?: boolean;
+  canDelete?: boolean;
+  canRunAutoMatch?: boolean;
 }
 
 function LoadingRows() {
@@ -52,6 +55,9 @@ export default function BloodRequestTable({
   onEdit,
   onDelete,
   onRunAutoMatch,
+  canEdit = true,
+  canDelete = true,
+  canRunAutoMatch = true,
 }: BloodRequestTableProps) {
   const { t } = useTranslation();
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
@@ -119,30 +125,36 @@ export default function BloodRequestTable({
                           >
                             <Eye className="h-4 w-4" />
                           </button>
-                          <button
-                            type="button"
-                            className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-primary/10 hover:text-primary"
-                            onClick={() => onEdit(bloodRequest.id)}
-                            title={t("bloodRequests.actions.edit", "Edit")}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </button>
-                          <button
-                            type="button"
-                            className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-warning/10 hover:text-warning"
-                            onClick={() => onRunAutoMatch(bloodRequest.id)}
-                            title={t("bloodRequests.actions.runAutoMatch", "Run Auto Match")}
-                          >
-                            <RefreshCcw className="h-4 w-4" />
-                          </button>
-                          <button
-                            type="button"
-                            className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-danger/10 hover:text-danger"
-                            onClick={() => onDelete(bloodRequest.id)}
-                            title={t("bloodRequests.actions.delete", "Delete")}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                          {canEdit ? (
+                            <button
+                              type="button"
+                              className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-primary/10 hover:text-primary"
+                              onClick={() => onEdit(bloodRequest.id)}
+                              title={t("bloodRequests.actions.edit", "Edit")}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </button>
+                          ) : null}
+                          {canRunAutoMatch ? (
+                            <button
+                              type="button"
+                              className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-warning/10 hover:text-warning"
+                              onClick={() => onRunAutoMatch(bloodRequest.id)}
+                              title={t("bloodRequests.actions.runAutoMatch", "Run Auto Match")}
+                            >
+                              <RefreshCcw className="h-4 w-4" />
+                            </button>
+                          ) : null}
+                          {canDelete ? (
+                            <button
+                              type="button"
+                              className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-danger/10 hover:text-danger"
+                              onClick={() => onDelete(bloodRequest.id)}
+                              title={t("bloodRequests.actions.delete", "Delete")}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          ) : null}
                         </div>
                       </td>
                     </tr>

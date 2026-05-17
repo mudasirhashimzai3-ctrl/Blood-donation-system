@@ -3,12 +3,16 @@ import { HeartPulse, X } from "lucide-react";
 import SidebarItem from "./SidebarItem";
 import SidebarToggle from "./SidebarToggle";
 import { useSidebarState } from "./useSidebarState";
-import { sidebarNavigationData } from "./sidebarData";
+import { getSidebarNavigationDataByRole } from "./sidebarData";
 import useCan from "@/hooks/useCan";
+import { useUserStore } from "@/modules/auth/stores/useUserStore";
+import { normalizePublicRole } from "@/modules/auth/utils/roleRouting";
 
 export function Sidebar() {
   const { isCollapsed, isMobileOpen, closeMobile } = useSidebarState();
   const { can } = useCan();
+  const role = useUserStore((state) => state.userProfile?.role);
+  const normalizedRole = normalizePublicRole(role);
 
   useEffect(() => {
     const handleResize = () => {
@@ -21,7 +25,7 @@ export function Sidebar() {
     return () => window.removeEventListener("resize", handleResize);
   }, [closeMobile]);
 
-  const navigationItems = sidebarNavigationData.filter((item) => {
+  const navigationItems = getSidebarNavigationDataByRole(normalizedRole).filter((item) => {
     if (item.path === "/notifications") {
       return can("notifications");
     }

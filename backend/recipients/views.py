@@ -38,12 +38,14 @@ class RecipientViewSet(PermissionMixin, viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         role_name = normalize_role_name(getattr(self.request.user, "role_name", None))
+        if role_name == "admin":
+            return queryset
         if role_name == "recipient":
             recipient = getattr(self.request.user, "recipient", None)
             if recipient is None:
                 return queryset.none()
             return queryset.filter(pk=recipient.pk)
-        return queryset
+        return queryset.none()
 
     def get_serializer_class(self):
         if self.action == "list":
