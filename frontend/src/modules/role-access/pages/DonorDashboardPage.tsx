@@ -1,4 +1,4 @@
-import { ArrowRight, Bell, Clock3, MapPin, Siren, UserCheck } from "lucide-react";
+import { ArrowRight, Bell, Clock3, MapPin } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
@@ -18,22 +18,16 @@ export default function DonorDashboardPage() {
         title={t("donor.dashboard.title", "Donor Dashboard")}
         subtitle={t(
           "donor.dashboard.subtitle",
-          "Track nearby requests and respond quickly to emergency donations"
+          "Track nearby requests and respond to donations"
         )}
       />
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         <DashboardCard
           title={t("donor.dashboard.nearby", "Nearby Requests")}
           value={data?.nearby_requests.length ?? 0}
           icon={MapPin}
           color="info"
-        />
-        <DashboardCard
-          title={t("donor.dashboard.emergency", "Emergency Requests")}
-          value={data?.emergency_requests.length ?? 0}
-          icon={Siren}
-          color="error"
         />
         <DashboardCard
           title={t("donor.dashboard.history", "Donation History")}
@@ -61,9 +55,6 @@ export default function DonorDashboardPage() {
           <div className="flex flex-wrap gap-2">
             <Button onClick={() => navigate("/donor/nearby-requests")}>
               {t("donor.dashboard.viewNearby", "View Nearby Requests")}
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/donor/emergency-requests")}>
-              {t("donor.dashboard.viewEmergency", "View Emergency Requests")}
             </Button>
             <Button variant="outline" onClick={() => navigate("/donor/donation-actions")}>
               {t("donor.dashboard.openActions", "Accept / Reject Donation")}
@@ -113,40 +104,6 @@ export default function DonorDashboardPage() {
                 >
                   {t("common.view", "View")}
                 </Button>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="space-y-2">
-          <h2 className="text-base font-semibold text-text-primary">
-            {t("donor.dashboard.emergencyPreview", "Emergency Requests Preview")}
-          </h2>
-          <p className="text-sm text-text-secondary">
-            {t(
-              "donor.dashboard.emergencyHint",
-              "Priority requests that need fast donor response"
-            )}
-          </p>
-
-          <div className="space-y-2">
-            {data?.emergency_requests.slice(0, 3).map((item) => (
-              <div key={item.id} className="rounded-lg border border-error/25 bg-error-soft p-3">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-sm font-semibold text-error">
-                    {item.hospital_name} - {item.blood_group}
-                  </p>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    leftIcon={<UserCheck className="h-4 w-4" />}
-                    onClick={() => navigate("/donor/donation-actions")}
-                  >
-                    {t("donor.dashboard.respond", "Respond")}
-                  </Button>
-                </div>
               </div>
             ))}
           </div>

@@ -96,25 +96,21 @@ class _DonorHomeScreenState extends State<_DonorHomeScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           final data = snapshot.data ?? {};
-          final nearby = (data['nearbyRequests'] as List?)?.cast<BloodRequestItem>() ?? const [];
-          final emergency = (data['emergencyRequests'] as List?)?.cast<BloodRequestItem>() ?? const [];
-          return RefreshIndicator(
-            onRefresh: () async {
-              setState(() => _future = DonorService(getIt()).getDashboard());
-            },
-            child: ListView(
-              padding: const EdgeInsets.all(14),
-              children: [
-                const Text('Nearby Blood Requests', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                ...nearby.take(3).map((e) => RequestCard(item: e)),
-                const SizedBox(height: 12),
-                const Text('Emergency Requests', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                ...emergency.take(3).map((e) => RequestCard(item: e)),
-                const SizedBox(height: 12),
-                Text('Notifications: ${data['unreadNotifications'] ?? 0} unread'),
-              ],
-            ),
-          );
+final nearby = (data['nearbyRequests'] as List?)?.cast<BloodRequestItem>() ?? const [];
+           return RefreshIndicator(
+             onRefresh: () async {
+               setState(() => _future = DonorService(getIt()).getDashboard());
+             },
+             child: ListView(
+               padding: const EdgeInsets.all(14),
+               children: [
+                 const Text('Nearby Blood Requests', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                 ...nearby.take(3).map((e) => RequestCard(item: e)),
+                 const SizedBox(height: 12),
+                 Text('Notifications: ${data['unreadNotifications'] ?? 0} unread'),
+               ],
+             ),
+           );
         },
       ),
       ),

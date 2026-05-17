@@ -1,4 +1,4 @@
-import { Bell, ClipboardList, PlusCircle, Siren } from "lucide-react";
+import { Bell, ClipboardList, PlusCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
@@ -19,22 +19,16 @@ export default function RecipientDashboardPage() {
         title={t("recipient.dashboard.title", "Recipient Dashboard")}
         subtitle={t(
           "recipient.dashboard.subtitle",
-          "Create requests, monitor emergency cases, and track donor responses"
+          "Create requests and track donor responses"
         )}
       />
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         <DashboardCard
           title={t("recipient.dashboard.active", "My Requests")}
           value={data?.active_requests.length ?? 0}
           icon={ClipboardList}
           color="primary"
-        />
-        <DashboardCard
-          title={t("recipient.dashboard.emergency", "Emergency Requests")}
-          value={data?.emergency_requests.length ?? 0}
-          icon={Siren}
-          color="error"
         />
         <DashboardCard
           title={t("recipient.dashboard.unread", "Unread Notifications")}
@@ -49,9 +43,6 @@ export default function RecipientDashboardPage() {
           <div className="flex flex-wrap gap-2">
             <Button leftIcon={<PlusCircle className="h-4 w-4" />} onClick={() => navigate("/recipient/create-request")}>
               {t("recipient.dashboard.createRequest", "Create Blood Request")}
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/recipient/emergency-request")}>
-              {t("recipient.dashboard.createEmergency", "Emergency Request")}
             </Button>
             <Button variant="outline" onClick={() => navigate("/recipient/donor-responses")}>
               {t("recipient.dashboard.responses", "Donor Responses")}

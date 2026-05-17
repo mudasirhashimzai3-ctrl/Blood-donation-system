@@ -29,13 +29,11 @@ import {
   DonorDashboardPage,
   DonorDonationActionsPage,
   DonorDonationHistoryPage,
-  DonorEmergencyRequestsPage,
   DonorNearbyRequestsPage,
   PersonalSettingsPage,
   RecipientCreateRequestPage,
   RecipientDashboardPage,
   RecipientDonorResponsesPage,
-  RecipientEmergencyRequestPage,
   RecipientMyRequestsPage,
 } from "@/modules/role-access";
 import { useUserStore } from "@/modules/auth/stores/useUserStore";
@@ -119,22 +117,21 @@ function AppRouterProvider() {
         { path: "profile", element: <UserProfile /> },
 
         // Donor dedicated routes
-        {
-          element: <RoleRoute allowedRoles={["donor"]} />,
-          children: [
-            { path: "donor/dashboard", element: <DonorDashboardPage /> },
-            { path: "donor/nearby-requests", element: <DonorNearbyRequestsPage /> },
-            { path: "donor/emergency-requests", element: <DonorEmergencyRequestsPage /> },
-            { path: "donor/donation-actions", element: <DonorDonationActionsPage /> },
-            { path: "donor/donation-history", element: <DonorDonationHistoryPage /> },
-            { path: "donor/donation-actions/:id", element: <DonationViewPage /> },
-            { path: "donor/donation-history/:id", element: <DonationViewPage /> },
-            { path: "donor/notifications", element: <NotificationListPage /> },
-            { path: "donor/notifications/:id", element: <NotificationViewPage /> },
-            { path: "donor/profile", element: <UserProfile /> },
-            { path: "donor/settings", element: <PersonalSettingsPage /> },
-          ],
-        },
+{
+           element: <RoleRoute allowedRoles={["donor"]} />,
+           children: [
+             { path: "donor/dashboard", element: <DonorDashboardPage /> },
+             { path: "donor/nearby-requests", element: <DonorNearbyRequestsPage /> },
+             { path: "donor/donation-actions", element: <DonorDonationActionsPage /> },
+             { path: "donor/donation-history", element: <DonorDonationHistoryPage /> },
+             { path: "donor/donation-actions/:id", element: <DonationViewPage /> },
+             { path: "donor/donation-history/:id", element: <DonationViewPage /> },
+             { path: "donor/notifications", element: <NotificationListPage /> },
+             { path: "donor/notifications/:id", element: <NotificationViewPage /> },
+             { path: "donor/profile", element: <UserProfile /> },
+             { path: "donor/settings", element: <PersonalSettingsPage /> },
+           ],
+         },
 
         // Recipient dedicated routes
         {
@@ -142,7 +139,6 @@ function AppRouterProvider() {
           children: [
             { path: "recipient/dashboard", element: <RecipientDashboardPage /> },
             { path: "recipient/create-request", element: <RecipientCreateRequestPage /> },
-            { path: "recipient/emergency-request", element: <RecipientEmergencyRequestPage /> },
             { path: "recipient/my-requests", element: <RecipientMyRequestsPage /> },
             { path: "recipient/my-requests/:id", element: <BloodRequestViewPage /> },
             { path: "recipient/my-requests/:id/edit", element: <BloodRequestEditPage /> },

@@ -14,9 +14,6 @@ import {
   Key,
   Eye,
   EyeOff,
-  Globe,
-  Palette,
-  Check,
 } from "lucide-react";
 
 import { PageHeader } from "@/components/index";
@@ -44,16 +41,8 @@ const profileUpdateSchema = z.object({
 
 type ProfileUpdateFormData = z.infer<typeof profileUpdateSchema>;
 
-// Preference schema
-const preferencesSchema = z.object({
-  language_preference: z.string(),
-  theme: z.enum(["light", "dark", "system"]),
-});
-
-type PreferencesFormData = z.infer<typeof preferencesSchema>;
-
 // Tab type
-type TabType = "personal" | "security" | "preferences";
+type TabType = "personal" | "security";
 
 export default function UserProfile() {
   const { t } = useTranslation();
@@ -97,19 +86,6 @@ export default function UserProfile() {
     resolver: zodResolver(changePasswordSchema),
   });
 
-  // Preferences form
-  const {
-    register: registerPreferences,
-    handleSubmit: handleSubmitPreferences,
-    formState: { errors: preferencesErrors, isDirty: isPreferencesDirty },
-  } = useForm<PreferencesFormData>({
-    resolver: zodResolver(preferencesSchema),
-    defaultValues: {
-      language_preference: userProfile?.preferences?.language || "en",
-      theme: userProfile?.preferences?.theme || "system",
-    },
-  });
-
   // Handle profile update
   const onUpdateProfile = async (data: ProfileUpdateFormData) => {
     try {
@@ -128,16 +104,6 @@ export default function UserProfile() {
       resetPassword();
     } catch (error) {
       toast.error(extractAxiosError(error, "Failed to change password"));
-    }
-  };
-
-  // Handle preferences update
-  const onUpdatePreferences = async (data: PreferencesFormData) => {
-    try {
-      await updateUserProfile(data);
-      toast.success(t("profile.preferencesUpdated", "Preferences updated successfully"));
-    } catch (error) {
-      toast.error(extractAxiosError(error, "Failed to update preferences"));
     }
   };
 
@@ -186,7 +152,6 @@ export default function UserProfile() {
   const tabs = [
     { id: "personal" as TabType, label: t("profile.personalInfo", "Personal Information"), icon: User },
     { id: "security" as TabType, label: t("profile.security", "Security"), icon: Shield },
-    { id: "preferences" as TabType, label: t("profile.preferences", "Preferences"), icon: Palette },
   ];
 
   // Get initials for avatar fallback
@@ -199,10 +164,10 @@ export default function UserProfile() {
   if (!userProfile) {
     return (
       <div className="space-y-6">
-        <PageHeader
-          title={t("profile.title", "My Profile")}
-          subtitle={t("profile.subtitle", "Manage your account settings and preferences")}
-        />
+<PageHeader
+         title={t("profile.title", "My Profile")}
+         subtitle={t("profile.subtitle", "Manage your account settings")}
+       />
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center gap-6">
@@ -460,79 +425,6 @@ export default function UserProfile() {
                 <div className="flex justify-end pt-4">
                   <Button type="submit" loading={loading}>
                     {t("auth.changePassword", "Change Password")}
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Preferences Tab */}
-        {activeTab === "preferences" && (
-          <Card>
-            <CardHeader
-              title={t("profile.preferences", "Preferences")}
-              subtitle={t("profile.preferencesSubtitle", "Customize your experience")}
-            />
-            <CardContent>
-              <form onSubmit={handleSubmitPreferences(onUpdatePreferences)} className="space-y-6 max-w-md">
-                {/* Language */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-text-primary flex items-center gap-2">
-                    <Globe className="h-4 w-4" />
-                    {t("profile.language", "Language")}
-                  </label>
-                  <select
-                    className="w-full px-3 py-2 border border-border rounded-lg bg-card text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50"
-                    {...registerPreferences("language_preference")}
-                  >
-                    <option value="en">English</option>
-                    <option value="fa">فارسی (Farsi)</option>
-                    <option value="ps">پښتو (Pashto)</option>
-                  </select>
-                  {preferencesErrors.language_preference?.message && (
-                    <p className="text-sm text-error">{preferencesErrors.language_preference.message}</p>
-                  )}
-                </div>
-
-                {/* Theme */}
-                <div className="space-y-3">
-                  <label className="text-sm font-medium text-text-primary flex items-center gap-2">
-                    <Palette className="h-4 w-4" />
-                    {t("profile.theme", "Theme")}
-                  </label>
-                  <div className="grid grid-cols-3 gap-3">
-                    {[
-                      { value: "light", label: t("profile.themeLight", "Light") },
-                      { value: "dark", label: t("profile.themeDark", "Dark") },
-                      { value: "system", label: t("profile.themeSystem", "System") },
-                    ].map((option) => (
-                      <label
-                        key={option.value}
-                        className={`flex items-center justify-center gap-2 px-4 py-3 border rounded-lg cursor-pointer transition-colors ${
-                          userProfile.preferences?.theme === option.value
-                            ? "border-primary bg-primary/10 text-primary"
-                            : "border-border hover:border-primary/50"
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          value={option.value}
-                          className="sr-only"
-                          {...registerPreferences("theme")}
-                        />
-                        <span className="text-sm font-medium">{option.label}</span>
-                        {userProfile.preferences?.theme === option.value && (
-                          <Check className="h-4 w-4" />
-                        )}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex justify-end pt-4">
-                  <Button type="submit" loading={loading} disabled={!isPreferencesDirty}>
-                    {t("common.save", "Save Changes")}
                   </Button>
                 </div>
               </form>

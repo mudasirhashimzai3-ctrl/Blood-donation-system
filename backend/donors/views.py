@@ -97,7 +97,6 @@ class DonorViewSet(PermissionMixin, viewsets.ModelViewSet):
             {
                 "profile": DonorDetailSerializer(donor, context={"request": request}).data,
                 "nearby_requests": request_payload,
-                "emergency_requests": [item for item in request_payload if item.get("is_emergency")],
                 "history_count": history_count,
                 "unread_notifications": unread_notifications,
             },

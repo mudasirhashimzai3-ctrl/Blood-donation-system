@@ -1,12 +1,11 @@
 import type { BloodRequestListItem } from "@/modules/blood-requests/types/bloodRequest.types";
 
 export interface DonorDashboardResponse {
-  profile: Record<string, unknown>;
-  nearby_requests: BloodRequestListItem[];
-  emergency_requests: BloodRequestListItem[];
-  history_count: number;
-  unread_notifications: number;
-}
+   profile: Record<string, unknown>;
+   nearby_requests: BloodRequestListItem[];
+   history_count: number;
+   unread_notifications: number;
+ }
 
 export interface RecipientDashboardResponse {
   profile: Record<string, unknown>;

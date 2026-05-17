@@ -71,7 +71,7 @@ export default function BloodRequestListPage() {
           "Manage blood request workflow from pending to completion"
         )}
         actions={
-          userRole === "donor"
+          userRole === "donor" || userRole === "recipient"
             ? []
             : [
                 {

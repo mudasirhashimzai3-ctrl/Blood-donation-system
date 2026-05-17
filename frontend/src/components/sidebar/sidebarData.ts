@@ -9,7 +9,6 @@ import {
   LayoutDashboard,
   MapPin,
   Settings,
-  Siren,
   User,
   UserCheck,
   Users,
@@ -45,20 +44,18 @@ const adminSidebarNavigationData: SidebarItemData[] = [
 ];
 
 const donorSidebarNavigationData: SidebarItemData[] = [
-  { path: "/donor/dashboard", label: "Donor Dashboard", icon: LayoutDashboard },
-  { path: "/donor/nearby-requests", label: "Nearby Requests", icon: MapPin },
-  { path: "/donor/emergency-requests", label: "Emergency Requests", icon: Siren },
-  { path: "/donor/donation-actions", label: "Accept / Reject Donation", icon: UserCheck },
-  { path: "/donor/donation-history", label: "Donation History", icon: HandHeart },
-  { path: "/donor/notifications", label: "Notifications", icon: Bell },
-  { path: "/donor/profile", label: "Profile", icon: User },
-  { path: "/donor/settings", label: "Settings", icon: Settings },
-];
+   { path: "/donor/dashboard", label: "Donor Dashboard", icon: LayoutDashboard },
+   { path: "/donor/nearby-requests", label: "Nearby Requests", icon: MapPin },
+   { path: "/donor/donation-actions", label: "Accept / Reject Donation", icon: UserCheck },
+   { path: "/donor/donation-history", label: "Donation History", icon: HandHeart },
+   { path: "/donor/notifications", label: "Notifications", icon: Bell },
+   { path: "/donor/profile", label: "Profile", icon: User },
+   { path: "/donor/settings", label: "Settings", icon: Settings },
+ ];
 
 const recipientSidebarNavigationData: SidebarItemData[] = [
   { path: "/recipient/dashboard", label: "Recipient Dashboard", icon: LayoutDashboard },
   { path: "/recipient/create-request", label: "Create Blood Request", icon: Droplets },
-  { path: "/recipient/emergency-request", label: "Emergency Request", icon: Siren },
   { path: "/recipient/my-requests", label: "My Requests", icon: ClipboardCheck },
   { path: "/recipient/donor-responses", label: "Donor Responses", icon: Users },
   { path: "/recipient/notifications", label: "Notifications", icon: Bell },
