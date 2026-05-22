@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from core.services.settings_service import get_runtime_section_payload
+from donations.models import Donation
 from donors.models import Donor
 
 from ..models import BloodRequest, BloodRequestNotification
@@ -41,6 +42,15 @@ def get_max_match_radius_km() -> Decimal:
         return value
     except Exception:
         return default_value
+
+
+def get_max_candidates_to_notify(default: int = 50) -> int:
+    try:
+        payload = get_runtime_section_payload("auto_matching")
+        value = int(payload.get("max_candidates_to_notify", default))
+        return value if value > 0 else default
+    except Exception:
+        return default
 
 
 def haversine_distance_km(lat1: Decimal, lon1: Decimal, lat2: Decimal, lon2: Decimal) -> Decimal:
@@ -178,6 +188,45 @@ def auto_match_blood_request(blood_request: BloodRequest, *, max_notifications: 
     )
 
     return created_or_updated
+
+
+def auto_assign_primary_candidate(blood_request: BloodRequest):
+    if blood_request.status != "pending":
+        return None
+
+    primary_candidate = (
+        Donation.objects.filter(
+            request=blood_request,
+            deleted_at__isnull=True,
+            status="pending",
+        )
+        .select_related("donor")
+        .order_by("distance_km", "created_at")
+        .first()
+    )
+    if not primary_candidate:
+        if blood_request.assigned_donor_id is not None:
+            blood_request.assigned_donor = None
+            blood_request.save(update_fields=["assigned_donor", "updated_at"])
+        return None
+
+    now = timezone.now()
+    Donation.objects.filter(
+        request=blood_request,
+        deleted_at__isnull=True,
+        is_primary=True,
+        status__in=Donation.PRIMARY_ACTIVE_STATUSES,
+    ).exclude(pk=primary_candidate.pk).update(is_primary=False, updated_at=now)
+
+    if not primary_candidate.is_primary:
+        primary_candidate.is_primary = True
+        primary_candidate.save(update_fields=["is_primary", "updated_at"])
+
+    if blood_request.assigned_donor_id != primary_candidate.donor_id:
+        blood_request.assigned_donor = primary_candidate.donor
+        blood_request.save(update_fields=["assigned_donor", "updated_at"])
+
+    return primary_candidate.donor
 
 
 def _notify_matched_donor_users(*, blood_request: BloodRequest, selected_candidates):

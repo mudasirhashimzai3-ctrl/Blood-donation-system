@@ -1,6 +1,8 @@
 import "./styles/recipientTheme.css";
 
 export { default as RecipientListPage } from "./pages/RecipientListPage";
+export { default as RecipientCreatePage } from "./pages/RecipientCreatePage";
+export { default as RecipientEditPage } from "./pages/RecipientEditPage";
 export { default as RecipientViewPage } from "./pages/RecipientViewPage";
 
 export { default as RecipientTable } from "./components/RecipientTable";

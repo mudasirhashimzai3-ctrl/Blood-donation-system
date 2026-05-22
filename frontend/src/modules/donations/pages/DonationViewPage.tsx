@@ -178,6 +178,9 @@ export default function DonationViewPage() {
         onSendReminder={async (channels) => {
           await actions.sendReminder({ channels });
         }}
+        onComplete={async () => {
+          await actions.complete();
+        }}
         onRespond={async (payload) => {
           await actions.respond(payload);
         }}
@@ -187,6 +190,7 @@ export default function DonationViewPage() {
           estimate: actions.isRefreshingEstimate,
           reminder: actions.isSendingReminder,
           respond: actions.isResponding,
+          complete: actions.isCompleting,
         }}
       />
 

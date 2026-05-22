@@ -122,7 +122,7 @@ def replace_permission_matrix(rows: list[dict]) -> None:
 
 DEFAULT_ROLE_PERMISSION_ACTIONS = {
     "donor": {
-        "donors": {"view"},
+        "donors": {"view", "change"},
         "blood_requests": {"view"},
         "donations": {"view", "add", "change"},
         "notifications": {"view", "add", "change"},

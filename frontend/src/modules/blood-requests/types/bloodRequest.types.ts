@@ -91,6 +91,7 @@ export type BloodRequestListItem = Pick<
 >;
 
 export interface BloodRequestPayload {
+  recipient?: number;
   hospital: number;
   blood_group: BloodGroup;
   units_needed: number;

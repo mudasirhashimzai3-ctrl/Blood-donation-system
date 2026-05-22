@@ -153,7 +153,8 @@ def sync_donations_for_matches(*, blood_request, selected_candidates):
                 is_primary=True,
             ).exclude(pk=primary.pk).update(is_primary=False, updated_at=now)
             primary.is_primary = True
-            if primary.status == "pending":
+            # Only auto-accept once the request itself is matched/completed.
+            if primary.status == "pending" and blood_request.status in {"matched", "completed"}:
                 primary.status = "accepted"
                 primary.responded_at = now
                 primary.response_time = _compute_response_time_minutes(primary.notified_at, now)

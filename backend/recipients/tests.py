@@ -26,6 +26,8 @@ class RecipientApiTests(APITestCase):
 
         RolePermission.objects.get_or_create(role_name="admin", permission=cls.permissions["view"])
         RolePermission.objects.get_or_create(role_name="admin", permission=cls.permissions["change"])
+        RolePermission.objects.get_or_create(role_name="recipient", permission=cls.permissions["view"])
+        RolePermission.objects.get_or_create(role_name="recipient", permission=cls.permissions["change"])
 
     def setUp(self):
         self.admin_user = User.objects.create_user(
@@ -48,7 +50,7 @@ class RecipientApiTests(APITestCase):
         defaults.update(kwargs)
         return Hospital.objects.create(**defaults)
 
-    def test_create_recipient_endpoint_is_disabled(self):
+    def test_admin_can_create_recipient(self):
         hospital = self._create_hospital()
         payload = {
             "full_name": "Ahmad Khan",
@@ -57,7 +59,7 @@ class RecipientApiTests(APITestCase):
             "hospital": hospital.id,
         }
         response = self.client.post(self.base_url, payload, format="json")
-        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_list_supports_filters_ordering_and_pagination(self):
         kabul_hospital = self._create_hospital(name="Kabul Hospital", city="Kabul")
@@ -125,7 +127,7 @@ class RecipientApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsNone(response.data["hospital_name"])
 
-    def test_delete_recipient_endpoint_is_disabled(self):
+    def test_admin_can_delete_recipient(self):
         hospital = self._create_hospital()
         recipient = Recipient.objects.create(
             full_name="Delete Recipient",
@@ -135,5 +137,44 @@ class RecipientApiTests(APITestCase):
             emergency_level="normal",
         )
         delete_response = self.client.delete(f"{self.base_url}{recipient.id}/")
-        self.assertEqual(delete_response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(delete_response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_recipient_can_update_own_profile_only(self):
+        recipient_user = User.objects.create_user(
+            username="recipient_self",
+            password="StrongPass123!",
+            role_name="recipient",
+            phone="0700000100",
+        )
+        own_hospital = self._create_hospital(name="Own Hospital", phone="0700100020")
+        own = Recipient.objects.create(
+            user=recipient_user,
+            full_name="Self Recipient",
+            phone="0700000100",
+            required_blood_group="A+",
+            hospital=own_hospital,
+            emergency_level="normal",
+        )
+        other = Recipient.objects.create(
+            full_name="Other Recipient",
+            phone="0700000101",
+            required_blood_group="B+",
+            hospital=own_hospital,
+            emergency_level="normal",
+        )
+
+        self.client.force_authenticate(user=recipient_user)
+        own_update = self.client.patch(
+            f"{self.base_url}{own.id}/",
+            {"emergency_level": "critical"},
+            format="json",
+        )
+        self.assertEqual(own_update.status_code, status.HTTP_200_OK)
+
+        other_update = self.client.patch(
+            f"{self.base_url}{other.id}/",
+            {"emergency_level": "critical"},
+            format="json",
+        )
+        self.assertEqual(other_update.status_code, status.HTTP_404_NOT_FOUND)
 

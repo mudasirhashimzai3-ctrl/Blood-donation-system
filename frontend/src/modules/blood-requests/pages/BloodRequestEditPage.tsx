@@ -21,6 +21,7 @@ export default function BloodRequestEditPage() {
   const navigate = useNavigate();
   const { can } = useCan();
   const userRole = useUserStore((state) => state.userProfile?.role);
+  const isRecipient = userRole === "recipient";
   const { id } = useParams<{ id: string }>();
   const bloodRequestId = Number(id);
   const form = useBloodRequestForm();
@@ -100,6 +101,7 @@ export default function BloodRequestEditPage() {
             medicalReportUrl={bloodRequest.medical_report_url}
             prescriptionImageUrl={bloodRequest.prescription_image_url}
             emergencyProofUrl={bloodRequest.emergency_proof_url}
+            recipientMode={isRecipient}
           />
         </CardContent>
       </Card>

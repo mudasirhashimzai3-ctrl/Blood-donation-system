@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import BloodRequestForm from "@/modules/blood-requests/components/BloodRequestForm";
 import { useBloodRequestForm } from "@/modules/blood-requests/hooks/useBloodRequestForm";
 
-const { useHospitalsListMock, useAllHospitalsListMock } = vi.hoisted(() => ({
+const { useHospitalsListMock, useRecipientsListMock } = vi.hoisted(() => ({
   useHospitalsListMock: vi.fn((params?: { province?: string }) => {
     if (params?.province === "Kabul") {
       return {
@@ -22,19 +22,13 @@ const { useHospitalsListMock, useAllHospitalsListMock } = vi.hoisted(() => ({
     }
     return { data: { results: [] } };
   }),
-  useAllHospitalsListMock: vi.fn(() => ({
-    data: [
-      { id: 1, name: "Kabul Central Hospital", province: "Kabul" },
-      { id: 2, name: "Herat Regional Hospital", province: "Herat" },
-    ],
-  })),
+  useRecipientsListMock: vi.fn(() => ({ data: { results: [] } })),
 }));
 
 vi.mock("@/modules/hospitals", () => ({
   AFGHANISTAN_PROVINCES: ["Kabul", "Herat"],
   useHospital: vi.fn(() => ({ data: undefined })),
   useHospitalsList: useHospitalsListMock,
-  useAllHospitalsList: useAllHospitalsListMock,
   HospitalQuickCreateModal: ({
     isOpen,
     province,
@@ -68,6 +62,10 @@ vi.mock("@/modules/hospitals", () => ({
     ) : null,
 }));
 
+vi.mock("@/modules/blood-requests/queries/useBloodRequestQueries", () => ({
+  useBloodRequestRecipientsList: useRecipientsListMock,
+}));
+
 function BloodRequestFormHarness({ recipientMode = false }: { recipientMode?: boolean }) {
   const form = useBloodRequestForm();
   return (
@@ -99,24 +97,21 @@ describe("BloodRequestForm", () => {
     const provinceSelect = screen.getByLabelText(/Province/i);
     const hospitalSelect = screen.getByLabelText(/Hospital/i) as HTMLSelectElement;
 
-    expect(screen.getByRole("option", { name: "Kabul Central Hospital (Kabul)" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Herat Regional Hospital (Herat)" })).toBeInTheDocument();
-
     fireEvent.change(provinceSelect, { target: { value: "Kabul" } });
-    expect(screen.getByRole("option", { name: "Kabul Central Hospital (Kabul)" })).toBeInTheDocument();
-    expect(screen.queryByRole("option", { name: "Herat Regional Hospital (Herat)" })).not.toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Kabul Central Hospital" })).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "Herat Regional Hospital" })).not.toBeInTheDocument();
 
     fireEvent.change(hospitalSelect, { target: { value: "1" } });
     expect(hospitalSelect.value).toBe("1");
 
     fireEvent.change(provinceSelect, { target: { value: "Herat" } });
     expect(hospitalSelect.value).toBe("");
-    expect(screen.queryByRole("option", { name: "Kabul Central Hospital (Kabul)" })).not.toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Herat Regional Hospital (Herat)" })).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "Kabul Central Hospital" })).not.toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Herat Regional Hospital" })).toBeInTheDocument();
 
     fireEvent.change(provinceSelect, { target: { value: "" } });
-    expect(screen.getByRole("option", { name: "Kabul Central Hospital (Kabul)" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Herat Regional Hospital (Herat)" })).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "Kabul Central Hospital" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "Herat Regional Hospital" })).not.toBeInTheDocument();
   });
 
   it("hides advanced fields in recipient mode", () => {
@@ -139,7 +134,7 @@ describe("BloodRequestForm", () => {
     fireEvent.click(screen.getByRole("button", { name: /Add Hospital/i }));
     fireEvent.click(screen.getByRole("button", { name: /Mock Create Hospital/i }));
 
-    expect(screen.getByRole("option", { name: "Kabul New Hospital (Kabul)" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Kabul New Hospital" })).toBeInTheDocument();
     expect(hospitalSelect.value).toBe("999");
   });
 });

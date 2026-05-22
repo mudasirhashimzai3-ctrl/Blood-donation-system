@@ -12,14 +12,7 @@ export const donationStatusUpdateSchema = z
     status: z.enum(DONATION_STATUS_OPTIONS),
     notes: z.string().optional().nullable(),
     cancellation_reason: z.string().optional().nullable(),
-  })
-  .refine(
-    (value) => value.status !== "cancelled" || !!(value.cancellation_reason && value.cancellation_reason.trim()),
-    {
-      message: "Cancellation reason is required for cancelled status",
-      path: ["cancellation_reason"],
-    }
-  );
+  });
 
 export const donationReminderSchema = z.object({
   channels: z.array(z.enum(DONATION_REMINDER_CHANNELS)).optional(),

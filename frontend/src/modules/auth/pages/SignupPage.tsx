@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Eye, EyeOff, UserPlus } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, MapPin, UserPlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import AuthShell from "../components/AuthShell";
@@ -10,7 +10,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import { useSignup } from "@/modules/auth/api/useAuthMutations";
-import { signupSchema, type SignupInput } from "@/modules/auth/schemas/authSchemas";
+import { signupSchema, type SignupFormInput, type SignupInput } from "@/modules/auth/schemas/authSchemas";
 
 const isValidSignupRole = (
   role: string | null
@@ -23,6 +23,8 @@ export default function SignupPage() {
   const signupMutation = useSignup();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   const requestedRole = searchParams.get("role");
   const preselectedRole: SignupInput["role"] = isValidSignupRole(requestedRole)
@@ -30,7 +32,7 @@ export default function SignupPage() {
     : "donor";
   const fixedRoleLabel = preselectedRole === "donor" ? "Donor" : "Recipient";
 
-  const form = useForm<SignupInput>({
+  const form = useForm<SignupFormInput>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
       first_name: "",
@@ -49,9 +51,9 @@ export default function SignupPage() {
     form.setValue("role", preselectedRole, { shouldDirty: false });
   }, [form, preselectedRole]);
 
-  const onSubmit = async (values: SignupInput) => {
+  const onSubmit = async (values: SignupFormInput) => {
     try {
-      await signupMutation.mutateAsync(values);
+      await signupMutation.mutateAsync(values as SignupInput);
       navigate("/auth/login", { replace: true });
     } catch {
       // Mutation handles toasts and errors.
@@ -61,8 +63,37 @@ export default function SignupPage() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = form;
+
+  const handleRegisterLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError(t("auth.locationNotSupported", "Geolocation is not supported in this browser."));
+      return;
+    }
+
+    setIsLocating(true);
+    setLocationError(null);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setValue("donor_latitude", Number(position.coords.latitude.toFixed(6)), {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+        setValue("donor_longitude", Number(position.coords.longitude.toFixed(6)), {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+        setIsLocating(false);
+      },
+      () => {
+        setLocationError(t("auth.locationFailed", "Unable to register your location right now."));
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
 
   return (
     <AuthShell
@@ -114,21 +145,47 @@ export default function SignupPage() {
         />
 
         {preselectedRole === "donor" ? (
-          <Select
-            label={t("auth.bloodGroup", "Blood Group")}
-            error={errors.donor_blood_group?.message}
-            options={[
-              { value: "A+", label: "A+" },
-              { value: "A-", label: "A-" },
-              { value: "B+", label: "B+" },
-              { value: "B-", label: "B-" },
-              { value: "AB+", label: "AB+" },
-              { value: "AB-", label: "AB-" },
-              { value: "O+", label: "O+" },
-              { value: "O-", label: "O-" },
-            ]}
-            {...register("donor_blood_group")}
-          />
+          <>
+            <Select
+              label={t("auth.bloodGroup", "Blood Group")}
+              error={errors.donor_blood_group?.message}
+              options={[
+                { value: "A+", label: "A+" },
+                { value: "A-", label: "A-" },
+                { value: "B+", label: "B+" },
+                { value: "B-", label: "B-" },
+                { value: "AB+", label: "AB+" },
+                { value: "AB-", label: "AB-" },
+                { value: "O+", label: "O+" },
+                { value: "O-", label: "O-" },
+              ]}
+              {...register("donor_blood_group")}
+            />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Input
+                label={t("auth.donorLatitude", "Latitude")}
+                placeholder={t("auth.donorLatitudePlaceholder", "Enter latitude")}
+                error={errors.donor_latitude?.message}
+                {...register("donor_latitude")}
+              />
+              <Input
+                label={t("auth.donorLongitude", "Longitude")}
+                placeholder={t("auth.donorLongitudePlaceholder", "Enter longitude")}
+                error={errors.donor_longitude?.message}
+                {...register("donor_longitude")}
+              />
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              leftIcon={<MapPin className="h-4 w-4" />}
+              loading={isLocating}
+              onClick={handleRegisterLocation}
+            >
+              {t("auth.registerLocation", "Register Location")}
+            </Button>
+            {locationError ? <p className="text-sm text-error">{locationError}</p> : null}
+          </>
         ) : null}
 
         <Input

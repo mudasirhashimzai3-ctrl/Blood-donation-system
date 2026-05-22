@@ -162,8 +162,10 @@ class BloodRequestApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         request_id = response.data["id"]
+        self.client.post(f"{self.base_url}{request_id}/run-auto-match/", {}, format="json")
         obj = BloodRequest.objects.get(pk=request_id)
         self.assertEqual(obj.status, "pending")
+        self.assertTrue(obj.is_verified)
         self.assertTrue(obj.is_emergency)
         self.assertEqual(obj.estimated_time_to_fulfill, 60)
         self.assertIsNotNone(obj.response_deadline)
@@ -220,7 +222,7 @@ class BloodRequestApiTests(APITestCase):
         self.assertEqual(obj.nearby_donors_count, 0)
         self.assertEqual(obj.total_notified_donors, 0)
 
-    def test_recipient_without_profile_cannot_create_request(self):
+    def test_recipient_without_profile_is_auto_provisioned_and_can_create_request(self):
         orphan_user = User.objects.create_user(
             username="recipient-no-profile",
             password="StrongPass123!",
@@ -228,7 +230,8 @@ class BloodRequestApiTests(APITestCase):
         )
         self.client.force_authenticate(user=orphan_user)
         response = self.client.post(self.base_url, self._create_payload(), format="multipart")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(Recipient.objects.filter(user=orphan_user, deleted_at__isnull=True).exists())
 
     def test_non_recipient_without_recipient_profile_cannot_create(self):
         self.client.force_authenticate(user=self.donor_creator)
@@ -245,7 +248,7 @@ class BloodRequestApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("detail", response.data)
 
-    def test_non_recipient_cannot_create_for_selected_recipient(self):
+    def test_admin_can_create_for_selected_recipient(self):
         self.client.force_authenticate(user=self.admin)
         response = self.client.post(
             self.base_url,
@@ -258,8 +261,9 @@ class BloodRequestApiTests(APITestCase):
             },
             format="json",
         )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("detail", response.data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        created = BloodRequest.objects.get(pk=response.data["id"])
+        self.assertEqual(created.recipient_id, self.recipient.id)
 
     def test_recipients_lookup_endpoint_supports_search(self):
         self.client.force_authenticate(user=self.admin)
@@ -374,6 +378,8 @@ class BloodRequestApiTests(APITestCase):
         )
         self.assertEqual(verify_response.status_code, status.HTTP_200_OK)
         self.assertTrue(verify_response.data["is_verified"])
+
+        self.client.post(f"{self.base_url}{request_id}/run-auto-match/", {}, format="json")
 
         notifications_response = self.client.get(f"{self.base_url}{request_id}/notifications/")
         self.assertEqual(notifications_response.status_code, status.HTTP_200_OK)

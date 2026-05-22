@@ -44,7 +44,7 @@ class DonorViewSet(PermissionMixin, viewsets.ModelViewSet):
             return DonorListSerializer
         return DonorDetailSerializer
 
-    @action(detail=False, methods=["get"], url_path="me")
+    @action(detail=False, methods=["get", "patch"], url_path="me")
     def me(self, request):
         donor = getattr(request.user, "donor", None)
         if donor is None:
@@ -52,6 +52,16 @@ class DonorViewSet(PermissionMixin, viewsets.ModelViewSet):
                 {"detail": "Donor profile is not configured for this account."},
                 status=status.HTTP_404_NOT_FOUND,
             )
+        if request.method.lower() == "patch":
+            serializer = DonorDetailSerializer(
+                donor,
+                data=request.data,
+                partial=True,
+                context={"request": request},
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
         serializer = DonorDetailSerializer(donor, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 

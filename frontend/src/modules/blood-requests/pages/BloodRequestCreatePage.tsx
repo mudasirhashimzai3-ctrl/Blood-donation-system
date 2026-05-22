@@ -26,6 +26,7 @@ export default function BloodRequestCreatePage() {
   const form = useBloodRequestForm();
   const createMutation = useCreateBloodRequest();
   const isRecipient = userRole === "recipient";
+  const isAdmin = userRole === "admin";
   const isEmergencyRoute = location.pathname.includes("/recipient/emergency-request");
 
   useEffect(() => {
@@ -68,6 +69,7 @@ export default function BloodRequestCreatePage() {
             submitLabel={t("bloodRequests.actions.save", "Save Request")}
             loading={createMutation.isPending}
             recipientMode={isRecipient}
+            adminMode={isAdmin}
           />
         </CardContent>
       </Card>

@@ -2,8 +2,6 @@ import {
   ArrowLeft,
   CheckCircle2,
   Pencil,
-  RefreshCcw,
-  ShieldCheck,
   Trash2,
   UserCheck,
   XCircle,
@@ -24,7 +22,6 @@ import BloodRequestTypeBadge from "../components/BloodRequestTypeBadge";
 import CancelBloodRequestDialog from "../components/CancelBloodRequestDialog";
 import CompleteBloodRequestDialog from "../components/CompleteBloodRequestDialog";
 import DonorCandidatesPanel from "../components/DonorCandidatesPanel";
-import VerifyBloodRequestDialog from "../components/VerifyBloodRequestDialog";
 import {
   useAssignDonor,
   useBloodRequest,
@@ -32,8 +29,6 @@ import {
   useCancelBloodRequest,
   useCompleteBloodRequest,
   useDeleteBloodRequest,
-  useRunAutoMatch,
-  useVerifyBloodRequest,
 } from "../queries/useBloodRequestQueries";
 
 export default function BloodRequestViewPage() {
@@ -47,7 +42,6 @@ export default function BloodRequestViewPage() {
   const [isAssignOpen, setIsAssignOpen] = useState(false);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
   const [isCompleteOpen, setIsCompleteOpen] = useState(false);
-  const [isVerifyOpen, setIsVerifyOpen] = useState(false);
 
   const { data: bloodRequest, isLoading, error } = useBloodRequest(bloodRequestId, {
     enabled: Number.isFinite(bloodRequestId),
@@ -57,11 +51,9 @@ export default function BloodRequestViewPage() {
   });
 
   const deleteMutation = useDeleteBloodRequest();
-  const runAutoMatchMutation = useRunAutoMatch(bloodRequestId);
   const assignMutation = useAssignDonor(bloodRequestId);
   const completeMutation = useCompleteBloodRequest(bloodRequestId);
   const cancelMutation = useCancelBloodRequest(bloodRequestId);
-  const verifyMutation = useVerifyBloodRequest(bloodRequestId);
 
   if (!can("blood_requests")) {
     return (
@@ -226,14 +218,6 @@ export default function BloodRequestViewPage() {
 
             {!isRecipientUser && bloodRequest.status === "pending" ? (
               <>
-                <Button
-                  variant="outline"
-                  loading={runAutoMatchMutation.isPending}
-                  onClick={async () => runAutoMatchMutation.mutateAsync(undefined)}
-                  leftIcon={<RefreshCcw className="h-4 w-4" />}
-                >
-                  {t("bloodRequests.actions.runAutoMatch", "Run Auto Match")}
-                </Button>
                 <Button variant="primary" onClick={() => setIsAssignOpen(true)} leftIcon={<UserCheck className="h-4 w-4" />}>
                   {t("bloodRequests.actions.assignDonor", "Assign Donor")}
                 </Button>
@@ -248,13 +232,6 @@ export default function BloodRequestViewPage() {
 
             {!isTerminal ? (
               <>
-                {!isRecipientUser ? (
-                  <Button variant="outline" onClick={() => setIsVerifyOpen(true)} leftIcon={<ShieldCheck className="h-4 w-4" />}>
-                    {bloodRequest.is_verified
-                      ? t("bloodRequests.actions.unverify", "Unverify")
-                      : t("bloodRequests.actions.verify", "Verify")}
-                  </Button>
-                ) : null}
                 <Button variant="danger" onClick={() => setIsCancelOpen(true)} leftIcon={<XCircle className="h-4 w-4" />}>
                   {t("bloodRequests.actions.cancelRequest", "Cancel Request")}
                 </Button>
@@ -318,16 +295,6 @@ export default function BloodRequestViewPage() {
           await completeMutation.mutateAsync();
         }}
         loading={completeMutation.isPending}
-      />
-
-      <VerifyBloodRequestDialog
-        isOpen={isVerifyOpen}
-        onClose={() => setIsVerifyOpen(false)}
-        isVerified={bloodRequest.is_verified}
-        onConfirm={async () => {
-          await verifyMutation.mutateAsync(!bloodRequest.is_verified);
-        }}
-        loading={verifyMutation.isPending}
       />
     </div>
   );

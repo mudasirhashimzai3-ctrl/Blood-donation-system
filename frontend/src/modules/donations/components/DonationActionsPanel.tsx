@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Button, Card, CardContent, Input, Select, Switch, Textarea } from "@components/ui";
+import { Button, Card, CardContent, Select, Switch, Textarea } from "@components/ui";
 import {
   DONATION_STATUS_OPTIONS,
   type Donation,
@@ -22,6 +22,7 @@ interface DonationActionsPanelProps {
   onSetPrimary: (value: boolean) => Promise<unknown>;
   onRefreshEstimate: () => Promise<unknown>;
   onSendReminder: (channels: DonationReminderChannel[]) => Promise<unknown>;
+  onComplete: () => Promise<unknown>;
   onRespond?: (payload: DonationRespondPayload) => Promise<unknown>;
   loadingStates?: {
     status?: boolean;
@@ -29,6 +30,7 @@ interface DonationActionsPanelProps {
     estimate?: boolean;
     reminder?: boolean;
     respond?: boolean;
+    complete?: boolean;
   };
 }
 
@@ -38,6 +40,7 @@ export default function DonationActionsPanel({
   onSetPrimary,
   onRefreshEstimate,
   onSendReminder,
+  onComplete,
   onRespond,
   loadingStates,
 }: DonationActionsPanelProps) {
@@ -45,11 +48,10 @@ export default function DonationActionsPanel({
   const userRole = useUserStore((state) => state.userProfile?.role);
   const [status, setStatus] = useState<DonationStatus>(donation.status);
   const [notes, setNotes] = useState(donation.notes ?? "");
-  const [cancellationReason, setCancellationReason] = useState(donation.cancellation_reason ?? "");
   const [isReminderOpen, setIsReminderOpen] = useState(false);
 
   const isTerminal = useMemo(
-    () => ["completed", "cancelled", "declined", "expired"].includes(donation.status),
+    () => ["completed", "expired"].includes(donation.status),
     [donation.status]
   );
   const isDonorUser = userRole === "donor";
@@ -90,13 +92,6 @@ export default function DonationActionsPanel({
                 rows={3}
               />
 
-              {status === "cancelled" ? (
-                <Input
-                  value={cancellationReason}
-                  onChange={(event) => setCancellationReason(event.target.value)}
-                  label={t("donations.actions.cancellationReason", "Cancellation Reason")}
-                />
-              ) : null}
             </>
           ) : null}
 
@@ -136,7 +131,7 @@ export default function DonationActionsPanel({
                     await onStatusUpdate({
                       status,
                       notes,
-                      cancellation_reason: status === "cancelled" ? cancellationReason : null,
+                      cancellation_reason: null,
                     });
                   }}
                 >
@@ -158,6 +153,16 @@ export default function DonationActionsPanel({
                   onClick={() => setIsReminderOpen(true)}
                 >
                   {t("donations.actions.sendReminder", "Send Reminder")}
+                </Button>
+                <Button
+                  variant="primary"
+                  loading={loadingStates?.complete}
+                  disabled={isTerminal}
+                  onClick={async () => {
+                    await onComplete();
+                  }}
+                >
+                  {t("donations.actions.markCompleted", "Mark as Completed")}
                 </Button>
               </>
             )}

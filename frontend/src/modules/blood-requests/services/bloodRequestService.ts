@@ -21,6 +21,7 @@ const appendField = (formData: FormData, key: string, value: unknown) => {
 export const buildBloodRequestFormData = (payload: Partial<BloodRequestPayload>) => {
   const formData = new FormData();
 
+  appendField(formData, "recipient", payload.recipient);
   appendField(formData, "hospital", payload.hospital);
   appendField(formData, "blood_group", payload.blood_group);
   appendField(formData, "units_needed", payload.units_needed);

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
@@ -14,6 +14,7 @@ import {
   Key,
   Eye,
   EyeOff,
+  MapPin,
 } from "lucide-react";
 
 import { PageHeader } from "@/components/index";
@@ -24,9 +25,12 @@ import {
   Button,
   Badge,
   Skeleton,
+  Select,
 } from "@/components/ui";
 import Input from "@/components/ui/Input";
 import { useUserStore } from "@/modules/auth/stores/useUserStore";
+import apiClient from "@/lib/api";
+import { AFGHANISTAN_PROVINCES, type Province, useHospital, useHospitalsList } from "@/modules/hospitals";
 import { changePasswordSchema } from "@/schemas/loginPageValidation";
 import type { ChangePasswordFormInputs } from "@/schemas/loginPageValidation";
 import { getRoleNameDisplay } from "@/data/roles";
@@ -44,6 +48,20 @@ type ProfileUpdateFormData = z.infer<typeof profileUpdateSchema>;
 // Tab type
 type TabType = "personal" | "security";
 
+type DonorRoleProfile = {
+  id: number;
+  latitude: string;
+  longitude: string;
+  permanent_address_city: string;
+  local_address_city: string;
+};
+
+type RecipientRoleProfile = {
+  id: number;
+  hospital: number;
+  province: Province | "";
+};
+
 export default function UserProfile() {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -52,6 +70,23 @@ export default function UserProfile() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [donorProfile, setDonorProfile] = useState<DonorRoleProfile | null>(null);
+  const [recipientProfile, setRecipientProfile] = useState<RecipientRoleProfile | null>(null);
+  const [roleProfileLoading, setRoleProfileLoading] = useState(false);
+  const [roleProfileSaving, setRoleProfileSaving] = useState(false);
+  const [roleProfileError, setRoleProfileError] = useState<string | null>(null);
+  const [locatingRoleProfile, setLocatingRoleProfile] = useState(false);
+
+  const { data: selectedRecipientHospital } = useHospital(recipientProfile?.hospital ?? 0, {
+    enabled: (recipientProfile?.hospital ?? 0) > 0,
+  });
+  const { data: provinceHospitals } = useHospitalsList(
+    {
+      page_size: 200,
+      province: recipientProfile?.province || undefined,
+    },
+    { enabled: Boolean(recipientProfile?.province) }
+  );
 
   const {
     userProfile,
@@ -85,6 +120,61 @@ export default function UserProfile() {
   } = useForm<ChangePasswordFormInputs>({
     resolver: zodResolver(changePasswordSchema),
   });
+
+  useEffect(() => {
+    if (!userProfile) return;
+
+    const loadRoleProfile = async () => {
+      setRoleProfileLoading(true);
+      setRoleProfileError(null);
+      try {
+        if (userProfile.role === "donor") {
+          const response = await apiClient.get("/donors/me/");
+          setDonorProfile({
+            id: response.data.id,
+            latitude: response.data.latitude ? String(response.data.latitude) : "",
+            longitude: response.data.longitude ? String(response.data.longitude) : "",
+            permanent_address_city: response.data.permanent_address_city || "",
+            local_address_city: response.data.local_address_city || "",
+          });
+          setRecipientProfile(null);
+          return;
+        }
+
+        if (userProfile.role === "recipient") {
+          const response = await apiClient.get("/recipients/me/");
+          setRecipientProfile({
+            id: response.data.id,
+            hospital: response.data.hospital ?? 0,
+            province: (response.data.province as Province | undefined) ?? "",
+          });
+          setDonorProfile(null);
+          return;
+        }
+
+        setDonorProfile(null);
+        setRecipientProfile(null);
+      } catch (error) {
+        setRoleProfileError(extractAxiosError(error, "Failed to load role profile."));
+      } finally {
+        setRoleProfileLoading(false);
+      }
+    };
+
+    void loadRoleProfile();
+  }, [userProfile]);
+
+  useEffect(() => {
+    if (!recipientProfile || recipientProfile.province || !selectedRecipientHospital?.province) return;
+    setRecipientProfile((prev) =>
+      prev
+        ? {
+            ...prev,
+            province: selectedRecipientHospital.province,
+          }
+        : prev
+    );
+  }, [recipientProfile, selectedRecipientHospital]);
 
   // Handle profile update
   const onUpdateProfile = async (data: ProfileUpdateFormData) => {
@@ -145,6 +235,63 @@ export default function UserProfile() {
       toast.success(t("profile.photoDeleted", "Photo deleted successfully"));
     } catch (error) {
       toast.error(extractAxiosError(error, "Failed to delete photo"));
+    }
+  };
+
+  const handleRegisterRoleLocation = () => {
+    if (!donorProfile) return;
+    if (!navigator.geolocation) {
+      toast.error(t("profile.locationNotSupported", "Geolocation is not supported in this browser."));
+      return;
+    }
+
+    setLocatingRoleProfile(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setDonorProfile((prev) =>
+          prev
+            ? {
+                ...prev,
+                latitude: position.coords.latitude.toFixed(6),
+                longitude: position.coords.longitude.toFixed(6),
+              }
+            : prev
+        );
+        setLocatingRoleProfile(false);
+      },
+      () => {
+        toast.error(t("profile.locationFailed", "Failed to register location."));
+        setLocatingRoleProfile(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  const saveRoleProfile = async () => {
+    if (!userProfile) return;
+    setRoleProfileSaving(true);
+    setRoleProfileError(null);
+    try {
+      if (userProfile.role === "donor" && donorProfile) {
+        await apiClient.patch("/donors/me/", {
+          latitude: donorProfile.latitude || null,
+          longitude: donorProfile.longitude || null,
+          permanent_address_city: donorProfile.permanent_address_city || null,
+          local_address_city: donorProfile.local_address_city || null,
+        });
+        toast.success(t("profile.updated", "Profile updated successfully"));
+      } else if (userProfile.role === "recipient" && recipientProfile) {
+        await apiClient.patch("/recipients/me/", {
+          hospital: recipientProfile.hospital || null,
+        });
+        toast.success(t("profile.updated", "Profile updated successfully"));
+      }
+    } catch (error) {
+      const message = extractAxiosError(error, "Failed to update role profile");
+      setRoleProfileError(message);
+      toast.error(message);
+    } finally {
+      setRoleProfileSaving(false);
     }
   };
 
@@ -354,6 +501,126 @@ export default function UserProfile() {
                   </Button>
                 </div>
               </form>
+
+              {userProfile.role === "donor" && donorProfile ? (
+                <div className="mt-8 space-y-4 rounded-lg border border-border p-4">
+                  <h3 className="text-sm font-semibold text-text-primary">
+                    {t("profile.donorLocation", "Donor Location Details")}
+                  </h3>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Input
+                      label={t("donors.form.latitude", "Latitude")}
+                      value={donorProfile.latitude}
+                      onChange={(event) =>
+                        setDonorProfile((prev) => (prev ? { ...prev, latitude: event.target.value } : prev))
+                      }
+                    />
+                    <Input
+                      label={t("donors.form.longitude", "Longitude")}
+                      value={donorProfile.longitude}
+                      onChange={(event) =>
+                        setDonorProfile((prev) => (prev ? { ...prev, longitude: event.target.value } : prev))
+                      }
+                    />
+                    <Input
+                      label={t("donors.form.permanentAddressCity", "Permanent Address City")}
+                      value={donorProfile.permanent_address_city}
+                      onChange={(event) =>
+                        setDonorProfile((prev) =>
+                          prev ? { ...prev, permanent_address_city: event.target.value } : prev
+                        )
+                      }
+                    />
+                    <Input
+                      label={t("donors.form.localAddressCity", "Local Address City")}
+                      value={donorProfile.local_address_city}
+                      onChange={(event) =>
+                        setDonorProfile((prev) => (prev ? { ...prev, local_address_city: event.target.value } : prev))
+                      }
+                    />
+                  </div>
+                  <div className="flex flex-wrap justify-end gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      loading={locatingRoleProfile}
+                      leftIcon={<MapPin className="h-4 w-4" />}
+                      onClick={handleRegisterRoleLocation}
+                    >
+                      {t("donors.form.registerLocation", "Register My Location")}
+                    </Button>
+                    <Button type="button" loading={roleProfileSaving} onClick={saveRoleProfile}>
+                      {t("common.save", "Save")}
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
+
+              {userProfile.role === "recipient" && recipientProfile ? (
+                <div className="mt-8 space-y-4 rounded-lg border border-border p-4">
+                  <h3 className="text-sm font-semibold text-text-primary">
+                    {t("profile.recipientLocation", "Recipient Location Details")}
+                  </h3>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Select
+                      label={t("bloodRequests.form.province", "Province")}
+                      value={recipientProfile.province}
+                      options={[
+                        { value: "", label: t("bloodRequests.form.provincePlaceholder", "Select province") },
+                        ...AFGHANISTAN_PROVINCES.map((value) => ({ value, label: value })),
+                      ]}
+                      onChange={(event) =>
+                        setRecipientProfile((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                province: event.target.value as Province | "",
+                                hospital: 0,
+                              }
+                            : prev
+                        )
+                      }
+                    />
+                    <Select
+                      label={t("bloodRequests.form.hospital", "Hospital")}
+                      value={String(recipientProfile.hospital || "")}
+                      disabled={!recipientProfile.province}
+                      options={[
+                        {
+                          value: "",
+                          label: recipientProfile.province
+                            ? t("bloodRequests.form.hospitalPlaceholder", "Select hospital")
+                            : t("bloodRequests.form.selectProvinceFirst", "Select province first"),
+                        },
+                        ...(provinceHospitals?.results ?? []).map((item) => ({
+                          value: String(item.id),
+                          label: item.name,
+                        })),
+                      ]}
+                      onChange={(event) =>
+                        setRecipientProfile((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                hospital: Number(event.target.value),
+                              }
+                            : prev
+                        )
+                      }
+                    />
+                  </div>
+                  <div className="flex justify-end">
+                    <Button type="button" loading={roleProfileSaving} onClick={saveRoleProfile}>
+                      {t("common.save", "Save")}
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
+
+              {roleProfileLoading ? (
+                <p className="mt-4 text-sm text-text-secondary">{t("common.loading", "Loading...")}</p>
+              ) : null}
+              {roleProfileError ? <p className="mt-4 text-sm text-error">{roleProfileError}</p> : null}
             </CardContent>
           </Card>
         )}

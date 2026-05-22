@@ -6,6 +6,7 @@ from .models import Recipient
 class RecipientListSerializer(serializers.ModelSerializer):
     hospital_name = serializers.CharField(source="hospital.name", read_only=True, allow_null=True)
     city = serializers.CharField(source="hospital.city", read_only=True, allow_null=True)
+    province = serializers.CharField(source="hospital.province", read_only=True, allow_null=True)
 
     class Meta:
         model = Recipient
@@ -15,6 +16,7 @@ class RecipientListSerializer(serializers.ModelSerializer):
             "phone",
             "required_blood_group",
             "hospital_name",
+            "province",
             "emergency_level",
             "city",
             "created_at",
@@ -27,6 +29,7 @@ class RecipientDetailSerializer(serializers.ModelSerializer):
     hospital_email = serializers.CharField(source="hospital.email", read_only=True, allow_null=True)
     hospital_address = serializers.CharField(source="hospital.address", read_only=True, allow_null=True)
     city = serializers.CharField(source="hospital.city", read_only=True, allow_null=True)
+    province = serializers.CharField(source="hospital.province", read_only=True, allow_null=True)
     latitude = serializers.DecimalField(source="hospital.latitude", read_only=True, max_digits=9, decimal_places=6)
     longitude = serializers.DecimalField(source="hospital.longitude", read_only=True, max_digits=9, decimal_places=6)
 
@@ -43,6 +46,7 @@ class RecipientDetailSerializer(serializers.ModelSerializer):
             "hospital_phone",
             "hospital_email",
             "hospital_address",
+            "province",
             "city",
             "latitude",
             "longitude",
@@ -58,6 +62,7 @@ class RecipientDetailSerializer(serializers.ModelSerializer):
             "hospital_phone",
             "hospital_email",
             "hospital_address",
+            "province",
             "city",
             "latitude",
             "longitude",

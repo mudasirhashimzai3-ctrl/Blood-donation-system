@@ -6,13 +6,13 @@ import { Plus } from "lucide-react";
 import {
   AFGHANISTAN_PROVINCES,
   HospitalQuickCreateModal,
-  useAllHospitalsList,
   useHospital,
   useHospitalsList,
 } from "@/modules/hospitals";
 import type { Province } from "@/modules/hospitals";
 import { Button, Input, Select, Switch } from "@components/ui";
 import { type BloodRequestFormValues } from "../schemas/bloodRequestSchemas";
+import { useBloodRequestRecipientsList } from "../queries/useBloodRequestQueries";
 import { BLOOD_GROUP_OPTIONS, REQUEST_TYPE_OPTIONS } from "../types/bloodRequest.types";
 
 interface BloodRequestFormProps {
@@ -25,6 +25,7 @@ interface BloodRequestFormProps {
   prescriptionImageUrl?: string | null;
   emergencyProofUrl?: string | null;
   recipientMode?: boolean;
+  adminMode?: boolean;
 }
 
 const toDateTimeLocalValue = (value?: string | null) => {
@@ -45,6 +46,7 @@ export default function BloodRequestForm({
   prescriptionImageUrl,
   emergencyProofUrl,
   recipientMode = false,
+  adminMode = false,
 }: BloodRequestFormProps) {
   const { t } = useTranslation();
   const {
@@ -67,23 +69,18 @@ export default function BloodRequestForm({
   } | null>(null);
   const { data: selectedHospital } = useHospital(selectedHospitalId, { enabled: selectedHospitalId > 0 });
   const { data: hospitalsData } = useHospitalsList(
-    { page_size: 100, province: province || undefined },
-    { enabled: !recipientMode && Boolean(province) }
+    { page_size: 200, province: province || undefined },
+    { enabled: Boolean(province) }
   );
-  const { data: allHospitals = [] } = useAllHospitalsList(
-    { page_size: 200 },
-    { enabled: recipientMode }
-  );
+  const { data: recipientsData } = useBloodRequestRecipientsList("", { enabled: adminMode });
 
-  const hospitals = recipientMode ? allHospitals : hospitalsData?.results ?? [];
-  const filteredHospitals =
-    recipientMode && province ? hospitals.filter((hospital) => hospital.province === province) : hospitals;
+  const hospitals = hospitalsData?.results ?? [];
   const selectableHospitals =
     quickCreatedHospital &&
     (!province || quickCreatedHospital.province === province) &&
-    !filteredHospitals.some((hospital) => hospital.id === quickCreatedHospital.id)
-      ? [quickCreatedHospital, ...filteredHospitals]
-      : filteredHospitals;
+    !hospitals.some((hospital) => hospital.id === quickCreatedHospital.id)
+      ? [quickCreatedHospital, ...hospitals]
+      : hospitals;
 
   useEffect(() => {
     if (!province && selectedHospital?.province) {
@@ -109,6 +106,27 @@ export default function BloodRequestForm({
         <h3 className="text-sm font-semibold text-text-primary">
           {t("bloodRequests.form.section.location", "Location & Hospital")}
         </h3>
+        {adminMode ? (
+          <Controller
+            control={control}
+            name="recipient"
+            render={({ field }) => (
+              <Select
+                label={t("bloodRequests.form.recipient", "Recipient")}
+                error={errors.recipient?.message}
+                value={String(field.value || "")}
+                options={[
+                  { value: "", label: t("bloodRequests.form.recipientPlaceholder", "Select recipient") },
+                  ...(recipientsData?.results ?? []).map((item) => ({
+                    value: String(item.id),
+                    label: `${item.full_name} (${item.phone})`,
+                  })),
+                ]}
+                onChange={(event) => field.onChange(Number(event.target.value))}
+              />
+            )}
+          />
+        ) : null}
         <div className="grid gap-4 md:grid-cols-2">
           <Select
             label={t("bloodRequests.form.province", "Province")}
@@ -135,19 +153,17 @@ export default function BloodRequestForm({
                 options={[
                   {
                     value: "",
-                    label: recipientMode
-                      ? t("bloodRequests.form.hospitalPlaceholder", "Select hospital")
-                      : province
+                    label: province
                       ? t("bloodRequests.form.hospitalPlaceholder", "Select hospital")
                       : t("bloodRequests.form.selectProvinceFirst", "Select province first"),
                   },
                   ...selectableHospitals.map((hospital) => ({
                     value: String(hospital.id),
-                    label: recipientMode ? `${hospital.name} (${hospital.province})` : hospital.name,
+                    label: hospital.name,
                   })),
                 ]}
                 onChange={(event) => field.onChange(Number(event.target.value))}
-                disabled={!recipientMode && !province}
+                disabled={!province}
               />
             )}
           />

@@ -1,3 +1,6 @@
+import threading
+
+from django.db import transaction
 from django.db.models import Q
 from django_filters import rest_framework as filterset
 from django_filters.rest_framework import DjangoFilterBackend
@@ -29,9 +32,9 @@ from .serializers import (
     BloodRequestRecipientOptionSerializer,
     BloodRequestWriteSerializer,
     CancelBloodRequestSerializer,
-    VerifyBloodRequestSerializer,
 )
-from .services.matching import auto_match_blood_request
+from .tasks import run_request_automation
+from .services.matching import apply_request_defaults
 
 
 def _create_system_notifications(**kwargs):
@@ -41,6 +44,51 @@ def _create_system_notifications(**kwargs):
         create_notifications(**kwargs)
     except Exception:
         return
+
+
+def _enqueue_request_automation(request_id: int):
+    def _runner():
+        try:
+            if hasattr(run_request_automation, "delay"):
+                run_request_automation.delay(request_id)
+                return
+            run_request_automation(request_id)
+        except Exception:
+            return
+
+    transaction.on_commit(lambda: threading.Thread(target=_runner, daemon=True).start())
+
+
+def _ensure_recipient_profile_for_user(user):
+    recipient = getattr(user, "recipient", None)
+    if recipient is not None:
+        return recipient
+
+    full_name = f"{(user.first_name or '').strip()} {(user.last_name or '').strip()}".strip() or user.username
+    phone = (getattr(user, "phone", None) or "").strip() or f"user-{user.id}"
+    email = ((getattr(user, "email", None) or "").strip() or None)
+
+    recipient = Recipient.objects.filter(
+        user__isnull=True,
+        phone=phone,
+        deleted_at__isnull=True,
+    ).first()
+    if recipient:
+        recipient.user = user
+        recipient.full_name = full_name
+        recipient.email = email
+        if not recipient.emergency_level:
+            recipient.emergency_level = "normal"
+        recipient.save(update_fields=["user", "full_name", "email", "emergency_level", "updated_at"])
+        return recipient
+
+    return Recipient.objects.create(
+        user=user,
+        full_name=full_name,
+        email=email,
+        phone=phone,
+        emergency_level="normal",
+    )
 
 
 class BloodRequestFilter(filterset.FilterSet):
@@ -105,11 +153,20 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
         return BloodRequestDetailSerializer
 
     def perform_create(self, serializer):
-        recipient_profile = getattr(self.request.user, "recipient", None)
-        if recipient_profile is None:
-            raise ValidationError({"detail": "Recipient profile is not configured for this account."})
+        user = self.request.user
+        role_name = normalize_role_name(getattr(user, "role_name", None))
 
-        instance = serializer.save(recipient=recipient_profile)
+        if role_name == "admin":
+            recipient_profile = serializer.validated_data.get("recipient")
+            if recipient_profile is None:
+                raise ValidationError({"recipient": "Recipient is required for admin-created requests."})
+        elif role_name == "recipient":
+            recipient_profile = _ensure_recipient_profile_for_user(user)
+        else:
+            raise ValidationError({"detail": "Only admin or recipient users can create blood requests."})
+
+        instance = serializer.save(recipient=recipient_profile, is_verified=True)
+        apply_request_defaults(instance)
         _create_system_notifications(
             event_key="blood_request_created",
             type="request_update",
@@ -120,8 +177,8 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
             request_id=instance.id,
             metadata={"status": instance.status, "request_type": instance.request_type},
         )
-        if instance.auto_match_enabled:
-            auto_match_blood_request(instance)
+        if instance.auto_match_enabled and instance.status == "pending":
+            _enqueue_request_automation(instance.id)
 
     @action(detail=False, methods=["get"], url_path="recipients")
     def recipients(self, request):
@@ -140,9 +197,10 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
         current = self.get_object()
         if current.status in {"completed", "cancelled"}:
             raise ValidationError({"detail": "Cannot edit a completed or cancelled request."})
-        instance = serializer.save()
+        instance = serializer.save(is_verified=True)
+        apply_request_defaults(instance)
         if instance.auto_match_enabled and instance.status == "pending":
-            auto_match_blood_request(instance)
+            _enqueue_request_automation(instance.id)
 
     @action(detail=True, methods=["post"], url_path="run-auto-match")
     def run_auto_match(self, request, pk=None):
@@ -150,12 +208,13 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
         if blood_request.status in {"completed", "cancelled"}:
             raise ValidationError({"detail": "Cannot run auto-match for a completed or cancelled request."})
 
-        notifications = auto_match_blood_request(blood_request)
+        result = run_request_automation(blood_request.id)
+        blood_request.refresh_from_db()
         serializer = BloodRequestDetailSerializer(blood_request, context={"request": request})
         return Response(
             {
                 "request": serializer.data,
-                "matched_candidates": len(notifications),
+                "matched_candidates": result.get("candidates", 0) if isinstance(result, dict) else 0,
             },
             status=status.HTTP_200_OK,
         )
@@ -353,16 +412,14 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
     @action(detail=True, methods=["patch"])
     def verify(self, request, pk=None):
         blood_request = self.get_object()
-        serializer = VerifyBloodRequestSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        blood_request.is_verified = serializer.validated_data["is_verified"]
+        # Verification is automatic in the current workflow.
+        blood_request.is_verified = True
         blood_request.save(update_fields=["is_verified", "updated_at"])
         _create_system_notifications(
             event_key="blood_request_verified",
             type="request_update",
             title=f"Verification updated for request #{blood_request.id}",
-            message=f"Blood request #{blood_request.id} verification set to {blood_request.is_verified}.",
+            message=f"Blood request #{blood_request.id} is verified automatically.",
             sent_via=["in_app"],
             role_names=["admin", "receptionist"],
             request_id=blood_request.id,

@@ -25,6 +25,7 @@ export interface Recipient {
   hospital_phone: string | null;
   hospital_email: string | null;
   hospital_address: string | null;
+  province: string | null;
   city: string | null;
   latitude: string | null;
   longitude: string | null;

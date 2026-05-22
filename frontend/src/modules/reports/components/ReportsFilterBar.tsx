@@ -20,6 +20,6 @@ interface ReportsFilterBarProps {
   filters?: ReportsFilterParams;
 }
 
-export default function ReportsFilterBar(props: ReportsFilterBarProps) {
+export default function ReportsFilterBar(_props: ReportsFilterBarProps) {
   return null;
 }

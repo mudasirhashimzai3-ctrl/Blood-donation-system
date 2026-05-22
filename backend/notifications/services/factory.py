@@ -1,8 +1,11 @@
+import threading
+
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 
 from accounts.models import expand_role_names
 from notifications.models import Notification
+from notifications.services.dispatch import dispatch_notification
 
 User = get_user_model()
 
@@ -13,13 +16,25 @@ except Exception:  # pragma: no cover
 
 
 def _dispatch_async(notification_id: int):
-    if dispatch_notification_task is None:
-        return None
+    def _runner():
+        if dispatch_notification_task is not None:
+            try:
+                if hasattr(dispatch_notification_task, "delay"):
+                    dispatch_notification_task.delay(notification_id)
+                    return
+                dispatch_notification_task(notification_id)
+                return
+            except Exception:
+                # Broker issues must never block or break request-response flows.
+                pass
 
-    if hasattr(dispatch_notification_task, "delay"):
-        return dispatch_notification_task.delay(notification_id)
+        try:
+            dispatch_notification(notification_id)
+        except Exception:
+            return None
 
-    return dispatch_notification_task(notification_id)
+    threading.Thread(target=_runner, daemon=True).start()
+    return None
 
 
 def _resolve_users(*, user_ids=None, role_names=None):

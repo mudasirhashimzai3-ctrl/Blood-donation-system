@@ -8,6 +8,7 @@ import {
 import type { BloodRequest, BloodRequestPayload } from "../types/bloodRequest.types";
 
 const defaultValues: BloodRequestFormValues = {
+  recipient: undefined,
   hospital: 0,
   blood_group: "A+",
   units_needed: 1,
@@ -27,6 +28,7 @@ export const mapBloodRequestToFormValues = (
   if (!bloodRequest) return defaultValues;
 
   return {
+    recipient: undefined,
     hospital: bloodRequest.hospital ?? 0,
     blood_group: bloodRequest.blood_group ?? "A+",
     units_needed: bloodRequest.units_needed ?? 1,
@@ -54,6 +56,7 @@ const emptyToUndefined = (value?: string) => {
 export const normalizeBloodRequestPayload = (
   values: BloodRequestFormValues
 ): BloodRequestPayload => ({
+  recipient: values.recipient,
   hospital: values.hospital,
   blood_group: values.blood_group,
   units_needed: values.units_needed,

@@ -27,9 +27,11 @@ def process_due_reminders():
     queryset = Donation.objects.select_related("request", "donor").filter(
         status="pending",
         deleted_at__isnull=True,
+        request__is_active=True,
+        request__status__in=["pending", "matched"],
         request__response_deadline__isnull=False,
         request__response_deadline__gt=now,
-        reminder_count__lt=2,
+        reminder_count__lt=255,
     )
 
     sent = 0

@@ -12,7 +12,6 @@ import { useBloodRequestFilters } from "../hooks/useBloodRequestFilters";
 import {
   useBloodRequestsList,
   useDeleteBloodRequest,
-  useRunAutoMatch,
 } from "../queries/useBloodRequestQueries";
 import {
   getBloodRequestsRouteByRole,
@@ -42,7 +41,6 @@ export default function BloodRequestListPage() {
 
   const { data, isLoading, error } = useBloodRequestsList(queryParams);
   const deleteMutation = useDeleteBloodRequest();
-  const runAutoMatchMutation = useRunAutoMatch();
 
   const requests = data?.results ?? [];
   const totalCount = data?.count ?? 0;
@@ -119,12 +117,8 @@ export default function BloodRequestListPage() {
             if (!window.confirm(t("bloodRequests.delete.confirm", "Delete this blood request?"))) return;
             await deleteMutation.mutateAsync(id);
           }}
-          onRunAutoMatch={async (id) => {
-            await runAutoMatchMutation.mutateAsync(id);
-          }}
           canEdit={isAdmin || isRecipient}
           canDelete={isAdmin}
-          canRunAutoMatch={isAdmin}
         />
       )}
     </div>

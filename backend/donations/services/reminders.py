@@ -4,6 +4,7 @@ from datetime import timedelta
 from django.core.mail import send_mail
 from django.utils import timezone
 
+from core.services.settings_service import get_runtime_section_payload
 from donations.models import Donation
 from donations.services.sync import sync_candidate_notification_for_donation
 
@@ -38,14 +39,28 @@ def get_reminder_milestones(donation: Donation):
     return milestones
 
 
+def get_retry_interval_minutes(default: int = 10) -> int:
+    try:
+        payload = get_runtime_section_payload("auto_matching")
+        value = int(payload.get("retry_interval_minutes", default))
+        return value if value > 0 else default
+    except Exception:
+        return default
+
+
 def get_due_reminder_stage(donation: Donation, now=None):
     now = now or timezone.now()
-    milestones = get_reminder_milestones(donation)
-    if donation.reminder_count >= len(milestones):
+    if donation.status != "pending":
+        return None
+    if donation.request.status in {"completed", "cancelled"} or not donation.request.is_active:
         return None
 
-    target_time = milestones[donation.reminder_count]
-    if now >= target_time:
+    interval_minutes = get_retry_interval_minutes()
+    last_marker = donation.reminder_sent_at or donation.notified_at or donation.created_at
+    if not last_marker:
+        return None
+    next_due = last_marker + timedelta(minutes=interval_minutes)
+    if now >= next_due:
         return donation.reminder_count + 1
     return None
 

@@ -29,6 +29,8 @@ export const donationService = {
       payload
     ),
 
+  complete: (id: number) => apiClient.patch<Donation>(`/donations/${id}/complete/`, {}),
+
   respond: (id: number, payload: DonationRespondPayload) =>
     apiClient.post<Donation>(`/donations/${id}/respond/`, payload),
 };

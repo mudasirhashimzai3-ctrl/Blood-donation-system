@@ -85,8 +85,14 @@ export const signupSchema = z
     donor_blood_group: z
       .enum(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"])
       .optional(),
-    donor_latitude: z.coerce.number().optional(),
-    donor_longitude: z.coerce.number().optional(),
+    donor_latitude: z
+      .union([z.coerce.number(), z.literal("")])
+      .optional()
+      .transform((value) => (value === "" || value === undefined ? undefined : value)),
+    donor_longitude: z
+      .union([z.coerce.number(), z.literal("")])
+      .optional()
+      .transform((value) => (value === "" || value === undefined ? undefined : value)),
     recipient_required_blood_group: z
       .enum(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"])
       .optional(),
@@ -152,4 +158,5 @@ export type VerifyResetCodeInput = z.infer<typeof verifyResetCodeSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;
 export type SignupInput = z.infer<typeof signupSchema>;
+export type SignupFormInput = z.input<typeof signupSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;

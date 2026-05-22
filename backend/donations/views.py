@@ -112,6 +112,81 @@ class DonationViewSet(PermissionMixin, viewsets.ModelViewSet):
         output = DonationDetailSerializer(donation, context={"request": request})
         return Response(output.data, status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=["patch"], url_path="complete")
+    def complete(self, request, pk=None):
+        donation = self.get_object()
+        role_name = normalize_role_name(getattr(request.user, "role_name", None))
+        if role_name == "donor":
+            raise PermissionDenied("Donors cannot mark donations as completed.")
+        if donation.status in {"completed", "cancelled", "declined", "expired"}:
+            raise ValidationError({"detail": "Only active donations can be marked completed."})
+
+        now = timezone.now()
+        donation.status = "completed"
+        donation.is_primary = True
+        donation.responded_at = donation.responded_at or now
+        if donation.notified_at and donation.response_time is None:
+            delta = donation.responded_at - donation.notified_at
+            donation.response_time = max(0, int(delta.total_seconds() // 60))
+        donation.save(
+            update_fields=[
+                "status",
+                "is_primary",
+                "responded_at",
+                "response_time",
+                "updated_at",
+            ]
+        )
+        sync_candidate_notification_for_donation(donation)
+
+        blood_request = donation.request
+        if blood_request.status != "completed":
+            blood_request.assigned_donor = donation.donor
+            blood_request.status = "completed"
+            blood_request.is_active = False
+            blood_request.completed_at = blood_request.completed_at or now
+            blood_request.matched_at = blood_request.matched_at or now
+            blood_request.save(
+                update_fields=[
+                    "assigned_donor",
+                    "status",
+                    "is_active",
+                    "completed_at",
+                    "matched_at",
+                    "updated_at",
+                ]
+            )
+
+        sibling_rows = Donation.objects.filter(
+            request=blood_request,
+            deleted_at__isnull=True,
+        ).exclude(pk=donation.pk)
+        for sibling in sibling_rows:
+            if sibling.status in {"completed", "cancelled", "declined", "expired"}:
+                continue
+            sibling.status = "expired"
+            sibling.is_primary = False
+            sibling.responded_at = sibling.responded_at or now
+            if sibling.notified_at and sibling.response_time is None:
+                delta = sibling.responded_at - sibling.notified_at
+                sibling.response_time = max(0, int(delta.total_seconds() // 60))
+            sibling.save(update_fields=["status", "is_primary", "responded_at", "response_time", "updated_at"])
+            sync_candidate_notification_for_donation(sibling)
+
+        _create_system_notifications(
+            event_key="blood_request_completed",
+            type="donation_update",
+            title=f"Donation #{donation.id} completed",
+            message=f"Donation #{donation.id} has been marked completed.",
+            sent_via=["in_app"],
+            role_names=["admin", "receptionist"],
+            request_id=blood_request.id,
+            donation_id=donation.id,
+            metadata={"status": donation.status},
+        )
+        output = DonationDetailSerializer(donation, context={"request": request})
+        return Response(output.data, status=status.HTTP_200_OK)
+
     @action(detail=True, methods=["patch"], url_path="set-primary")
     def set_primary(self, request, pk=None):
         donation = self.get_object()

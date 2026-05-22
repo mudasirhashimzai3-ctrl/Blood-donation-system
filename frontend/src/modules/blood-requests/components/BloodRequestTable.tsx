@@ -1,4 +1,4 @@
-import { Eye, Pencil, RefreshCcw, Trash2 } from "lucide-react";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Card, CardContent, Pagination, PaginationInfo, Skeleton } from "@components/ui";
@@ -17,10 +17,8 @@ interface BloodRequestTableProps {
   onView: (id: number) => void;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
-  onRunAutoMatch: (id: number) => void;
   canEdit?: boolean;
   canDelete?: boolean;
-  canRunAutoMatch?: boolean;
 }
 
 function LoadingRows() {
@@ -54,10 +52,8 @@ export default function BloodRequestTable({
   onView,
   onEdit,
   onDelete,
-  onRunAutoMatch,
   canEdit = true,
   canDelete = true,
-  canRunAutoMatch = true,
 }: BloodRequestTableProps) {
   const { t } = useTranslation();
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
@@ -133,16 +129,6 @@ export default function BloodRequestTable({
                               title={t("bloodRequests.actions.edit", "Edit")}
                             >
                               <Pencil className="h-4 w-4" />
-                            </button>
-                          ) : null}
-                          {canRunAutoMatch ? (
-                            <button
-                              type="button"
-                              className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-warning/10 hover:text-warning"
-                              onClick={() => onRunAutoMatch(bloodRequest.id)}
-                              title={t("bloodRequests.actions.runAutoMatch", "Run Auto Match")}
-                            >
-                              <RefreshCcw className="h-4 w-4" />
                             </button>
                           ) : null}
                           {canDelete ? (

@@ -3,6 +3,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, viewsets
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -24,7 +25,7 @@ class RecipientFilter(filterset.FilterSet):
         fields = ["required_blood_group", "emergency_level", "city"]
 
 
-class RecipientViewSet(PermissionMixin, viewsets.ReadOnlyModelViewSet):
+class RecipientViewSet(PermissionMixin, viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     permission_module = "recipients"
     queryset = Recipient.objects.select_related("hospital").all().order_by("-created_at")
@@ -47,12 +48,39 @@ class RecipientViewSet(PermissionMixin, viewsets.ReadOnlyModelViewSet):
             return queryset.filter(pk=recipient.pk)
         return queryset.none()
 
+    def perform_create(self, serializer):
+        role_name = normalize_role_name(getattr(self.request.user, "role_name", None))
+        if role_name != "admin":
+            raise PermissionDenied("Only admin users can create recipients.")
+        serializer.save()
+
+    def perform_update(self, serializer):
+        role_name = normalize_role_name(getattr(self.request.user, "role_name", None))
+        if role_name == "admin":
+            serializer.save()
+            return
+
+        if role_name == "recipient":
+            target = self.get_object()
+            if target.user_id != self.request.user.id:
+                raise PermissionDenied("You can only update your own recipient profile.")
+            serializer.save()
+            return
+
+        raise PermissionDenied("You do not have permission to update recipients.")
+
+    def perform_destroy(self, instance):
+        role_name = normalize_role_name(getattr(self.request.user, "role_name", None))
+        if role_name != "admin":
+            raise PermissionDenied("Only admin users can delete recipients.")
+        super().perform_destroy(instance)
+
     def get_serializer_class(self):
         if self.action == "list":
             return RecipientListSerializer
         return RecipientDetailSerializer
 
-    @action(detail=False, methods=["get"], url_path="me")
+    @action(detail=False, methods=["get", "patch"], url_path="me")
     def me(self, request):
         recipient = getattr(request.user, "recipient", None)
         if recipient is None:
@@ -60,6 +88,16 @@ class RecipientViewSet(PermissionMixin, viewsets.ReadOnlyModelViewSet):
                 {"detail": "Recipient profile is not configured for this account."},
                 status=status.HTTP_404_NOT_FOUND,
             )
+        if request.method.lower() == "patch":
+            serializer = RecipientDetailSerializer(
+                recipient,
+                data=request.data,
+                partial=True,
+                context={"request": request},
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
         serializer = RecipientDetailSerializer(recipient, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 

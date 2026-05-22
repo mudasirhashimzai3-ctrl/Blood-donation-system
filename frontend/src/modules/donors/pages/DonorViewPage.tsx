@@ -126,13 +126,13 @@ export default function DonorViewPage() {
               <p className="text-xs uppercase text-text-secondary">
                 {t("donors.form.permanentAddress", "Permanent Address")}
               </p>
-              <p className="text-sm text-text-primary">{donor.permanent_address || "-"}</p>
+              <p className="text-sm text-text-primary">{donor.permanent_address_city || "-"}</p>
             </div>
             <div className="md:col-span-2">
               <p className="text-xs uppercase text-text-secondary">
                 {t("donors.form.localAddress", "Local Address")}
               </p>
-              <p className="text-sm text-text-primary">{donor.local_address || "-"}</p>
+              <p className="text-sm text-text-primary">{donor.local_address_city || "-"}</p>
             </div>
           </div>
 

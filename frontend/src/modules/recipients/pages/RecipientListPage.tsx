@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { Plus } from "lucide-react";
 
 import { PageHeader } from "@/components";
 import useCan from "@/hooks/useCan";
@@ -50,6 +51,13 @@ export default function RecipientListPage() {
       <PageHeader
         title={t("recipients.title", "Recipients")}
         subtitle={t("recipients.subtitle", "Manage recipient records with emergency requirements")}
+        actions={[
+          {
+            label: t("recipients.actions.add", "Add Recipient"),
+            icon: <Plus className="h-4 w-4" />,
+            onClick: () => navigate("/recipients/new"),
+          },
+        ]}
       />
 
       <Card>

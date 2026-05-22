@@ -1,10 +1,8 @@
-import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { PageHeader } from "@/components";
 import { Card, CardContent, Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui";
 import useCan from "@/hooks/useCan";
-import { useUserStore } from "@/modules/auth/stores/useUserStore";
 import ReportsFilterBar from "../components/ReportsFilterBar";
 import ReportsTabPanels from "../components/ReportsTabPanels";
 import { useReportFilters } from "../hooks/useReportFilters";

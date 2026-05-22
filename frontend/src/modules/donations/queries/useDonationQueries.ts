@@ -106,3 +106,19 @@ export const useRespondDonation = (id: number) => {
     },
   });
 };
+
+export const useCompleteDonation = (id: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => donationService.complete(id).then((res) => res.data),
+    onSuccess: () => {
+      toast.success("Donation marked as completed");
+      queryClient.invalidateQueries({ queryKey: donationKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: donationKeys.lists() });
+    },
+    onError: (error) => {
+      toast.error(extractAxiosError(error, "Failed to mark donation as completed"));
+    },
+  });
+};

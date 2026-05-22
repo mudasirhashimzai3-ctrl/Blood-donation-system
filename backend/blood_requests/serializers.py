@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.utils import timezone
 from rest_framework import serializers
 
+from accounts.models import normalize_role_name
 from donors.models import Donor
 from recipients.models import Recipient
 
@@ -234,10 +235,17 @@ class BloodRequestDetailSerializer(serializers.ModelSerializer):
 
 
 class BloodRequestWriteSerializer(serializers.ModelSerializer):
+    recipient = serializers.PrimaryKeyRelatedField(
+        queryset=Recipient.objects.filter(deleted_at__isnull=True),
+        required=False,
+        write_only=True,
+    )
+
     class Meta:
         model = BloodRequest
         fields = [
             "id",
+            "recipient",
             "hospital",
             "blood_group",
             "units_needed",
@@ -270,6 +278,22 @@ class BloodRequestWriteSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         attrs = super().validate(attrs)
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        role_name = normalize_role_name(getattr(user, "role_name", None))
+
+        supplied_recipient = attrs.get("recipient")
+        if self.instance is None:
+            if role_name == "admin" and supplied_recipient is None:
+                raise serializers.ValidationError({"recipient": "Recipient is required for admin-created requests."})
+            if role_name == "recipient" and supplied_recipient is not None:
+                raise serializers.ValidationError({"recipient": "Recipient cannot be set manually."})
+        elif supplied_recipient is not None and role_name != "admin":
+            raise serializers.ValidationError({"recipient": "Only admins can change recipient."})
+
+        # Verification is now automatic and always true.
+        attrs.pop("is_verified", None)
+        attrs["is_verified"] = True
 
         latitude = attrs.get("location_lat", getattr(self.instance, "location_lat", None))
         longitude = attrs.get("location_lon", getattr(self.instance, "location_lon", None))
@@ -301,8 +325,7 @@ class BloodRequestWriteSerializer(serializers.ModelSerializer):
         if response_deadline and response_deadline <= timezone.now():
             errors["response_deadline"] = "Response deadline must be in the future."
 
-        if "is_emergency" not in attrs:
-            attrs["is_emergency"] = request_type != "normal"
+        attrs["is_emergency"] = request_type != "normal"
 
         if not response_deadline:
             eta_map = {"normal": 360, "urgent": 180, "critical": 60}
