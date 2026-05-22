@@ -6,6 +6,7 @@ django-filter
 dj-database-url
 python-dotenv
 channels
+daphne
 channels-redis
 celery
 redis

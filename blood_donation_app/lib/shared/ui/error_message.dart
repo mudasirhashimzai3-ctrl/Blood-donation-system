@@ -17,7 +17,7 @@ String toUserMessage(Object error) {
     return 'Request timed out. Check your network and API host.';
   }
   if (error is NetworkException) {
-    return 'Cannot connect to server. Check API_BASE_URL and network.';
+    return 'Cannot connect to server. Check API_BASE_URL, network, and CORS (web).';
   }
   if (error is UnauthorizedException) {
     return 'Invalid credentials. Please try again.';

@@ -15,6 +15,7 @@ from datetime import timedelta
 import os
 import sys
 import dj_database_url
+from corsheaders.defaults import default_headers
 from dotenv import load_dotenv
 
 
@@ -55,7 +56,10 @@ if _parse_env_bool(_get_debug_env_raw(), default=True):
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-secret-key")
+SECRET_KEY = os.getenv(
+    "SECRET_KEY",
+    "unsafe-dev-secret-key-change-me-32-bytes-min",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = _parse_env_bool(_get_debug_env_raw(), default=True)
@@ -73,6 +77,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'daphne',
     'django.contrib.staticfiles',
     'channels',
     'rest_framework',
@@ -205,6 +210,7 @@ if DEBUG:
 CSRF_TRUSTED_ORIGINS = _get_env_list("CSRF_TRUSTED_ORIGINS", default_csrf)
 
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [*default_headers, "x-client-platform"]
 
 
 

@@ -38,6 +38,7 @@ Future<void> _debugApiPreflight() async {
   } catch (error) {
     debugPrint(
       'API preflight error for $healthUri: $error\n'
+      'If this is Flutter web and browser console shows CORS, allow X-Client-Platform in backend CORS headers.\n'
       'If using a physical Android phone via USB:\n'
       '1) Run adb reverse tcp:8000 tcp:8000\n'
       '2) Start backend on 127.0.0.1:8000\n'

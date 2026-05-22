@@ -1,5 +1,6 @@
 from datetime import timedelta
 from decimal import Decimal
+from unittest.mock import patch
 
 from django.utils import timezone
 from django.core.cache import cache
@@ -105,7 +106,6 @@ class ReportsApiTests(APITestCase):
             notified_at=timezone.now() - timedelta(minutes=60),
             responded_at=timezone.now() - timedelta(minutes=48),
             reminder_count=1,
-            priority_score=Decimal("42.00"),
         )
         Notification.objects.create(
             user=self.admin,
@@ -134,3 +134,26 @@ class ReportsApiTests(APITestCase):
             f"{self.base_url}request-analytics/?date_from={date_from}&date_to={date_to}"
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_request_analytics_recovers_when_db_truncation_fails(self):
+        self.client.force_authenticate(user=self.viewer)
+        with patch(
+            "reports.services.common._build_created_at_trend_with_db",
+            side_effect=ValueError("Database returned an invalid datetime value."),
+        ):
+            response = self.client.get(f"{self.base_url}request-analytics/?group_by=day")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("trends", response.data)
+
+    def test_system_performance_recovers_when_db_truncation_fails(self):
+        self.client.force_authenticate(user=self.viewer)
+        with patch(
+            "reports.services.common._build_grouped_created_at_counts_with_db",
+            side_effect=ValueError("Database returned an invalid datetime value."),
+        ):
+            response = self.client.get(f"{self.base_url}system-performance/?group_by=day")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("notification_trend", response.data)
+        self.assertIn("pending_backlog_trend", response.data)

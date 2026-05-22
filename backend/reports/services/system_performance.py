@@ -1,5 +1,4 @@
 from django.db.models import Count, Q
-from django.db.models.functions import TruncDay
 from django.utils import timezone
 
 from blood_requests.models import BloodRequest
@@ -8,7 +7,7 @@ from donors.models import Donor
 from hospitals.models import Hospital
 from notifications.models import Notification
 
-from .common import pct
+from .common import build_grouped_created_at_counts, pct
 
 
 def build_system_performance(filters: dict):
@@ -53,19 +52,14 @@ def build_system_performance(filters: dict):
         .order_by("-count", "event_key")
     )
 
-    notification_trend = list(
-        notifications_qs.annotate(bucket=TruncDay("created_at"))
-        .values("bucket", "status")
-        .annotate(count=Count("id"))
-        .order_by("bucket", "status")
+    notification_trend = build_grouped_created_at_counts(
+        notifications_qs,
+        group_by="day",
+        category_field="status",
     )
-
-    backlog_trend = list(
-        donations_qs.filter(status="pending")
-        .annotate(bucket=TruncDay("created_at"))
-        .values("bucket")
-        .annotate(count=Count("id"))
-        .order_by("bucket")
+    backlog_trend = build_grouped_created_at_counts(
+        donations_qs.filter(status="pending"),
+        group_by="day",
     )
 
     donors_missing_geo = Donor.objects.filter(latitude__isnull=True).count() + Donor.objects.filter(

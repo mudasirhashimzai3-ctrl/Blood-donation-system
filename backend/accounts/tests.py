@@ -59,6 +59,17 @@ class AuthSecuritySettingsTests(APITestCase):
         self.assertEqual(lock_response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
         self.assertEqual(lock_response.data.get("attempts_remaining"), 0)
 
+    def test_login_options_includes_x_client_platform_cors_header(self):
+        response = self.client.options(
+            self.login_url,
+            HTTP_ORIGIN="http://localhost:54197",
+            HTTP_ACCESS_CONTROL_REQUEST_METHOD="POST",
+            HTTP_ACCESS_CONTROL_REQUEST_HEADERS="content-type,x-client-platform",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        allowed_headers = response.get("access-control-allow-headers", "").lower()
+        self.assertIn("x-client-platform", allowed_headers)
+
 
 class AuthRoleLoginMappingTests(APITestCase):
     login_url = "/api/accounts/auth/login/"
@@ -146,6 +157,15 @@ class AuthRoleLoginMappingTests(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data.get("attempts_remaining"), 4)
+
+    def test_admin_login_without_mobile_header_is_allowed(self):
+        response = self.client.post(
+            self.login_url,
+            {"username": self.admin.username, "password": self.password, "role": "admin"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("access", response.data)
 
 
 class AuthSignupTests(APITestCase):

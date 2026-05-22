@@ -1,11 +1,14 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 from statistics import median
 
+from django.db import DatabaseError
+from django.db import OperationalError
 from django.db.models import Count
 from django.db.models import Q
 from django.db.models.functions import TruncDay, TruncMonth, TruncWeek
+from django.utils import timezone
 
 GROUP_BY_TRUNC = {
     "day": TruncDay,
@@ -96,14 +99,52 @@ def apply_donation_filters(queryset, filters):
     return queryset.distinct()
 
 
-def build_created_at_trend(queryset, group_by):
+def _normalize_created_at_for_bucket(value: datetime) -> datetime:
+    if timezone.is_naive(value):
+        return value
+    return timezone.localtime(value)
+
+
+def _bucket_start_for_group(value: datetime, group_by: str) -> datetime:
+    if group_by == "day":
+        return value.replace(hour=0, minute=0, second=0, microsecond=0)
+    if group_by == "week":
+        start = value - timedelta(days=value.weekday())
+        return start.replace(hour=0, minute=0, second=0, microsecond=0)
+    if group_by == "month":
+        return value.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    raise ValueError(f"Unsupported group_by: {group_by}")
+
+
+def _build_created_at_trend_with_db(queryset, group_by):
     trunc_func = GROUP_BY_TRUNC[group_by]
-    rows = (
+    return list(
         queryset.annotate(bucket=trunc_func("created_at"))
         .values("bucket")
         .annotate(total=Count("id"))
         .order_by("bucket")
     )
+
+
+def _build_created_at_trend_with_python(queryset, group_by):
+    bucket_counts = {}
+    for created_at in queryset.values_list("created_at", flat=True):
+        if created_at is None:
+            continue
+        local_value = _normalize_created_at_for_bucket(created_at)
+        bucket = _bucket_start_for_group(local_value, group_by)
+        bucket_counts[bucket] = bucket_counts.get(bucket, 0) + 1
+    return [
+        {"bucket": bucket, "total": total}
+        for bucket, total in sorted(bucket_counts.items(), key=lambda item: item[0])
+    ]
+
+
+def build_created_at_trend(queryset, group_by):
+    try:
+        rows = _build_created_at_trend_with_db(queryset, group_by)
+    except (ValueError, DatabaseError, OperationalError):
+        rows = _build_created_at_trend_with_python(queryset, group_by)
     return [
         {
             "bucket": item["bucket"].isoformat() if item["bucket"] else None,
@@ -111,6 +152,50 @@ def build_created_at_trend(queryset, group_by):
         }
         for item in rows
     ]
+
+
+def _build_grouped_created_at_counts_with_db(queryset, group_by, category_field):
+    trunc_func = GROUP_BY_TRUNC[group_by]
+    base = queryset.annotate(bucket=trunc_func("created_at"))
+    value_fields = ["bucket"]
+    if category_field:
+        value_fields.append(category_field)
+    return list(
+        base.values(*value_fields)
+        .annotate(count=Count("id"))
+        .order_by(*value_fields)
+    )
+
+
+def _build_grouped_created_at_counts_with_python(queryset, group_by, category_field):
+    bucket_counts = {}
+    if category_field:
+        iterator = queryset.values_list("created_at", category_field)
+    else:
+        iterator = ((value, None) for value in queryset.values_list("created_at", flat=True))
+
+    for created_at, category in iterator:
+        if created_at is None:
+            continue
+        local_value = _normalize_created_at_for_bucket(created_at)
+        bucket = _bucket_start_for_group(local_value, group_by)
+        key = (bucket, category)
+        bucket_counts[key] = bucket_counts.get(key, 0) + 1
+
+    rows = []
+    for (bucket, category), count in sorted(bucket_counts.items(), key=lambda item: (item[0][0], item[0][1] or "")):
+        row = {"bucket": bucket, "count": count}
+        if category_field:
+            row[category_field] = category
+        rows.append(row)
+    return rows
+
+
+def build_grouped_created_at_counts(queryset, *, group_by="day", category_field=None):
+    try:
+        return _build_grouped_created_at_counts_with_db(queryset, group_by, category_field)
+    except (ValueError, DatabaseError, OperationalError):
+        return _build_grouped_created_at_counts_with_python(queryset, group_by, category_field)
 
 
 def normalize_filters_for_cache(filters):
