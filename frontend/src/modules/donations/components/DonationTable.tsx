@@ -68,7 +68,7 @@ export default function DonationTable({
                       {t("donations.table.donor", "Donor")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-text-secondary">
-                      {t("donations.table.request", "Request")}
+                      {t("donations.table.recipient", "Recipient")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-text-secondary">
                       {t("donations.table.status", "Status")}
@@ -94,7 +94,9 @@ export default function DonationTable({
                         <div>{donation.donor_name}</div>
                         <div className="text-xs text-text-secondary">{donation.donor_phone}</div>
                       </td>
-                      <td className="px-4 py-3 text-sm text-text-primary">#{donation.request}</td>
+                      <td className="px-4 py-3 text-sm text-text-primary">
+                        {donation.recipient_name || "-"}
+                      </td>
                       <td className="px-4 py-3 text-sm">
                         <DonationStatusBadge status={donation.status} />
                       </td>

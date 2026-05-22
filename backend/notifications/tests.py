@@ -9,6 +9,7 @@ from accounts.models import RolePermission, User
 from core.models import Permission
 from core.models import Settings
 from notifications.models import Notification
+from notifications.services.dispatch import dispatch_notification
 from notifications.services.factory import create_notifications
 from notifications.services.twilio_service import send_sms_notification
 
@@ -195,4 +196,25 @@ class NotificationApiTests(APITestCase):
         channels = {item.sent_via for item in rows}
         self.assertTrue({"in_app", "email"}.issubset(channels))
         self.assertTrue(all(item.user_type == "admin" for item in rows))
-        self.assertEqual(mock_dispatch.call_count, len(rows))
+        expected_async = len([item for item in rows if item.sent_via != "in_app"])
+        self.assertEqual(mock_dispatch.call_count, expected_async)
+
+    @patch("notifications.services.dispatch.publish_unread_count")
+    @patch("notifications.services.dispatch.publish_created")
+    def test_dispatch_in_app_publishes_created_and_unread_events(self, mock_publish_created, mock_publish_unread):
+        row = Notification.objects.create(
+            user=self.admin,
+            user_type="admin",
+            event_key="system_alert",
+            type="system",
+            title="Realtime",
+            message="Realtime payload",
+            sent_via="in_app",
+            status="queued",
+            is_read=False,
+        )
+
+        result = dispatch_notification(row.id)
+        self.assertTrue(result["success"])
+        self.assertEqual(mock_publish_created.call_count, 1)
+        self.assertEqual(mock_publish_unread.call_count, 1)

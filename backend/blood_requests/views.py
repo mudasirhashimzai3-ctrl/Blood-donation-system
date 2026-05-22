@@ -1,6 +1,3 @@
-import threading
-
-from django.db import transaction
 from django.db.models import Q
 from django_filters import rest_framework as filterset
 from django_filters.rest_framework import DjangoFilterBackend
@@ -47,16 +44,10 @@ def _create_system_notifications(**kwargs):
 
 
 def _enqueue_request_automation(request_id: int):
-    def _runner():
-        try:
-            if hasattr(run_request_automation, "delay"):
-                run_request_automation.delay(request_id)
-                return
-            run_request_automation(request_id)
-        except Exception:
-            return
-
-    transaction.on_commit(lambda: threading.Thread(target=_runner, daemon=True).start())
+    try:
+        run_request_automation(request_id)
+    except Exception:
+        return
 
 
 def _ensure_recipient_profile_for_user(user):

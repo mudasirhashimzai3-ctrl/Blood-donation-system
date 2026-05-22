@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 enum AppEnvironment { development, staging, production }
 
@@ -42,10 +42,21 @@ class AppConfig {
   }
 
   static String _localDevelopmentApiBaseUrl() {
-    if (Platform.isAndroid) {
-      return 'http://10.0.2.2:8000/api';
+    if (kIsWeb) {
+      return 'http://localhost:8000/api';
     }
-    return 'http://localhost:8000/api';
+
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        return 'http://10.0.2.2:8000/api';
+      case TargetPlatform.windows:
+      case TargetPlatform.linux:
+      case TargetPlatform.macOS:
+        return 'http://127.0.0.1:8000/api';
+      case TargetPlatform.iOS:
+      case TargetPlatform.fuchsia:
+        return 'http://localhost:8000/api';
+    }
   }
 
   static String get websocketBaseUrl {

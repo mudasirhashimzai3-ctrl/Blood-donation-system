@@ -1,16 +1,14 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:blood_donation_app/core/config/app_config.dart';
 import 'package:blood_donation_app/core/di/injection.dart';
 import 'package:blood_donation_app/bootstrap.dart';
 import 'package:flutter/foundation.dart';
+import 'package:dio/dio.dart';
 
 Uri _buildHealthUri() {
   final baseUrl = AppConfig.baseUrl;
-  final normalizedBase =
-      baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
+  final normalizedBase = baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
   return Uri.parse(normalizedBase).resolve('core/health/');
 }
 
@@ -18,12 +16,16 @@ Future<void> _debugApiPreflight() async {
   if (!kDebugMode) return;
 
   final healthUri = _buildHealthUri();
-  final client = HttpClient()..connectionTimeout = const Duration(seconds: 4);
+  final client = Dio(
+    BaseOptions(
+      connectTimeout: const Duration(seconds: 4),
+      receiveTimeout: const Duration(seconds: 4),
+      headers: const {"Accept": "application/json"},
+    ),
+  );
+
   try {
-    final request = await client.getUrl(healthUri);
-    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
-    final response =
-        await request.close().timeout(const Duration(seconds: 4));
+    final response = await client.getUri<dynamic>(healthUri);
     if (response.statusCode == 200) {
       debugPrint('API preflight OK: $healthUri');
       return;

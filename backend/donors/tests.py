@@ -179,7 +179,7 @@ class DonorApiTests(APITestCase):
             phone="0700000011",
             blood_group="A+",
             status="active",
-            permanent_address="Zia Street",
+            permanent_address_city="Zia City",
         )
         Donor.objects.create(
             first_name="Aman",
@@ -214,15 +214,15 @@ class DonorApiTests(APITestCase):
             blood_group="B-",
             status="active",
             age=28,
-            permanent_address="Permanent Address",
-            local_address="Local Address",
+            permanent_address_city="Permanent City",
+            local_address_city="Local City",
         )
         response = self.client.get(f"{self.base_url}{donor.id}/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["email"], "detail@example.com")
         self.assertEqual(response.data["age"], 28)
-        self.assertEqual(response.data["permanent_address"], "Permanent Address")
-        self.assertEqual(response.data["local_address"], "Local Address")
+        self.assertEqual(response.data["permanent_address_city"], "Permanent City")
+        self.assertEqual(response.data["local_address_city"], "Local City")
         self.assertIn("profile_picture_url", response.data)
 
     def test_update_forces_status_to_active(self):
@@ -306,3 +306,78 @@ class DonorApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("date_of_birth", response.data)
         self.assertIn("last_donation_date", response.data)
+
+    def test_me_patch_works_without_role_matrix_permissions(self):
+        donor_user = User.objects.create_user(
+            username="self_donor",
+            password="StrongPass123!",
+            role_name="donor",
+            phone="0700001010",
+        )
+        Donor.objects.create(
+            user=donor_user,
+            first_name="Self",
+            last_name="Donor",
+            phone="0700001010",
+            blood_group="A+",
+            status="active",
+        )
+
+        # Intentionally no donor role rows in RolePermission.
+        RolePermission.objects.filter(role_name="donor", permission__module="donors").delete()
+
+        self.client.force_authenticate(user=donor_user)
+        response = self.client.patch(
+            f"{self.base_url}me/",
+            {"last_name": "Updated"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["last_name"], "Updated")
+
+    def test_me_endpoint_rejects_non_donor_role(self):
+        self.client.force_authenticate(user=self.admin_user)
+        response = self.client.get(f"{self.base_url}me/")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_donor_age_must_be_strictly_greater_than_18(self):
+        underage_response = self.client.post(
+            self.base_url,
+            {
+                "first_name": "Age",
+                "last_name": "Boundary",
+                "phone": "0700002018",
+                "blood_group": "B+",
+                "age": 18,
+            },
+            format="json",
+        )
+        self.assertEqual(underage_response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("age", underage_response.data)
+
+        valid_response = self.client.post(
+            self.base_url,
+            {
+                "first_name": "Age",
+                "last_name": "Valid",
+                "phone": "0700002019",
+                "blood_group": "B+",
+                "age": 19,
+            },
+            format="json",
+        )
+        self.assertEqual(valid_response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(valid_response.data["age"], 19)
+
+        nullable_response = self.client.post(
+            self.base_url,
+            {
+                "first_name": "Age",
+                "last_name": "Nullable",
+                "phone": "0700002020",
+                "blood_group": "O+",
+            },
+            format="json",
+        )
+        self.assertEqual(nullable_response.status_code, status.HTTP_201_CREATED)
+        self.assertIsNone(nullable_response.data["age"])

@@ -10,6 +10,7 @@ from donations.services.transitions import can_transition, is_terminal_status
 class DonationListSerializer(serializers.ModelSerializer):
     donor_name = serializers.SerializerMethodField()
     donor_phone = serializers.CharField(source="donor.phone", read_only=True)
+    recipient_name = serializers.CharField(source="request.recipient.full_name", read_only=True)
     request_status = serializers.CharField(source="request.status", read_only=True)
     request_response_deadline = serializers.DateTimeField(source="request.response_deadline", read_only=True)
     nearby_donors_count_dynamic = serializers.SerializerMethodField()
@@ -24,6 +25,7 @@ class DonationListSerializer(serializers.ModelSerializer):
             "donor",
             "donor_name",
             "donor_phone",
+            "recipient_name",
             "status",
             "response_time",
             "distance_km",

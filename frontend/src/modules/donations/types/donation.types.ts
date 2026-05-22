@@ -44,6 +44,7 @@ export type DonationListItem = Pick<
   Donation,
   | "id"
   | "request"
+  | "recipient_name"
   | "donor"
   | "donor_name"
   | "donor_phone"

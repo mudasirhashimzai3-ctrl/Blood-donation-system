@@ -149,7 +149,7 @@ export const useUserProfileStore = create<UserState>()(
       fetchUserProfile: async () => {
         set({ loading: true, error: null });
         try {
-          const response = await apiClient.get("/accounts/users/me");
+          const response = await apiClient.get("/accounts/users/me/");
           set({ userProfile: response.data, loading: false });
         } catch (error) {
           const errorMessage = extractAxiosError(

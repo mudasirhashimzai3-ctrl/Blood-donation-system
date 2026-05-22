@@ -99,7 +99,7 @@ SECTION_DEFAULTS = {
     "localization": {
         "default_language": "en",
         "supported_languages": ["en", "da", "pa"],
-        "default_timezone": "UTC",
+        "default_timezone": "Asia/Kabul",
         "date_format": "yyyy-MM-dd",
         "time_format_24h": True,
         "first_day_of_week": "monday",

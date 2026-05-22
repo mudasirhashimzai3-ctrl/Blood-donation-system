@@ -131,6 +131,32 @@ class BloodRequestItem {
   }
 }
 
+class HospitalItem {
+  const HospitalItem({
+    required this.id,
+    required this.name,
+    this.province,
+    this.city,
+    this.address,
+  });
+
+  final int id;
+  final String name;
+  final String? province;
+  final String? city;
+  final String? address;
+
+  factory HospitalItem.fromJson(Map<String, dynamic> json) {
+    return HospitalItem(
+      id: (json['id'] as num?)?.toInt() ?? 0,
+      name: (json['name'] ?? '').toString(),
+      province: json['province']?.toString(),
+      city: json['city']?.toString(),
+      address: json['address']?.toString(),
+    );
+  }
+}
+
 class DonationItem {
   const DonationItem({
     required this.id,
@@ -164,7 +190,8 @@ class DonationItem {
       requestId: (json['request'] ?? '').toString(),
       status: (json['status'] ?? '').toString(),
       distanceKm: (json['distance_km'] as num?)?.toDouble() ?? 0,
-      estimatedArrivalMinutes: (json['estimated_arrival_time'] as num?)?.toInt(),
+      estimatedArrivalMinutes:
+          (json['estimated_arrival_time'] as num?)?.toInt(),
       donorName: json['donor_name']?.toString(),
       hospitalName: json['hospital_name']?.toString(),
       requestBloodGroup: json['request_blood_group']?.toString(),
@@ -198,7 +225,9 @@ class NotificationItem {
   final Map<String, dynamic>? metadata;
 
   bool get isEmergency =>
-      priority == 'critical' || priority == 'high' || metadata?['is_emergency'] == true;
+      priority == 'critical' ||
+      priority == 'high' ||
+      metadata?['is_emergency'] == true;
 
   factory NotificationItem.fromJson(Map<String, dynamic> json) {
     return NotificationItem(
@@ -208,7 +237,8 @@ class NotificationItem {
       type: (json['type'] ?? '').toString(),
       priority: (json['priority'] ?? 'normal').toString(),
       isRead: json['is_read'] == true,
-      createdAt: DateTime.tryParse((json['created_at'] ?? '').toString()) ?? DateTime.now(),
+      createdAt: DateTime.tryParse((json['created_at'] ?? '').toString()) ??
+          DateTime.now(),
       metadata: json['metadata'] is Map<String, dynamic>
           ? json['metadata'] as Map<String, dynamic>
           : null,

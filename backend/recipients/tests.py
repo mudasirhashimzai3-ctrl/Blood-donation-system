@@ -178,3 +178,36 @@ class RecipientApiTests(APITestCase):
         )
         self.assertEqual(other_update.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_me_patch_works_without_role_matrix_permissions(self):
+        recipient_user = User.objects.create_user(
+            username="recipient_me_patch",
+            password="StrongPass123!",
+            role_name="recipient",
+            phone="0700001100",
+        )
+        hospital = self._create_hospital(name="Me Hospital", phone="0700100090")
+        Recipient.objects.create(
+            user=recipient_user,
+            full_name="Recipient Me",
+            phone="0700001100",
+            required_blood_group="O+",
+            hospital=hospital,
+            emergency_level="normal",
+        )
+
+        RolePermission.objects.filter(role_name="recipient", permission__module="recipients").delete()
+
+        self.client.force_authenticate(user=recipient_user)
+        response = self.client.patch(
+            f"{self.base_url}me/",
+            {"emergency_level": "urgent"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["emergency_level"], "urgent")
+
+    def test_me_endpoint_rejects_non_recipient_role(self):
+        self.client.force_authenticate(user=self.admin_user)
+        response = self.client.get(f"{self.base_url}me/")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+

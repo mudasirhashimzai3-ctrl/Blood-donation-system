@@ -13,6 +13,7 @@ from accounts.models import RolePermission, User, UserPermission
 from core.models import Permission
 from donors.models import Donor
 from hospitals.models import Hospital
+from notifications.models import Notification
 from recipients.models import Recipient
 
 from .models import BloodRequest
@@ -384,6 +385,46 @@ class BloodRequestApiTests(APITestCase):
         notifications_response = self.client.get(f"{self.base_url}{request_id}/notifications/")
         self.assertEqual(notifications_response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(len(notifications_response.data), 1)
+
+    def test_recipient_create_triggers_admin_and_donor_notifications(self):
+        donor = self._create_donor(phone="0700555511")
+        self.client.force_authenticate(user=self.recipient_user)
+
+        response = self.client.post(
+            self.base_url,
+            {
+                "hospital": self.hospital.id,
+                "blood_group": donor.blood_group,
+                "units_needed": 1,
+                "request_type": "urgent",
+                "auto_match_enabled": True,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        request_id = response.data["id"]
+
+        donor_rows = Notification.objects.filter(
+            user_id=donor.user_id,
+            event_key="blood_request_created",
+            request_id=request_id,
+            sent_via="in_app",
+            hidden_at__isnull=True,
+            deleted_at__isnull=True,
+        )
+        admin_rows = Notification.objects.filter(
+            user=self.admin,
+            event_key="blood_request_created",
+            request_id=request_id,
+            sent_via="in_app",
+            hidden_at__isnull=True,
+            deleted_at__isnull=True,
+        )
+
+        self.assertGreaterEqual(donor_rows.count(), 1)
+        self.assertGreaterEqual(admin_rows.count(), 1)
+        self.assertTrue(all(item.status == "delivered" for item in donor_rows))
+        self.assertTrue(all(item.status == "delivered" for item in admin_rows))
 
     def test_viewer_cannot_mutate(self):
         permission = Permission.objects.get(module="blood_requests", action="add")

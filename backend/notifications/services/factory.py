@@ -119,6 +119,13 @@ def create_notifications(
                 continue
 
             created_rows.append(notification)
-            _dispatch_async(notification.id)
+            if channel == "in_app":
+                # In-app notifications should be available to websocket clients immediately.
+                try:
+                    dispatch_notification(notification.id)
+                except Exception:
+                    continue
+            else:
+                _dispatch_async(notification.id)
 
     return created_rows

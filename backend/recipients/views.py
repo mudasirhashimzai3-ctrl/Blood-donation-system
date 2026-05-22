@@ -80,8 +80,18 @@ class RecipientViewSet(PermissionMixin, viewsets.ModelViewSet):
             return RecipientListSerializer
         return RecipientDetailSerializer
 
-    @action(detail=False, methods=["get", "patch"], url_path="me")
+    @action(
+        detail=False,
+        methods=["get", "patch"],
+        url_path="me",
+        permission_classes=[IsAuthenticated],
+        permission_module=None,
+    )
     def me(self, request):
+        role_name = normalize_role_name(getattr(request.user, "role_name", None))
+        if role_name != "recipient":
+            raise PermissionDenied("Only recipient users can access this endpoint.")
+
         recipient = getattr(request.user, "recipient", None)
         if recipient is None:
             return Response(

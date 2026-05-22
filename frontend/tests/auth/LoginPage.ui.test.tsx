@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import LoginPage from "@/modules/auth/pages/LoginPage";
 
+const navigateMock = vi.hoisted(() => vi.fn());
 const storeRef = vi.hoisted(() => ({
   current: {
     login: vi.fn(),
@@ -15,6 +16,14 @@ const storeRef = vi.hoisted(() => ({
     lockedUntil: null as string | null,
   },
 }));
+
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual<typeof import("react-router-dom")>("react-router-dom");
+  return {
+    ...actual,
+    useNavigate: () => navigateMock,
+  };
+});
 
 vi.mock("react-i18next", () => ({
   initReactI18next: {
@@ -51,6 +60,7 @@ vi.mock("@/modules/auth/stores/useUserStore", () => ({
 
 describe("LoginPage UI", () => {
   beforeEach(() => {
+    navigateMock.mockReset();
     storeRef.current = {
       login: vi.fn(),
       loading: false,
@@ -112,6 +122,27 @@ describe("LoginPage UI", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Account Temporarily Locked")).toBeInTheDocument();
+    });
+  });
+
+  it("navigates immediately after successful login submit", async () => {
+    const user = userEvent.setup();
+    storeRef.current.login = vi.fn().mockResolvedValue(undefined);
+
+    render(
+      <MemoryRouter initialEntries={["/auth/login"]}>
+        <LoginPage />
+      </MemoryRouter>
+    );
+
+    await user.type(screen.getByLabelText("Username"), "operator");
+    await user.selectOptions(screen.getByLabelText("Role"), "donor");
+    await user.type(screen.getByLabelText("Password"), "Password123!");
+    await user.click(screen.getByRole("button", { name: "Sign In" }));
+
+    await waitFor(() => {
+      expect(storeRef.current.login).toHaveBeenCalledTimes(1);
+      expect(navigateMock).toHaveBeenCalledWith("/", { replace: true });
     });
   });
 });

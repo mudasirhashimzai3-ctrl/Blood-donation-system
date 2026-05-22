@@ -143,16 +143,19 @@ class _CreateRequestScreen extends StatefulWidget {
 }
 
 class _CreateRequestScreenState extends State<_CreateRequestScreen> {
-  final _hospitalController = TextEditingController();
   final _unitsController = TextEditingController(text: '1');
   String _bloodGroup = AppConstants.bloodTypes.first;
   String _level = 'normal';
   bool _loading = false;
+  bool _loadingHospitals = true;
+  List<HospitalItem> _hospitals = const [];
+  int? _selectedHospitalId;
 
   @override
   void initState() {
     super.initState();
     _prefillBloodGroupFromProfile();
+    _loadHospitals();
   }
 
   Future<void> _prefillBloodGroupFromProfile() async {
@@ -169,19 +172,38 @@ class _CreateRequestScreenState extends State<_CreateRequestScreen> {
     } catch (_) {}
   }
 
+  Future<void> _loadHospitals() async {
+    setState(() => _loadingHospitals = true);
+    try {
+      final hospitals = await RecipientService(getIt()).getHospitals();
+      if (!mounted) return;
+      setState(() {
+        _hospitals = hospitals;
+        if (_selectedHospitalId == null && hospitals.isNotEmpty) {
+          _selectedHospitalId = hospitals.first.id;
+        }
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _hospitals = const []);
+    } finally {
+      if (mounted) {
+        setState(() => _loadingHospitals = false);
+      }
+    }
+  }
+
   @override
   void dispose() {
-    _hospitalController.dispose();
     _unitsController.dispose();
     super.dispose();
   }
 
   Future<void> _create() async {
-    final hospitalId = int.tryParse(_hospitalController.text.trim());
     final units = int.tryParse(_unitsController.text.trim()) ?? 1;
-    if (hospitalId == null) {
+    if (_selectedHospitalId == null) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Enter hospital ID')));
+          .showSnackBar(const SnackBar(content: Text('Select a hospital')));
       return;
     }
     if (_bloodGroup.trim().isEmpty) {
@@ -192,7 +214,7 @@ class _CreateRequestScreenState extends State<_CreateRequestScreen> {
     setState(() => _loading = true);
     try {
       await RecipientService(getIt()).createRequest(
-        hospitalId: hospitalId,
+        hospitalId: _selectedHospitalId!,
         bloodGroup: _bloodGroup,
         units: units,
         emergencyLevel: _level,
@@ -220,11 +242,26 @@ class _CreateRequestScreenState extends State<_CreateRequestScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          TextField(
-            controller: _hospitalController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'Hospital ID'),
+          DropdownButtonFormField<int>(
+            value: _selectedHospitalId,
+            items: _hospitals
+                .map(
+                  (hospital) => DropdownMenuItem<int>(
+                    value: hospital.id,
+                    child: Text('${hospital.name} (${hospital.city ?? "-"})'),
+                  ),
+                )
+                .toList(),
+            onChanged: _loadingHospitals
+                ? null
+                : (value) => setState(() => _selectedHospitalId = value),
+            decoration: const InputDecoration(labelText: 'Hospital'),
           ),
+          if (_loadingHospitals)
+            const Padding(
+              padding: EdgeInsets.only(top: 8),
+              child: LinearProgressIndicator(),
+            ),
           DropdownButtonFormField<String>(
             value: _bloodGroup,
             items: AppConstants.bloodTypes
@@ -394,6 +431,159 @@ class _RecipientProfileScreenState extends State<_RecipientProfileScreen> {
     _future = RecipientService(getIt()).getProfile();
   }
 
+  Future<void> _openEditDialog(Map<String, dynamic> profile) async {
+    final fullNameController =
+        TextEditingController(text: (profile['full_name'] ?? '').toString());
+    final phoneController =
+        TextEditingController(text: (profile['phone'] ?? '').toString());
+    final emailController =
+        TextEditingController(text: (profile['email'] ?? '').toString());
+    var selectedBloodGroup =
+        (profile['required_blood_group'] ?? AppConstants.bloodTypes.first)
+            .toString();
+    var selectedLevel = normalizeRequestType(
+      (profile['emergency_level'] ?? 'normal').toString(),
+    );
+    int? selectedHospitalId =
+        int.tryParse((profile['hospital'] ?? '').toString());
+    var saving = false;
+
+    List<HospitalItem> hospitals = const [];
+    try {
+      hospitals = await RecipientService(getIt()).getHospitals();
+    } catch (_) {}
+    if (selectedHospitalId == null && hospitals.isNotEmpty) {
+      selectedHospitalId = hospitals.first.id;
+    }
+
+    if (!mounted) return;
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text('Update Profile'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: fullNameController,
+                      decoration: const InputDecoration(labelText: 'Full Name'),
+                    ),
+                    TextField(
+                      controller: phoneController,
+                      decoration: const InputDecoration(labelText: 'Phone'),
+                      keyboardType: TextInputType.phone,
+                    ),
+                    TextField(
+                      controller: emailController,
+                      decoration: const InputDecoration(labelText: 'Email'),
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                    DropdownButtonFormField<String>(
+                      value: selectedBloodGroup,
+                      items: AppConstants.bloodTypes
+                          .map((value) => DropdownMenuItem(
+                                value: value,
+                                child: Text(value),
+                              ))
+                          .toList(),
+                      onChanged: (value) => setDialogState(() =>
+                          selectedBloodGroup = value ?? selectedBloodGroup),
+                      decoration: const InputDecoration(
+                          labelText: 'Required Blood Group'),
+                    ),
+                    DropdownButtonFormField<String>(
+                      value: selectedLevel,
+                      items: const [
+                        DropdownMenuItem(
+                            value: 'normal', child: Text('Normal')),
+                        DropdownMenuItem(
+                            value: 'urgent', child: Text('Urgent')),
+                        DropdownMenuItem(
+                            value: 'critical', child: Text('Critical')),
+                      ],
+                      onChanged: (value) => setDialogState(
+                          () => selectedLevel = value ?? selectedLevel),
+                      decoration:
+                          const InputDecoration(labelText: 'Emergency Level'),
+                    ),
+                    DropdownButtonFormField<int>(
+                      value: selectedHospitalId,
+                      items: hospitals
+                          .map(
+                            (hospital) => DropdownMenuItem<int>(
+                              value: hospital.id,
+                              child: Text(
+                                  '${hospital.name} (${hospital.city ?? "-"})'),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) =>
+                          setDialogState(() => selectedHospitalId = value),
+                      decoration: const InputDecoration(labelText: 'Hospital'),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: saving ? null : () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: saving
+                      ? null
+                      : () async {
+                          setDialogState(() => saving = true);
+                          try {
+                            await RecipientService(getIt()).updateProfile(
+                              fullName: fullNameController.text,
+                              phone: phoneController.text,
+                              email: emailController.text,
+                              requiredBloodGroup: selectedBloodGroup,
+                              emergencyLevel: selectedLevel,
+                              hospitalId: selectedHospitalId,
+                            );
+                            if (!context.mounted) return;
+                            Navigator.pop(context);
+                            if (!mounted) return;
+                            setState(() {
+                              _future = RecipientService(getIt()).getProfile();
+                            });
+                            ScaffoldMessenger.of(this.context).showSnackBar(
+                              const SnackBar(content: Text('Profile updated')),
+                            );
+                          } catch (error) {
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(this.context).showSnackBar(
+                              SnackBar(content: Text(toUserMessage(error))),
+                            );
+                          } finally {
+                            if (context.mounted) {
+                              setDialogState(() => saving = false);
+                            }
+                          }
+                        },
+                  child: saving
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Save'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -416,6 +606,14 @@ class _RecipientProfileScreenState extends State<_RecipientProfileScreen> {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: OutlinedButton.icon(
+                  onPressed: () => _openEditDialog(p),
+                  icon: const Icon(Icons.edit),
+                  label: const Text('Edit Profile'),
+                ),
+              ),
               Text((p['full_name'] ?? '').toString(),
                   style: const TextStyle(fontSize: 22)),
               const SizedBox(height: 8),

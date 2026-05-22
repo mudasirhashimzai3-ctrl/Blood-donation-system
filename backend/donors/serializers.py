@@ -104,8 +104,8 @@ class DonorDetailSerializer(serializers.ModelSerializer):
     def validate_age(self, value):
         if value is None:
             return value
-        if value < 1:
-            raise serializers.ValidationError("Age must be greater than zero.")
+        if value <= 18:
+            raise serializers.ValidationError("Donor age must be greater than 18.")
         return value
 
     def validate(self, attrs):

@@ -83,7 +83,7 @@ export default function DonationViewPage() {
             <div>
               <h2 className="text-xl font-semibold text-text-primary">{donation.donor_name}</h2>
               <p className="text-sm text-text-secondary">
-                #{donation.request} - {donation.recipient_name}
+                {donation.recipient_name || t("donations.fields.recipientUnknown", "Recipient")}
               </p>
             </div>
             <div className="flex items-center gap-2">

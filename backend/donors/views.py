@@ -9,6 +9,7 @@ from accounts.models import normalize_role_name
 from blood_requests.serializers import BloodRequestListSerializer
 from core.pagination import StandardResultsSetPagination
 from core.permissions import PermissionMixin
+from rest_framework.exceptions import PermissionDenied
 
 from donations.models import Donation
 from .models import Donor
@@ -44,8 +45,18 @@ class DonorViewSet(PermissionMixin, viewsets.ModelViewSet):
             return DonorListSerializer
         return DonorDetailSerializer
 
-    @action(detail=False, methods=["get", "patch"], url_path="me")
+    @action(
+        detail=False,
+        methods=["get", "patch"],
+        url_path="me",
+        permission_classes=[IsAuthenticated],
+        permission_module=None,
+    )
     def me(self, request):
+        role_name = normalize_role_name(getattr(request.user, "role_name", None))
+        if role_name != "donor":
+            raise PermissionDenied("Only donor users can access this endpoint.")
+
         donor = getattr(request.user, "donor", None)
         if donor is None:
             return Response(

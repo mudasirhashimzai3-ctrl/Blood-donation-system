@@ -5,15 +5,39 @@ import { getAccessToken } from "@/lib/api";
 import { useUserStore } from "@/modules/auth/stores/useUserStore";
 import { notificationKeys } from "../queries/notificationKeys";
 
-const buildSocketUrl = () => {
-  const fromEnv = import.meta.env.VITE_WS_BASE_URL as string | undefined;
-  const token = getAccessToken();
+const DEFAULT_API_BASE_URL = "http://localhost:8000/api";
 
-  let base = fromEnv;
-  if (!base) {
-    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-    base = `${protocol}://${window.location.host}`;
+export const deriveWebSocketBaseFromApiBase = (
+  apiBaseUrl: string,
+  fallbackOrigin?: string
+) => {
+  try {
+    const parsed = new URL(apiBaseUrl, fallbackOrigin);
+    const protocol = parsed.protocol === "https:" ? "wss" : "ws";
+    return `${protocol}://${parsed.host}`;
+  } catch {
+    const fallback = new URL(fallbackOrigin || "http://localhost:8000");
+    const protocol = fallback.protocol === "https:" ? "wss" : "ws";
+    return `${protocol}://${fallback.host}`;
   }
+};
+
+export const buildNotificationsSocketUrl = (params?: {
+  apiBaseUrl?: string;
+  wsBaseUrl?: string;
+  token?: string | null;
+  fallbackOrigin?: string;
+}) => {
+  const fromEnv = params?.wsBaseUrl ?? (import.meta.env.VITE_WS_BASE_URL as string | undefined);
+  const apiBaseUrl =
+    params?.apiBaseUrl ??
+    ((import.meta.env.VITE_API_BASE_URL as string | undefined) || DEFAULT_API_BASE_URL);
+  const token = params?.token ?? getAccessToken();
+
+  const base =
+    fromEnv && fromEnv.trim().length > 0
+      ? fromEnv
+      : deriveWebSocketBaseFromApiBase(apiBaseUrl, params?.fallbackOrigin ?? window.location.origin);
 
   const url = new URL("/ws/notifications/", base);
   if (token) {
@@ -29,7 +53,7 @@ export const useNotificationsSocket = (enabled = true) => {
   useEffect(() => {
     if (!enabled || !user) return;
 
-    const socketUrl = buildSocketUrl();
+    const socketUrl = buildNotificationsSocketUrl();
     const ws = new WebSocket(socketUrl);
 
     ws.onmessage = (event) => {

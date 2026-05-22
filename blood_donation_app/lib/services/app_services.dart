@@ -9,6 +9,24 @@ import 'package:blood_donation_app/modules/notifications/data/services/notificat
 import 'package:blood_donation_app/shared/app_session.dart';
 import 'package:flutter/foundation.dart';
 
+String normalizeRequestType(String raw) {
+  final value = raw.trim().toLowerCase();
+  switch (value) {
+    case 'critical':
+    case 'urgent':
+    case 'normal':
+      return value;
+    case 'emergency':
+      return 'critical';
+    case 'high':
+      return 'urgent';
+    case 'low':
+      return 'normal';
+    default:
+      return 'normal';
+  }
+}
+
 Map<String, dynamic> _normalizeProfilePayload({
   required Map<String, dynamic> payload,
   required AppRole role,
@@ -177,6 +195,40 @@ class DonorService {
     );
   }
 
+  Future<Map<String, dynamic>> updateProfile({
+    String? firstName,
+    String? lastName,
+    String? phone,
+    String? email,
+    String? bloodGroup,
+    int? age,
+    String? localAddressCity,
+    String? permanentAddressCity,
+  }) async {
+    final payload = <String, dynamic>{};
+    if (firstName != null) payload['first_name'] = firstName.trim();
+    if (lastName != null) payload['last_name'] = lastName.trim();
+    if (phone != null) payload['phone'] = phone.trim();
+    if (email != null) payload['email'] = email.trim();
+    if (bloodGroup != null) payload['blood_group'] = bloodGroup.trim();
+    if (age != null) payload['age'] = age;
+    if (localAddressCity != null) {
+      payload['local_address_city'] = localAddressCity.trim();
+    }
+    if (permanentAddressCity != null) {
+      payload['permanent_address_city'] = permanentAddressCity.trim();
+    }
+
+    final response = await _apiClient.patch<Map<String, dynamic>>(
+      '/donors/me/',
+      data: payload,
+    );
+    return _normalizeProfilePayload(
+      payload: response.data ?? <String, dynamic>{},
+      role: AppRole.donor,
+    );
+  }
+
   Future<void> respondToDonation({
     required String donationId,
     required String action,
@@ -243,6 +295,51 @@ class RecipientService {
     );
   }
 
+  Future<Map<String, dynamic>> updateProfile({
+    String? fullName,
+    String? phone,
+    String? email,
+    String? requiredBloodGroup,
+    String? emergencyLevel,
+    int? hospitalId,
+  }) async {
+    final payload = <String, dynamic>{};
+    if (fullName != null) payload['full_name'] = fullName.trim();
+    if (phone != null) payload['phone'] = phone.trim();
+    if (email != null) payload['email'] = email.trim();
+    if (requiredBloodGroup != null) {
+      payload['required_blood_group'] = requiredBloodGroup.trim();
+    }
+    if (emergencyLevel != null) {
+      payload['emergency_level'] = normalizeRequestType(emergencyLevel);
+    }
+    if (hospitalId != null) payload['hospital'] = hospitalId;
+
+    final response = await _apiClient.patch<Map<String, dynamic>>(
+      '/recipients/me/',
+      data: payload,
+    );
+    return _normalizeProfilePayload(
+      payload: response.data ?? <String, dynamic>{},
+      role: AppRole.recipient,
+    );
+  }
+
+  Future<List<HospitalItem>> getHospitals({String? search}) async {
+    final response = await _apiClient.get<Map<String, dynamic>>(
+      '/hospitals/',
+      queryParameters: <String, dynamic>{
+        'page_size': 200,
+        if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
+      },
+    );
+    final items = (response.data?['results'] as List?) ?? const [];
+    return items
+        .whereType<Map>()
+        .map((entry) => HospitalItem.fromJson(Map<String, dynamic>.from(entry)))
+        .toList(growable: false);
+  }
+
   Future<void> createRequest({
     required int hospitalId,
     required String bloodGroup,
@@ -265,7 +362,7 @@ class RecipientService {
         'hospital': hospitalId,
         'blood_group': cleanedBloodGroup,
         'units_needed': units,
-        'request_type': emergencyLevel,
+        'request_type': normalizeRequestType(emergencyLevel),
         'auto_match_enabled': true,
       },
     );
@@ -321,19 +418,20 @@ class RealtimeNotificationsService {
 
   Stream<Map<String, dynamic>> get events => _eventsController.stream;
 
+  @visibleForTesting
+  void handleSocketEvent(Map<String, dynamic> payload) {
+    final event = payload['event']?.toString() ?? '';
+    final data = payload['data'];
+    if (event == 'notification.unread_count' && data is Map<String, dynamic>) {
+      unreadCount.value = (data['count'] as num?)?.toInt() ?? unreadCount.value;
+    }
+    _eventsController.add(payload);
+  }
+
   Future<void> connect() async {
     _socketService ??= NotificationsSocketService(getIt<SecureStorage>());
     await _socketService!.connect(
-      onEvent: (payload) {
-        final event = payload['event']?.toString() ?? '';
-        final data = payload['data'];
-        if (event == 'notification.unread_count' &&
-            data is Map<String, dynamic>) {
-          unreadCount.value =
-              (data['count'] as num?)?.toInt() ?? unreadCount.value;
-        }
-        _eventsController.add(payload);
-      },
+      onEvent: handleSocketEvent,
     );
   }
 

@@ -1,6 +1,11 @@
 import 'package:blood_donation_app/models/app_models.dart';
 import 'package:flutter/material.dart';
 
+String _titleCase(String value) {
+  if (value.isEmpty) return value;
+  return value[0].toUpperCase() + value.substring(1).toLowerCase();
+}
+
 class RequestCard extends StatelessWidget {
   const RequestCard({
     super.key,
@@ -29,7 +34,8 @@ class RequestCard extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: emergencyColor.withValues(alpha: 0.14),
                     borderRadius: BorderRadius.circular(10),
@@ -47,7 +53,9 @@ class RequestCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text('Blood: ${item.bloodGroup}   Units: ${item.unitsNeeded}'),
-            Text('Status: ${item.status}   Type: ${item.requestType}'),
+            Text(
+              'Status: ${_titleCase(item.status)}   Type: ${_titleCase(item.requestType)}',
+            ),
             if (trailing != null) ...[
               const SizedBox(height: 8),
               trailing!,
