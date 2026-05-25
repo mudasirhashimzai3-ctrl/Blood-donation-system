@@ -1,3 +1,4 @@
+import 'package:blood_donation_app/auth/widgets/auth_entry_primitives.dart';
 import 'package:blood_donation_app/core/di/injection.dart';
 import 'package:blood_donation_app/models/app_models.dart';
 import 'package:blood_donation_app/services/app_services.dart';
@@ -5,10 +6,8 @@ import 'package:blood_donation_app/shared/app_routes.dart';
 import 'package:blood_donation_app/shared/app_session.dart';
 import 'package:blood_donation_app/shared/ui/error_message.dart';
 import 'package:blood_donation_app/shared/ui/app_style.dart';
-import 'package:blood_donation_app/shared/widgets/gradient_scaffold.dart';
-import 'package:blood_donation_app/shared/widgets/role_choice_card.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 class AppLoginScreen extends StatefulWidget {
   const AppLoginScreen({super.key});
@@ -53,9 +52,7 @@ class _AppLoginScreenState extends State<AppLoginScreen> {
       }
     } catch (error) {
       if (!mounted) return;
-      if (kDebugMode) {
-        debugPrint('Login error: $error');
-      }
+      if (kDebugMode) debugPrint('Login error: $error');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(toUserMessage(error))),
       );
@@ -66,53 +63,116 @@ class _AppLoginScreenState extends State<AppLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return GradientScaffold(
-      title: 'Login',
+    final isRecipient = _role == AppRole.recipient;
+    final roleLabel = isRecipient ? 'Recipient' : 'Donor';
+    final gradient = isRecipient
+        ? const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AuthEntryPrimitives.recipientStart,
+              AuthEntryPrimitives.recipientEnd,
+            ],
+          )
+        : const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AuthEntryPrimitives.donorStart,
+              AuthEntryPrimitives.donorEnd
+            ],
+          );
+    final icon = isRecipient
+        ? Icons.medical_services_rounded
+        : Icons.volunteer_activism_rounded;
+
+    return AuthEntryScaffold(
+      maxContentWidth: 560,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+      ),
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
-              controller: _usernameController,
-              decoration: AppStyle.fieldDecoration('Username'),
+            AuthGlassCard(
+              borderRadius: 24,
+              padding: const EdgeInsets.all(18),
+              child: Row(
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      gradient: gradient,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Icon(icon, color: Colors.white),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '$roleLabel Access',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: AuthEntryPrimitives.ink,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Continue with your account credentials.',
+                          style: TextStyle(color: AuthEntryPrimitives.mutedInk),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 12),
-            RoleChoiceCard(
-              title: 'Donor',
-              description: 'Receive requests and respond fast.',
-              icon: Icons.bloodtype,
-              selected: _role == AppRole.donor,
-              onTap: () => setState(() => _role = AppRole.donor),
-            ),
-            const SizedBox(height: 10),
-            RoleChoiceCard(
-              title: 'Recipient',
-              description: 'Create requests and monitor updates.',
-              icon: Icons.emergency,
-              selected: _role == AppRole.recipient,
-              onTap: () => setState(() => _role = AppRole.recipient),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: AppStyle.fieldDecoration('Password'),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppStyle.redPrimary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-                onPressed: _loading ? null : _login,
-                child: _loading
-                    ? const CircularProgressIndicator()
-                    : const Text('Sign In'),
+            const SizedBox(height: 16),
+            AuthGlassCard(
+              child: Column(
+                children: [
+                  TextField(
+                    controller: _usernameController,
+                    decoration: AppStyle.fieldDecoration('Username'),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: AppStyle.fieldDecoration('Password'),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AuthEntryPrimitives.ink,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      onPressed: _loading ? null : _login,
+                      child: _loading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child:
+                                  CircularProgressIndicator(strokeWidth: 2.3),
+                            )
+                          : const Text('Sign In'),
+                    ),
+                  ),
+                ],
               ),
             ),
             TextButton(

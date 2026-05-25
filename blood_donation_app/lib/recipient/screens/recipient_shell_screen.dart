@@ -641,7 +641,7 @@ class RecipientSettingsScreen extends StatelessWidget {
             await AuthService(getIt()).logout();
             if (!context.mounted) return;
             Navigator.pushNamedAndRemoveUntil(
-                context, AppRoutes.login, (route) => false);
+                context, AppRoutes.roleSelection, (route) => false);
           },
           child: const Text('Logout'),
         ),
