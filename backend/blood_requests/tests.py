@@ -2,6 +2,7 @@ import shutil
 import tempfile
 from datetime import timedelta
 from decimal import Decimal
+from unittest.mock import patch
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
@@ -11,6 +12,7 @@ from rest_framework.test import APITestCase
 
 from accounts.models import RolePermission, User, UserPermission
 from core.models import Permission
+from core.services.settings_service import update_section
 from donors.models import Donor
 from hospitals.models import Hospital
 from notifications.models import Notification
@@ -129,7 +131,7 @@ class BloodRequestApiTests(APITestCase):
             "status": "active",
             "latitude": Decimal("34.556000"),
             "longitude": Decimal("69.207700"),
-            "last_donation_date": timezone.localdate() - timedelta(days=60),
+            "last_donation_date": timezone.localdate() - timedelta(days=200),
         }
         payload.update(kwargs)
         return Donor.objects.create(**payload)
@@ -265,6 +267,29 @@ class BloodRequestApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         created = BloodRequest.objects.get(pk=response.data["id"])
         self.assertEqual(created.recipient_id, self.recipient.id)
+
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=False)
+    def test_create_queues_auto_match_after_commit_when_not_eager(self):
+        self.client.force_authenticate(user=self.admin)
+
+        with patch("blood_requests.views.run_request_automation.delay") as delay_mock:
+            with self.captureOnCommitCallbacks(execute=True) as callbacks:
+                response = self.client.post(
+                    self.base_url,
+                    {
+                        "recipient": self.recipient.id,
+                        "hospital": self.hospital.id,
+                        "blood_group": "O+",
+                        "units_needed": 1,
+                        "request_type": "urgent",
+                        "auto_match_enabled": True,
+                    },
+                    format="json",
+                )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(callbacks), 1)
+        delay_mock.assert_called_once_with(response.data["id"])
 
     def test_recipients_lookup_endpoint_supports_search(self):
         self.client.force_authenticate(user=self.admin)
@@ -425,6 +450,45 @@ class BloodRequestApiTests(APITestCase):
         self.assertGreaterEqual(admin_rows.count(), 1)
         self.assertTrue(all(item.status == "delivered" for item in donor_rows))
         self.assertTrue(all(item.status == "delivered" for item in admin_rows))
+
+    def test_auto_match_notifications_respect_configured_radius(self):
+        update_section(
+            "auto_matching",
+            {"max_distance_km": 10, "max_candidates_to_notify": 50},
+            user=self.admin,
+        )
+        near_donor = self._create_donor(phone="0700666611")
+        outside_radius = self._create_donor(
+            phone="0700666612",
+            latitude=Decimal("34.700000"),
+            longitude=Decimal("69.207500"),
+        )
+        self.client.force_authenticate(user=self.recipient_user)
+
+        response = self.client.post(
+            self.base_url,
+            {
+                "hospital": self.hospital.id,
+                "blood_group": "O+",
+                "units_needed": 1,
+                "request_type": "urgent",
+                "auto_match_enabled": True,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        request_id = response.data["id"]
+
+        self.client.force_authenticate(user=self.admin)
+        self.client.post(f"{self.base_url}{request_id}/run-auto-match/", {}, format="json")
+
+        from .models import BloodRequestNotification
+
+        notified_ids = set(
+            BloodRequestNotification.objects.filter(blood_request_id=request_id).values_list("donor_id", flat=True)
+        )
+        self.assertIn(near_donor.id, notified_ids)
+        self.assertNotIn(outside_radius.id, notified_ids)
 
     def test_viewer_cannot_mutate(self):
         permission = Permission.objects.get(module="blood_requests", action="add")

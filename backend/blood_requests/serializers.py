@@ -5,6 +5,8 @@ from rest_framework import serializers
 
 from accounts.models import normalize_role_name
 from donors.models import Donor
+from donors.services.blood_groups import get_compatible_donor_groups
+from donors.services.eligibility import get_donor_eligibility
 from recipients.models import Recipient
 
 from .models import BloodRequest, BloodRequestNotification
@@ -382,15 +384,13 @@ class AssignDonorSerializer(serializers.Serializer):
 
         if donor.status != "active":
             raise serializers.ValidationError("Only active donors can be assigned.")
-        if donor.blood_group != request.blood_group:
-            raise serializers.ValidationError("Donor blood group does not match the request.")
+        if donor.blood_group not in get_compatible_donor_groups(request.blood_group):
+            raise serializers.ValidationError("Donor blood group is not compatible with the request.")
         if donor.latitude is None or donor.longitude is None:
             raise serializers.ValidationError("Donor has no coordinates set.")
 
-        if donor.last_donation_date:
-            cooldown_cutoff = timezone.localdate() - timedelta(days=56)
-            if donor.last_donation_date > cooldown_cutoff:
-                raise serializers.ValidationError("Donor is still in cooldown period.")
+        if not get_donor_eligibility(donor.last_donation_date)["is_eligible"]:
+            raise serializers.ValidationError("Donor is still in cooldown period.")
 
         distance_km = haversine_distance_km(
             request.location_lat,

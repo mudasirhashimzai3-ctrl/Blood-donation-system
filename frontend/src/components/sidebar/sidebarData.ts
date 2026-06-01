@@ -31,7 +31,7 @@ export interface SidebarItemData {
  * Separated from UI to allow easier management and customization
  */
 const adminSidebarNavigationData: SidebarItemData[] = [
-  { path: "/", label: "Dashboard", icon: LayoutDashboard },
+  { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/donors", label: "Donors", icon: Users },
   { path: "/recipients", label: "Recipients", icon: HeartPulse },
   { path: "/hospitals", label: "Hospitals", icon: Building2 },

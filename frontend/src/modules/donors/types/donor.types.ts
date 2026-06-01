@@ -31,6 +31,12 @@ export interface Donor {
   permanent_address_city: string | null;
   local_address_city: string | null;
   last_donation_date: string | null;
+  distance_km?: string;
+  is_eligible?: boolean;
+  eligibility_status?: "eligible" | "not_eligible";
+  eligible_from?: string | null;
+  eligibility_reason?: string;
+  match_type?: "exact" | "compatible";
   created_at: string;
   updated_at: string;
 }
@@ -45,6 +51,10 @@ export type DonorListItem = Pick<
   | "blood_group"
   | "status"
   | "last_donation_date"
+  | "is_eligible"
+  | "eligibility_status"
+  | "eligible_from"
+  | "eligibility_reason"
   | "profile_picture_url"
   | "created_at"
 >;

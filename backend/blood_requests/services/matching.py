@@ -2,17 +2,17 @@ import math
 from datetime import timedelta
 from decimal import Decimal
 
-from django.db.models import Q
 from django.utils import timezone
 
 from core.services.settings_service import get_runtime_section_payload
 from donations.models import Donation
 from donors.models import Donor
+from donors.services.blood_groups import get_compatible_donor_groups
+from donors.services.eligibility import get_donor_eligibility
 
 from ..models import BloodRequest, BloodRequestNotification
 from donations.services.sync import sync_donations_for_matches
 
-DONOR_COOLDOWN_DAYS = 56
 MAX_MATCH_RADIUS_KM = Decimal("10")
 
 ETA_MINUTES_BY_REQUEST_TYPE = {
@@ -37,7 +37,7 @@ def get_max_match_radius_km() -> Decimal:
         payload = get_runtime_section_payload("auto_matching")
         raw_value = payload.get("max_distance_km", default_value)
         value = Decimal(str(raw_value))
-        if value <= 0:
+        if value not in {Decimal("10"), Decimal("20"), Decimal("50"), Decimal("100")}:
             return default_value
         return value
     except Exception:
@@ -104,21 +104,22 @@ def auto_match_blood_request(blood_request: BloodRequest, *, max_notifications: 
         blood_request.save(update_fields=["nearby_donors_count", "updated_at"])
         return []
 
-    eligibility_cutoff = timezone.localdate() - timedelta(days=DONOR_COOLDOWN_DAYS)
+    compatible_groups = get_compatible_donor_groups(blood_request.blood_group)
     eligible_donors = (
         Donor.objects.filter(
             status="active",
-            blood_group=blood_request.blood_group,
+            blood_group__in=compatible_groups,
             latitude__isnull=False,
             longitude__isnull=False,
         )
-        .filter(Q(last_donation_date__isnull=True) | Q(last_donation_date__lte=eligibility_cutoff))
         .order_by("last_donation_date", "created_at")
     )
 
     match_radius_km = get_max_match_radius_km()
     within_radius = []
     for donor in eligible_donors:
+        if not get_donor_eligibility(donor.last_donation_date)["is_eligible"]:
+            continue
         distance_km = haversine_distance_km(
             blood_request.location_lat,
             blood_request.location_lon,

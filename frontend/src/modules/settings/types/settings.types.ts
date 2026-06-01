@@ -17,6 +17,7 @@ export type AdminSettingsTab =
 export type SystemSettingsSection =
   | "general"
   | "notifications"
+  | "auto_matching"
   | "localization"
   | "security";
 

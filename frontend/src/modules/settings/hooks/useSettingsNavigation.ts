@@ -18,7 +18,7 @@ const sectionItems: SettingsNavItem[] = [
   { key: "emergency_alerts", label: "Emergency Alerts", path: "/settings/emergency-alerts", live: false },
   { key: "blood_request_rules", label: "Blood Request Rules", path: "/settings/blood-request-rules", live: false },
   { key: "donor_eligibility", label: "Donor Eligibility", path: "/settings/donor-eligibility", live: false },
-  { key: "auto_matching", label: "Auto Matching", path: "/settings/auto-matching", live: false },
+  { key: "auto_matching", label: "Auto Matching", path: "/settings/auto-matching", live: true },
   { key: "localization", label: "Language & Timezone", path: "/settings/localization", live: true },
   { key: "security", label: "Security", path: "/settings/security", live: true },
 ];

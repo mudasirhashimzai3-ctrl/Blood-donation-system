@@ -9,7 +9,7 @@ import {
 
 describe("roleRouting helpers", () => {
   it("returns role-based default home routes", () => {
-    expect(getHomeRouteByRole("admin")).toBe("/settings");
+    expect(getHomeRouteByRole("admin")).toBe("/dashboard");
     expect(getHomeRouteByRole("donor")).toBe("/donor/dashboard");
     expect(getHomeRouteByRole("recipient")).toBe("/recipient/dashboard");
   });

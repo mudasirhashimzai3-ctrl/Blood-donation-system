@@ -61,4 +61,21 @@ describe("RoleRoute", () => {
 
     expect(screen.getByText("Admin Settings")).toBeInTheDocument();
   });
+
+  it("keeps admin dashboard admin-only", () => {
+    useUserStore.setState({ userProfile: buildProfile("recipient") });
+
+    render(
+      <MemoryRouter initialEntries={["/dashboard"]}>
+        <Routes>
+          <Route element={<RoleRoute allowedRoles={["admin"]} />}>
+            <Route path="/dashboard" element={<div>Admin Dashboard</div>} />
+          </Route>
+          <Route path="/recipient/dashboard" element={<div>Recipient Home</div>} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText("Recipient Home")).toBeInTheDocument();
+  });
 });

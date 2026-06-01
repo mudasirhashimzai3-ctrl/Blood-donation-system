@@ -1,6 +1,7 @@
 import threading
 
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.db import IntegrityError
 
 from accounts.models import expand_role_names
@@ -16,6 +17,12 @@ except Exception:  # pragma: no cover
 
 
 def _dispatch_async(notification_id: int):
+    if getattr(settings, "CELERY_TASK_ALWAYS_EAGER", False):
+        try:
+            return dispatch_notification(notification_id)
+        except Exception:
+            return None
+
     def _runner():
         if dispatch_notification_task is not None:
             try:
@@ -119,13 +126,6 @@ def create_notifications(
                 continue
 
             created_rows.append(notification)
-            if channel == "in_app":
-                # In-app notifications should be available to websocket clients immediately.
-                try:
-                    dispatch_notification(notification.id)
-                except Exception:
-                    continue
-            else:
-                _dispatch_async(notification.id)
+            _dispatch_async(notification.id)
 
     return created_rows

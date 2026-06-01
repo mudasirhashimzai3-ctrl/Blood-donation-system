@@ -36,8 +36,12 @@ export default function BloodRequestCreatePage() {
   }, [form, isEmergencyRoute]);
 
   const onSubmit = async (values: BloodRequestFormValues) => {
-    await createMutation.mutateAsync(normalizeBloodRequestPayload(values));
-    navigate(getBloodRequestsRouteByRole(userRole));
+    try {
+      await createMutation.mutateAsync(normalizeBloodRequestPayload(values));
+      navigate(getBloodRequestsRouteByRole(userRole));
+    } catch {
+      // The mutation handles the toast; keep the submit promise from surfacing as an uncaught error.
+    }
   };
 
   if (!can("blood_requests")) {

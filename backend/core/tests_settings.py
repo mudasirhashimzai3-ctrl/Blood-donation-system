@@ -129,6 +129,36 @@ class SettingsApiTests(APITestCase):
 
         self.assertTrue(SettingAuditLog.objects.filter(section="user_roles").exists())
 
+    def test_admin_can_update_auto_matching_radius(self):
+        self.client.force_authenticate(self.admin)
+        response = self.client.put(
+            f"{self.base_url}auto-matching/",
+            {
+                "enabled": True,
+                "max_distance_km": 20,
+                "prioritize_rare_blood_groups": True,
+                "prioritize_recently_active_donors": True,
+                "max_candidates_to_notify": 25,
+                "retry_interval_minutes": 10,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["max_distance_km"], 20)
+
+        read_response = self.client.get(f"{self.base_url}auto-matching/")
+        self.assertEqual(read_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(read_response.data["max_distance_km"], 20)
+
+    def test_auto_matching_rejects_unsupported_radius(self):
+        self.client.force_authenticate(self.admin)
+        response = self.client.put(
+            f"{self.base_url}auto-matching/",
+            {"max_distance_km": 15},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_get_user_role_permission_matrix(self):
         self.client.force_authenticate(self.admin)
         response = self.client.get(f"{self.base_url}user-roles/permissions/")

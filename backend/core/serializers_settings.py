@@ -96,6 +96,15 @@ class UserRoleSettingsSerializer(serializers.Serializer):
     enforce_2fa_for_admin = serializers.BooleanField(required=False)
 
 
+class AutoMatchingSettingsSerializer(serializers.Serializer):
+    enabled = serializers.BooleanField(required=False)
+    max_distance_km = serializers.ChoiceField(required=False, choices=(10, 20, 50, 100))
+    prioritize_rare_blood_groups = serializers.BooleanField(required=False)
+    prioritize_recently_active_donors = serializers.BooleanField(required=False)
+    max_candidates_to_notify = serializers.IntegerField(required=False, min_value=1, max_value=500)
+    retry_interval_minutes = serializers.IntegerField(required=False, min_value=1, max_value=1440)
+
+
 class RolePermissionMatrixRowSerializer(serializers.Serializer):
     role_name = serializers.ChoiceField(choices=list(PUBLIC_ROLE_NAMES))
     module = serializers.ChoiceField(choices=[module for module, _ in Permission.MODULES])

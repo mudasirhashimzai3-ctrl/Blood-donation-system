@@ -1,6 +1,7 @@
 from datetime import datetime, time
 
 from accounts.models import normalize_role_name
+from django.db.models import Count
 from django.utils import timezone
 from django.utils.dateparse import parse_date, parse_datetime
 from rest_framework import serializers, status, viewsets
@@ -15,6 +16,7 @@ from core.models import SettingAuditLog, Settings
 from core.pagination import StandardResultsSetPagination
 from core.permissions import PermissionMixin
 from core.serializers_settings import (
+    AutoMatchingSettingsSerializer,
     GeneralSettingsSerializer,
     LocalizationSettingsSerializer,
     NotificationSettingsSerializer,
@@ -218,9 +220,9 @@ class SettingsViewSet(PermissionMixin, viewsets.ViewSet):
     def donor_eligibility(self, request):
         return Response(self._section_payload("donor_eligibility"), status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=["get"], url_path="auto-matching")
+    @action(detail=False, methods=["get", "put"], url_path="auto-matching")
     def auto_matching(self, request):
-        return Response(self._section_payload("auto_matching"), status=status.HTTP_200_OK)
+        return self._live_section_get_put(request, "auto_matching", AutoMatchingSettingsSerializer)
 
     @action(detail=False, methods=["get"], url_path="audit-logs")
     def audit_logs(self, request):
@@ -395,6 +397,52 @@ class HealthCheckView(APIView):
 
     def get(self, request):
         return Response({"status": "ok"}, status=status.HTTP_200_OK)
+
+
+class AdminDashboardSummaryView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if not request.user.is_superuser and normalize_role_name(getattr(request.user, "role_name", None)) != "admin":
+            raise PermissionDenied("Only admin users can access the admin dashboard.")
+
+        from blood_requests.models import BloodRequest
+        from donations.models import Donation
+        from donors.models import Donor
+        from recipients.models import Recipient
+
+        donor_blood_groups = {
+            item["blood_group"]: item["total"]
+            for item in Donor.objects.values("blood_group").annotate(total=Count("id"))
+        }
+        request_statuses = {
+            item["status"]: item["total"]
+            for item in BloodRequest.objects.values("status").annotate(total=Count("id"))
+        }
+
+        return Response(
+            {
+                "totals": {
+                    "donors": Donor.objects.count(),
+                    "recipients": Recipient.objects.count(),
+                    "active_requests": BloodRequest.objects.filter(
+                        status__in=["pending", "matched"],
+                        is_active=True,
+                    ).count(),
+                    "completed_donations": Donation.objects.filter(status="completed").count(),
+                },
+                "blood_group_distribution": [
+                    {"blood_group": group, "count": donor_blood_groups.get(group, 0)}
+                    for group, _label in Donor.BLOOD_GROUP_CHOICES
+                ],
+                "request_status_breakdown": [
+                    {"status": status_name, "count": request_statuses.get(status_name, 0)}
+                    for status_name, _label in BloodRequest.STATUS_CHOICES
+                ],
+                "generated_at": timezone.now().isoformat(),
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 def _get_initial_data(request):

@@ -55,6 +55,13 @@ export const useNotificationsSocket = (enabled = true) => {
 
     const socketUrl = buildNotificationsSocketUrl();
     const ws = new WebSocket(socketUrl);
+    let didUnmount = false;
+
+    ws.onopen = () => {
+      if (didUnmount) {
+        ws.close();
+      }
+    };
 
     ws.onmessage = (event) => {
       try {
@@ -83,7 +90,10 @@ export const useNotificationsSocket = (enabled = true) => {
     };
 
     return () => {
-      ws.close();
+      didUnmount = true;
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
     };
   }, [enabled, queryClient, user]);
 };

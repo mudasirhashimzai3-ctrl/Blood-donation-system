@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { extractAxiosError } from "@/utils/extractError";
 import { settingsService } from "../services/settingsService";
 import type {
+  AutoMatchingSettings,
   ChangePasswordPayload,
   GeneralSettings,
   LocalizationSettings,
@@ -49,6 +50,12 @@ export const useUserRoleSettings = () =>
   useQuery({
     queryKey: settingsKeys.section("user_roles"),
     queryFn: () => settingsService.getUserRoles().then((res) => res.data),
+  });
+
+export const useAutoMatchingSettings = () =>
+  useQuery({
+    queryKey: settingsKeys.section("auto_matching"),
+    queryFn: () => settingsService.getAutoMatching().then((res) => res.data),
   });
 
 export const useRolePermissionMatrix = () =>
@@ -171,6 +178,22 @@ export const useUpdateUserRoleSettings = () => {
     },
     onError: (error) => {
       toast.error(extractAxiosError(error, "Failed to save role policy settings"));
+    },
+  });
+};
+
+export const useUpdateAutoMatchingSettings = () => {
+  const invalidate = useInvalidateSettings();
+
+  return useMutation({
+    mutationFn: (payload: Partial<AutoMatchingSettings>) =>
+      settingsService.updateAutoMatching(payload).then((res) => res.data),
+    onSuccess: () => {
+      toast.success("Auto matching settings saved");
+      invalidate("auto_matching");
+    },
+    onError: (error) => {
+      toast.error(extractAxiosError(error, "Failed to save auto matching settings"));
     },
   });
 };

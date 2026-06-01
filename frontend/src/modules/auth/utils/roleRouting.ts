@@ -12,7 +12,7 @@ export const getHomeRouteByRole = (role?: string | null): string => {
   const normalized = normalizePublicRole(role);
   if (normalized === "donor") return "/donor/dashboard";
   if (normalized === "recipient") return "/recipient/dashboard";
-  return "/settings";
+  return "/dashboard";
 };
 
 export const getProfileRouteByRole = (role?: string | null): string => {

@@ -1,6 +1,7 @@
 import apiClient from "@/lib/api";
 
 import type {
+  AutoMatchingSettings,
   ChangePasswordPayload,
   GeneralSettings,
   LocalizationSettings,
@@ -46,6 +47,10 @@ export const settingsService = {
   getUserRoles: () => apiClient.get<UserRoleSettings>("/core/settings/user-roles/"),
   updateUserRoles: (payload: Partial<UserRoleSettings>) =>
     apiClient.put<UserRoleSettings>("/core/settings/user-roles/", payload),
+
+  getAutoMatching: () => apiClient.get<AutoMatchingSettings>("/core/settings/auto-matching/"),
+  updateAutoMatching: (payload: Partial<AutoMatchingSettings>) =>
+    apiClient.put<AutoMatchingSettings>("/core/settings/auto-matching/", payload),
 
   getUserRolePermissions: () =>
     apiClient.get<RolePermissionMatrixResponse>("/core/settings/user-roles/permissions/"),

@@ -2,10 +2,15 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from .models import Donor
+from .services.eligibility import get_donor_eligibility
 
 
 class DonorListSerializer(serializers.ModelSerializer):
     profile_picture_url = serializers.SerializerMethodField()
+    is_eligible = serializers.SerializerMethodField()
+    eligibility_status = serializers.SerializerMethodField()
+    eligible_from = serializers.SerializerMethodField()
+    eligibility_reason = serializers.SerializerMethodField()
 
     class Meta:
         model = Donor
@@ -18,6 +23,10 @@ class DonorListSerializer(serializers.ModelSerializer):
             "blood_group",
             "status",
             "last_donation_date",
+            "is_eligible",
+            "eligibility_status",
+            "eligible_from",
+            "eligibility_reason",
             "profile_picture_url",
             "created_at",
         ]
@@ -29,9 +38,29 @@ class DonorListSerializer(serializers.ModelSerializer):
         url = obj.profile_picture.url
         return request.build_absolute_uri(url) if request else url
 
+    def _eligibility(self, obj):
+        return get_donor_eligibility(obj.last_donation_date)
+
+    def get_is_eligible(self, obj):
+        return self._eligibility(obj)["is_eligible"]
+
+    def get_eligibility_status(self, obj):
+        return self._eligibility(obj)["eligibility_status"]
+
+    def get_eligible_from(self, obj):
+        value = self._eligibility(obj)["eligible_from"]
+        return value.isoformat() if value else None
+
+    def get_eligibility_reason(self, obj):
+        return self._eligibility(obj)["eligibility_reason"]
+
 
 class DonorDetailSerializer(serializers.ModelSerializer):
     profile_picture_url = serializers.SerializerMethodField()
+    is_eligible = serializers.SerializerMethodField()
+    eligibility_status = serializers.SerializerMethodField()
+    eligible_from = serializers.SerializerMethodField()
+    eligibility_reason = serializers.SerializerMethodField()
     remove_profile_picture = serializers.BooleanField(write_only=True, required=False, default=False)
 
     class Meta:
@@ -53,6 +82,10 @@ class DonorDetailSerializer(serializers.ModelSerializer):
             "permanent_address_city",
             "local_address_city",
             "last_donation_date",
+            "is_eligible",
+            "eligibility_status",
+            "eligible_from",
+            "eligibility_reason",
             "remove_profile_picture",
             "created_at",
             "updated_at",
@@ -65,6 +98,22 @@ class DonorDetailSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         url = obj.profile_picture.url
         return request.build_absolute_uri(url) if request else url
+
+    def _eligibility(self, obj):
+        return get_donor_eligibility(obj.last_donation_date)
+
+    def get_is_eligible(self, obj):
+        return self._eligibility(obj)["is_eligible"]
+
+    def get_eligibility_status(self, obj):
+        return self._eligibility(obj)["eligibility_status"]
+
+    def get_eligible_from(self, obj):
+        value = self._eligibility(obj)["eligible_from"]
+        return value.isoformat() if value else None
+
+    def get_eligibility_reason(self, obj):
+        return self._eligibility(obj)["eligibility_reason"]
 
     def validate_phone(self, value):
         normalized_phone = value.strip()
@@ -149,3 +198,36 @@ class DonorDetailSerializer(serializers.ModelSerializer):
             instance.profile_picture = None
         validated_data["status"] = "active"
         return super().update(instance, validated_data)
+
+
+class DonorCandidateSerializer(serializers.Serializer):
+    id = serializers.IntegerField(source="donor.id")
+    first_name = serializers.CharField(source="donor.first_name")
+    last_name = serializers.CharField(source="donor.last_name")
+    phone = serializers.CharField(source="donor.phone")
+    email = serializers.EmailField(source="donor.email", allow_null=True)
+    blood_group = serializers.CharField(source="donor.blood_group")
+    status = serializers.CharField(source="donor.status")
+    last_donation_date = serializers.DateField(source="donor.last_donation_date", allow_null=True)
+    distance_km = serializers.DecimalField(max_digits=6, decimal_places=2)
+    match_type = serializers.CharField()
+    is_eligible = serializers.SerializerMethodField()
+    eligibility_status = serializers.SerializerMethodField()
+    eligible_from = serializers.SerializerMethodField()
+    eligibility_reason = serializers.SerializerMethodField()
+
+    def _eligibility(self, obj):
+        return get_donor_eligibility(obj["donor"].last_donation_date)
+
+    def get_is_eligible(self, obj):
+        return self._eligibility(obj)["is_eligible"]
+
+    def get_eligibility_status(self, obj):
+        return self._eligibility(obj)["eligibility_status"]
+
+    def get_eligible_from(self, obj):
+        value = self._eligibility(obj)["eligible_from"]
+        return value.isoformat() if value else None
+
+    def get_eligibility_reason(self, obj):
+        return self._eligibility(obj)["eligibility_reason"]

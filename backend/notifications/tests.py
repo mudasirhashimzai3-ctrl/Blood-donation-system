@@ -196,7 +196,7 @@ class NotificationApiTests(APITestCase):
         channels = {item.sent_via for item in rows}
         self.assertTrue({"in_app", "email"}.issubset(channels))
         self.assertTrue(all(item.user_type == "admin" for item in rows))
-        expected_async = len([item for item in rows if item.sent_via != "in_app"])
+        expected_async = len(rows)
         self.assertEqual(mock_dispatch.call_count, expected_async)
 
     @patch("notifications.services.dispatch.publish_unread_count")

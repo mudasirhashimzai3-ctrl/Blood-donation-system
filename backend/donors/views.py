@@ -6,14 +6,16 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from accounts.models import normalize_role_name
+from blood_requests.models import BloodRequest
 from blood_requests.serializers import BloodRequestListSerializer
 from core.pagination import StandardResultsSetPagination
 from core.permissions import PermissionMixin
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 
 from donations.models import Donation
 from .models import Donor
-from .serializers import DonorDetailSerializer, DonorListSerializer
+from .serializers import DonorCandidateSerializer, DonorDetailSerializer, DonorListSerializer
+from .services.matching import ALLOWED_RADIUS_KM, build_donor_candidates, normalize_radius_km
 
 
 class DonorViewSet(PermissionMixin, viewsets.ModelViewSet):
@@ -43,7 +45,46 @@ class DonorViewSet(PermissionMixin, viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "list":
             return DonorListSerializer
+        if self.action == "candidates":
+            return DonorCandidateSerializer
         return DonorDetailSerializer
+
+    @action(detail=False, methods=["get"], url_path="candidates")
+    def candidates(self, request):
+        role_name = normalize_role_name(getattr(request.user, "role_name", None))
+        if role_name != "admin":
+            raise PermissionDenied("Only admin users can search donor candidates.")
+
+        blood_request_id = request.query_params.get("blood_request_id")
+        if not blood_request_id:
+            raise ValidationError({"blood_request_id": "Blood request is required."})
+
+        try:
+            blood_request = BloodRequest.objects.get(pk=blood_request_id, deleted_at__isnull=True)
+        except (BloodRequest.DoesNotExist, ValueError) as exc:
+            raise ValidationError({"blood_request_id": "Blood request not found."}) from exc
+
+        blood_group = request.query_params.get("blood_group") or blood_request.blood_group
+        valid_groups = {value for value, _label in Donor.BLOOD_GROUP_CHOICES}
+        if blood_group not in valid_groups:
+            raise ValidationError({"blood_group": "Invalid blood group."})
+
+        raw_radius = request.query_params.get("radius_km")
+        if raw_radius and normalize_radius_km(raw_radius, default=-1) not in ALLOWED_RADIUS_KM:
+            raise ValidationError({"radius_km": "Radius must be one of 10, 20, 50, or 100 KM."})
+        radius_km = normalize_radius_km(raw_radius, default=10)
+
+        candidates = build_donor_candidates(
+            blood_group=blood_group,
+            origin_lat=blood_request.location_lat,
+            origin_lon=blood_request.location_lon,
+            radius_km=radius_km,
+        )
+        page = self.paginate_queryset(candidates)
+        serializer = DonorCandidateSerializer(page if page is not None else candidates, many=True)
+        if page is not None:
+            return self.get_paginated_response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
         detail=False,

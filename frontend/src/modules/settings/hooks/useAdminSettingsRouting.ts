@@ -12,6 +12,7 @@ const VALID_TABS: AdminSettingsTab[] = [
 const VALID_SECTIONS: SystemSettingsSection[] = [
   "general",
   "notifications",
+  "auto_matching",
   "localization",
   "security",
 ];

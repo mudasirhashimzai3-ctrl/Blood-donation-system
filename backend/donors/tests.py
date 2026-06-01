@@ -1,6 +1,7 @@
 import shutil
 import tempfile
 from datetime import timedelta
+from decimal import Decimal
 
 from django.test import override_settings
 from django.utils import timezone
@@ -10,6 +11,9 @@ from rest_framework.test import APITestCase
 
 from accounts.models import RolePermission, User
 from core.models import Permission
+from blood_requests.models import BloodRequest
+from hospitals.models import Hospital
+from recipients.models import Recipient
 from .models import Donor
 
 
@@ -381,3 +385,134 @@ class DonorApiTests(APITestCase):
         )
         self.assertEqual(nullable_response.status_code, status.HTTP_201_CREATED)
         self.assertIsNone(nullable_response.data["age"])
+
+    def test_candidates_returns_compatible_donors_sorted_by_distance(self):
+        hospital = Hospital.objects.create(
+            name="Candidate Hospital",
+            phone="0700300001",
+            province="Kabul",
+            city="Kabul",
+            latitude=Decimal("34.555300"),
+            longitude=Decimal("69.207500"),
+        )
+        recipient = Recipient.objects.create(
+            full_name="Candidate Recipient",
+            phone="0700300002",
+            required_blood_group="A+",
+            hospital=hospital,
+        )
+        blood_request = BloodRequest.objects.create(
+            recipient=recipient,
+            hospital=hospital,
+            blood_group="A+",
+            units_needed=1,
+            request_type="urgent",
+            location_lat=Decimal("34.555300"),
+            location_lon=Decimal("69.207500"),
+            response_deadline=timezone.now() + timedelta(hours=2),
+        )
+        near_universal = Donor.objects.create(
+            first_name="Near",
+            last_name="Universal",
+            phone="0700300011",
+            blood_group="O-",
+            latitude=Decimal("34.555500"),
+            longitude=Decimal("69.207700"),
+        )
+        far_exact = Donor.objects.create(
+            first_name="Far",
+            last_name="Exact",
+            phone="0700300012",
+            blood_group="A+",
+            latitude=Decimal("34.600000"),
+            longitude=Decimal("69.250000"),
+        )
+        Donor.objects.create(
+            first_name="Wrong",
+            last_name="Group",
+            phone="0700300013",
+            blood_group="B+",
+            latitude=Decimal("34.555400"),
+            longitude=Decimal("69.207600"),
+        )
+
+        response = self.client.get(
+            f"{self.base_url}candidates/",
+            {"blood_request_id": blood_request.id, "blood_group": "A+", "radius_km": 20},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ids = [item["id"] for item in response.data["results"]]
+        self.assertEqual(ids, [near_universal.id, far_exact.id])
+        self.assertEqual(response.data["results"][0]["match_type"], "compatible")
+        self.assertEqual(response.data["results"][1]["match_type"], "exact")
+
+    def test_candidates_exposes_six_month_eligibility_and_radius_filter(self):
+        hospital = Hospital.objects.create(
+            name="Eligibility Hospital",
+            phone="0700400001",
+            province="Kabul",
+            city="Kabul",
+            latitude=Decimal("34.555300"),
+            longitude=Decimal("69.207500"),
+        )
+        recipient = Recipient.objects.create(
+            full_name="Eligibility Recipient",
+            phone="0700400002",
+            required_blood_group="O+",
+            hospital=hospital,
+        )
+        blood_request = BloodRequest.objects.create(
+            recipient=recipient,
+            hospital=hospital,
+            blood_group="O+",
+            units_needed=1,
+            request_type="urgent",
+            location_lat=Decimal("34.555300"),
+            location_lon=Decimal("69.207500"),
+            response_deadline=timezone.now() + timedelta(hours=2),
+        )
+        recent = Donor.objects.create(
+            first_name="Recent",
+            last_name="Donor",
+            phone="0700400011",
+            blood_group="O+",
+            latitude=Decimal("34.555500"),
+            longitude=Decimal("69.207700"),
+            last_donation_date=timezone.localdate() - timedelta(days=30),
+        )
+        eligible = Donor.objects.create(
+            first_name="Eligible",
+            last_name="Donor",
+            phone="0700400012",
+            blood_group="O+",
+            latitude=Decimal("34.556000"),
+            longitude=Decimal("69.208000"),
+            last_donation_date=timezone.localdate() - timedelta(days=220),
+        )
+        Donor.objects.create(
+            first_name="Far",
+            last_name="Away",
+            phone="0700400013",
+            blood_group="O+",
+            latitude=Decimal("40.000000"),
+            longitude=Decimal("75.000000"),
+        )
+
+        response = self.client.get(
+            f"{self.base_url}candidates/",
+            {"blood_request_id": blood_request.id, "radius_km": 10},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ids = [item["id"] for item in response.data["results"]]
+        self.assertEqual(ids, [recent.id, eligible.id])
+        by_id = {item["id"]: item for item in response.data["results"]}
+        self.assertFalse(by_id[recent.id]["is_eligible"])
+        self.assertEqual(by_id[recent.id]["eligibility_status"], "not_eligible")
+        self.assertTrue(by_id[eligible.id]["is_eligible"])
+
+    def test_candidates_are_admin_only(self):
+        self.client.force_authenticate(user=self.viewer_user)
+        response = self.client.get(f"{self.base_url}candidates/", {"blood_request_id": 1})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

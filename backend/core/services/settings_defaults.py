@@ -16,6 +16,7 @@ LIVE_SECTIONS = (
     "general",
     "user_roles",
     "notifications",
+    "auto_matching",
     "localization",
     "security",
 )
@@ -27,7 +28,7 @@ SECTION_META = {
     "emergency_alerts": {"implemented": False, "title": "Emergency Alert Settings"},
     "blood_request_rules": {"implemented": False, "title": "Blood Request Rules"},
     "donor_eligibility": {"implemented": False, "title": "Donor Eligibility Rules"},
-    "auto_matching": {"implemented": False, "title": "Auto Matching Settings"},
+    "auto_matching": {"implemented": True, "title": "Auto Matching Settings"},
     "localization": {"implemented": True, "title": "Language & Timezone Settings"},
     "security": {"implemented": True, "title": "Security Settings"},
 }

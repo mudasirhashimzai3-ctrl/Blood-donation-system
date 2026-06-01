@@ -6,17 +6,23 @@ import { Card, CardContent } from "@components/ui";
 import { useSessionStore } from "@/modules/auth/stores/useSessionStore";
 import { useSettingsDirtyGuard } from "../hooks/useSettingsDirtyGuard";
 import {
+  useAutoMatchingSettings,
   useGeneralSettings,
   useLocalizationSettings,
   useNotificationSettings,
   useSecuritySettings,
   useTestNotificationEmail,
   useTestNotificationSms,
+  useUpdateAutoMatchingSettings,
   useUpdateGeneralSettings,
   useUpdateLocalizationSettings,
   useUpdateNotificationSettings,
   useUpdateSecuritySettings,
 } from "../queries/useSettingsQueries";
+import {
+  autoMatchingSettingsSchema,
+  type AutoMatchingSettingsFormValues,
+} from "../schemas/autoMatchingSettings.schema";
 import {
   generalSettingsSchema,
   type GeneralSettingsFormValues,
@@ -35,6 +41,7 @@ import {
 } from "../schemas/securitySettings.schema";
 import { useSettingsUiStore } from "../stores/useSettingsUiStore";
 import type { SystemSettingsSection } from "../types/settings.types";
+import AutoMatchingSettingsForm from "./AutoMatchingSettingsForm";
 import GeneralSettingsForm from "./GeneralSettingsForm";
 import LocalizationSettingsForm from "./LocalizationSettingsForm";
 import NotificationSettingsForm from "./NotificationSettingsForm";
@@ -50,6 +57,7 @@ interface SystemSettingsWorkspaceProps {
 const sectionItems: Array<{ key: SystemSettingsSection; label: string }> = [
   { key: "general", label: "General" },
   { key: "notifications", label: "Notifications" },
+  { key: "auto_matching", label: "Auto Matching" },
   { key: "localization", label: "Localization" },
   { key: "security", label: "Security" },
 ];
@@ -58,7 +66,6 @@ const plannedItems = [
   "Emergency Alerts",
   "Blood Request Rules",
   "Donor Eligibility",
-  "Auto Matching",
 ];
 
 const generalDefaults: GeneralSettingsFormValues = {
@@ -83,6 +90,15 @@ const notificationDefaults: NotificationSettingsFormValues = {
   sms_from_number: "",
   in_app_enabled: true,
   notification_retention_days: 30,
+};
+
+const autoMatchingDefaults: AutoMatchingSettingsFormValues = {
+  enabled: true,
+  max_distance_km: 10,
+  prioritize_rare_blood_groups: true,
+  prioritize_recently_active_donors: true,
+  max_candidates_to_notify: 50,
+  retry_interval_minutes: 10,
 };
 
 const localizationDefaults: LocalizationSettingsFormValues = {
@@ -219,6 +235,54 @@ function NotificationSection({ canEdit }: { canEdit: boolean }) {
   );
 }
 
+function AutoMatchingSection({ canEdit }: { canEdit: boolean }) {
+  const markSaved = useSettingsUiStore((state) => state.markSaved);
+  const query = useAutoMatchingSettings();
+  const mutation = useUpdateAutoMatchingSettings();
+  const form = useForm<AutoMatchingSettingsFormValues>({
+    resolver: zodResolver(autoMatchingSettingsSchema),
+    defaultValues: autoMatchingDefaults,
+  });
+
+  useSettingsDirtyGuard("auto_matching", form.formState.isDirty);
+
+  useEffect(() => {
+    if (query.data) {
+      form.reset(query.data);
+    }
+  }, [form, query.data]);
+
+  const onSubmit = async (values: AutoMatchingSettingsFormValues) => {
+    if (!canEdit) return;
+    const updated = await mutation.mutateAsync(values);
+    form.reset(updated);
+    markSaved("auto_matching");
+  };
+
+  if (query.isLoading && !query.data) {
+    return (
+      <Card>
+        <CardContent>Loading auto matching settings...</CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardContent>
+        {!canEdit ? <ReadOnlyBanner /> : null}
+        <AutoMatchingSettingsForm
+          form={form}
+          onSubmit={onSubmit}
+          loading={mutation.isPending}
+          readOnly={!canEdit}
+          onCancel={() => form.reset(query.data ?? autoMatchingDefaults)}
+        />
+      </CardContent>
+    </Card>
+  );
+}
+
 function LocalizationSection({ canEdit }: { canEdit: boolean }) {
   const markSaved = useSettingsUiStore((state) => state.markSaved);
   const query = useLocalizationSettings();
@@ -346,6 +410,7 @@ export default function SystemSettingsWorkspace({
 
       {section === "general" ? <GeneralSection canEdit={canEdit} /> : null}
       {section === "notifications" ? <NotificationSection canEdit={canEdit} /> : null}
+      {section === "auto_matching" ? <AutoMatchingSection canEdit={canEdit} /> : null}
       {section === "localization" ? <LocalizationSection canEdit={canEdit} /> : null}
       {section === "security" ? <SecuritySection canEdit={canEdit} /> : null}
 

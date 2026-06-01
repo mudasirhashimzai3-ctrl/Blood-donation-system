@@ -25,6 +25,7 @@ import {
 import { DonationListPage, DonationViewPage } from "@/modules/donations";
 import { NotificationListPage, NotificationViewPage } from "@/modules/notifications";
 import { AdminSettingsPage } from "@/modules/settings";
+import { AdminDashboardPage } from "@/modules/dashboard";
 import {
   DonorDashboardPage,
   DonorDonationActionsPage,
@@ -64,6 +65,7 @@ function AppRouterProvider() {
           element: <RoleRoute allowedRoles={["admin"]} />,
           children: [
             // Settings
+            { path: "dashboard", element: <AdminDashboardPage /> },
             { path: "settings", element: <AdminSettingsPage /> },
             { path: "settings/general", element: <Navigate to="/settings?tab=system_settings&section=general" replace /> },
             {
@@ -85,7 +87,7 @@ function AppRouterProvider() {
               path: "settings/donor-eligibility",
               element: <Navigate to="/settings?tab=system_settings&section=general" replace />,
             },
-            { path: "settings/auto-matching", element: <Navigate to="/settings?tab=system_settings&section=general" replace /> },
+            { path: "settings/auto-matching", element: <Navigate to="/settings?tab=system_settings&section=auto_matching" replace /> },
 
             // Admin management views
             { path: "donors", element: <DonorListPage /> },

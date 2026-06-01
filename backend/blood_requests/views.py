@@ -1,3 +1,7 @@
+import threading
+
+from django.conf import settings
+from django.db import transaction
 from django.db.models import Q
 from django_filters import rest_framework as filterset
 from django_filters.rest_framework import DjangoFilterBackend
@@ -43,11 +47,40 @@ def _create_system_notifications(**kwargs):
         return
 
 
-def _enqueue_request_automation(request_id: int):
+def _run_request_automation_safely(request_id: int):
     try:
         run_request_automation(request_id)
     except Exception:
         return
+
+
+def _queue_request_automation_or_fallback(request_id: int):
+    try:
+        delay = getattr(run_request_automation, "delay", None)
+        if callable(delay):
+            delay(request_id)
+            return
+    except Exception:
+        pass
+
+    _run_request_automation_safely(request_id)
+
+
+def _start_request_automation_worker(request_id: int):
+    thread = threading.Thread(
+        target=_queue_request_automation_or_fallback,
+        args=(request_id,),
+        daemon=True,
+    )
+    thread.start()
+
+
+def _enqueue_request_automation(request_id: int):
+    if getattr(settings, "CELERY_TASK_ALWAYS_EAGER", False):
+        _run_request_automation_safely(request_id)
+        return
+
+    transaction.on_commit(lambda: _start_request_automation_worker(request_id))
 
 
 def _ensure_recipient_profile_for_user(user):
@@ -180,6 +213,27 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
 
         page = self.paginate_queryset(queryset)
         serializer = BloodRequestRecipientOptionSerializer(page if page is not None else queryset, many=True)
+        if page is not None:
+            return self.get_paginated_response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["get"], url_path="active-options")
+    def active_options(self, request):
+        role_name = normalize_role_name(getattr(request.user, "role_name", None))
+        if role_name != "admin":
+            raise PermissionDenied("Only admin users can access active blood request options.")
+
+        queryset = (
+            BloodRequest.objects.select_related("recipient", "hospital", "assigned_donor")
+            .filter(deleted_at__isnull=True, is_active=True, status__in=["pending", "matched"])
+            .order_by("-is_emergency", "response_deadline", "-created_at")
+        )
+        page = self.paginate_queryset(queryset)
+        serializer = BloodRequestListSerializer(
+            page if page is not None else queryset,
+            many=True,
+            context={"request": request},
+        )
         if page is not None:
             return self.get_paginated_response(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -331,6 +385,8 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
         )
 
         if blood_request.assigned_donor_id:
+            blood_request.assigned_donor.last_donation_date = timezone.localdate()
+            blood_request.assigned_donor.save(update_fields=["last_donation_date", "updated_at"])
             assigned = Donation.objects.filter(
                 request=blood_request,
                 donor_id=blood_request.assigned_donor_id,
