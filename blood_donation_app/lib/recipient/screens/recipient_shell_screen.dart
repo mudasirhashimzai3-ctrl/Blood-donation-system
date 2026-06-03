@@ -98,8 +98,9 @@ class _RecipientHomeScreenState extends State<_RecipientHomeScreen> {
         child: FutureBuilder<Map<String, dynamic>>(
           future: _future,
           builder: (context, snapshot) {
-            if (!snapshot.hasData)
+            if (!snapshot.hasData) {
               return const Center(child: CircularProgressIndicator());
+            }
             final data = snapshot.data ?? {};
             final active =
                 (data['activeRequests'] as List?)?.cast<BloodRequestItem>() ??
@@ -243,7 +244,7 @@ class _CreateRequestScreenState extends State<_CreateRequestScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           DropdownButtonFormField<int>(
-            value: _selectedHospitalId,
+            initialValue: _selectedHospitalId,
             items: _hospitals
                 .map(
                   (hospital) => DropdownMenuItem<int>(
@@ -263,7 +264,7 @@ class _CreateRequestScreenState extends State<_CreateRequestScreen> {
               child: LinearProgressIndicator(),
             ),
           DropdownButtonFormField<String>(
-            value: _bloodGroup,
+            initialValue: _bloodGroup,
             items: AppConstants.bloodTypes
                 .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                 .toList(),
@@ -277,7 +278,7 @@ class _CreateRequestScreenState extends State<_CreateRequestScreen> {
             decoration: const InputDecoration(labelText: 'Units'),
           ),
           DropdownButtonFormField<String>(
-            value: _level,
+            initialValue: _level,
             items: const [
               DropdownMenuItem(value: 'normal', child: Text('Normal')),
               DropdownMenuItem(value: 'urgent', child: Text('Urgent')),
@@ -322,8 +323,9 @@ class _MyRequestsScreenState extends State<_MyRequestsScreen> {
       body: FutureBuilder<List<BloodRequestItem>>(
         future: _future,
         builder: (context, snapshot) {
-          if (!snapshot.hasData)
+          if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
+          }
           final items = snapshot.data ?? const [];
           final pending = items.where((e) => e.status == 'pending').toList();
           final accepted = items.where((e) => e.status == 'matched').toList();
@@ -372,11 +374,13 @@ class _ResponsesScreenState extends State<_ResponsesScreen> {
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _future,
         builder: (context, snapshot) {
-          if (!snapshot.hasData)
+          if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
+          }
           final items = snapshot.data ?? const [];
-          if (items.isEmpty)
+          if (items.isEmpty) {
             return const Center(child: Text('No responses yet'));
+          }
           return ListView.builder(
             itemCount: items.length,
             itemBuilder: (context, index) {
@@ -484,7 +488,7 @@ class _RecipientProfileScreenState extends State<_RecipientProfileScreen> {
                       keyboardType: TextInputType.emailAddress,
                     ),
                     DropdownButtonFormField<String>(
-                      value: selectedBloodGroup,
+                      initialValue: selectedBloodGroup,
                       items: AppConstants.bloodTypes
                           .map((value) => DropdownMenuItem(
                                 value: value,
@@ -497,7 +501,7 @@ class _RecipientProfileScreenState extends State<_RecipientProfileScreen> {
                           labelText: 'Required Blood Group'),
                     ),
                     DropdownButtonFormField<String>(
-                      value: selectedLevel,
+                      initialValue: selectedLevel,
                       items: const [
                         DropdownMenuItem(
                             value: 'normal', child: Text('Normal')),
@@ -512,7 +516,7 @@ class _RecipientProfileScreenState extends State<_RecipientProfileScreen> {
                           const InputDecoration(labelText: 'Emergency Level'),
                     ),
                     DropdownButtonFormField<int>(
-                      value: selectedHospitalId,
+                      initialValue: selectedHospitalId,
                       items: hospitals
                           .map(
                             (hospital) => DropdownMenuItem<int>(
@@ -600,8 +604,9 @@ class _RecipientProfileScreenState extends State<_RecipientProfileScreen> {
       body: FutureBuilder<Map<String, dynamic>>(
         future: _future,
         builder: (context, snapshot) {
-          if (!snapshot.hasData)
+          if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
+          }
           final p = snapshot.data ?? {};
           return ListView(
             padding: const EdgeInsets.all(16),

@@ -65,9 +65,6 @@ export const bloodRequestService = {
   runAutoMatch: (id: number) =>
     apiClient.post<{ request: BloodRequest; matched_candidates: number }>(`/blood-requests/${id}/run-auto-match/`, {}),
 
-  assignDonor: (id: number, donorId: number) =>
-    apiClient.patch<BloodRequest>(`/blood-requests/${id}/assign-donor/`, { donor_id: donorId }),
-
   completeBloodRequest: (id: number) =>
     apiClient.patch<BloodRequest>(`/blood-requests/${id}/complete/`, {}),
 

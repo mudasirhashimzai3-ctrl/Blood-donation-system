@@ -1,6 +1,3 @@
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:get_it/get_it.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:blood_donation_app/core/config/app_config.dart';
 import 'package:blood_donation_app/core/network/api_client.dart';
 import 'package:blood_donation_app/core/storage/local_storage.dart';
@@ -9,6 +6,9 @@ import 'package:blood_donation_app/modules/auth/di.dart';
 import 'package:blood_donation_app/modules/blood_bank/di.dart';
 import 'package:blood_donation_app/modules/donation/di.dart';
 import 'package:blood_donation_app/modules/donor/di.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final getIt = GetIt.instance;
 

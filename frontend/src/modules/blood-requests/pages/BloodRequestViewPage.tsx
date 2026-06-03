@@ -3,7 +3,6 @@ import {
   CheckCircle2,
   Pencil,
   Trash2,
-  UserCheck,
   XCircle,
 } from "lucide-react";
 import { useState } from "react";
@@ -16,14 +15,12 @@ import { useUserStore } from "@/modules/auth/stores/useUserStore";
 import { getBloodRequestsRouteByRole } from "@/modules/auth/utils/roleRouting";
 import { formatLocalDateTime } from "@/utils/formatLocalDateTime";
 import { Badge, Button, Card, CardContent } from "@components/ui";
-import AssignDonorDialog from "../components/AssignDonorDialog";
 import BloodRequestStatusBadge from "../components/BloodRequestStatusBadge";
 import BloodRequestTypeBadge from "../components/BloodRequestTypeBadge";
 import CancelBloodRequestDialog from "../components/CancelBloodRequestDialog";
 import CompleteBloodRequestDialog from "../components/CompleteBloodRequestDialog";
 import DonorCandidatesPanel from "../components/DonorCandidatesPanel";
 import {
-  useAssignDonor,
   useBloodRequest,
   useBloodRequestNotifications,
   useCancelBloodRequest,
@@ -39,7 +36,6 @@ export default function BloodRequestViewPage() {
   const { id } = useParams<{ id: string }>();
   const bloodRequestId = Number(id);
 
-  const [isAssignOpen, setIsAssignOpen] = useState(false);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
   const [isCompleteOpen, setIsCompleteOpen] = useState(false);
 
@@ -51,7 +47,6 @@ export default function BloodRequestViewPage() {
   });
 
   const deleteMutation = useDeleteBloodRequest();
-  const assignMutation = useAssignDonor(bloodRequestId);
   const completeMutation = useCompleteBloodRequest(bloodRequestId);
   const cancelMutation = useCancelBloodRequest(bloodRequestId);
 
@@ -216,14 +211,6 @@ export default function BloodRequestViewPage() {
               </Button>
             ) : null}
 
-            {!isRecipientUser && bloodRequest.status === "pending" ? (
-              <>
-                <Button variant="primary" onClick={() => setIsAssignOpen(true)} leftIcon={<UserCheck className="h-4 w-4" />}>
-                  {t("bloodRequests.actions.assignDonor", "Assign Donor")}
-                </Button>
-              </>
-            ) : null}
-
             {!isRecipientUser && bloodRequest.status === "matched" ? (
               <Button variant="primary" onClick={() => setIsCompleteOpen(true)} leftIcon={<CheckCircle2 className="h-4 w-4" />}>
                 {t("bloodRequests.actions.complete", "Complete")}
@@ -259,22 +246,8 @@ export default function BloodRequestViewPage() {
       {!isRecipientUser ? (
         <DonorCandidatesPanel
           notifications={notifications}
-          onAssign={(donorId) => {
-            assignMutation.mutate(donorId);
-          }}
-          disabled={bloodRequest.status !== "pending" || assignMutation.isPending}
         />
       ) : null}
-
-      <AssignDonorDialog
-        isOpen={isAssignOpen}
-        onClose={() => setIsAssignOpen(false)}
-        notifications={notifications}
-        onAssign={async (donorId) => {
-          await assignMutation.mutateAsync(donorId);
-        }}
-        loading={assignMutation.isPending}
-      />
 
       <CancelBloodRequestDialog
         isOpen={isCancelOpen}

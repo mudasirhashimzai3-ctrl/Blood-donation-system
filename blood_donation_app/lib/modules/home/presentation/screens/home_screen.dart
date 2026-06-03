@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:blood_donation_app/core/di/injection.dart';
 import 'package:blood_donation_app/core/router/app_routes.dart';
 import 'package:blood_donation_app/core/theme/app_colors.dart';
@@ -11,6 +9,8 @@ import 'package:blood_donation_app/core/widgets/layouts/app_scaffold.dart';
 import 'package:blood_donation_app/core/widgets/layouts/section_header.dart';
 import 'package:blood_donation_app/modules/auth/domain/entities/user_entity.dart';
 import 'package:blood_donation_app/modules/auth/domain/repositories/auth_repository.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

@@ -46,11 +46,11 @@ def run_request_automation(request_id: int):
             locked,
             max_notifications=get_max_candidates_to_notify(),
         )
-        assigned = auto_assign_primary_candidate(locked)
+        primary_candidate = auto_assign_primary_candidate(locked)
 
     return {
         "status": "ok",
         "request_id": request_id,
         "candidates": len(notifications),
-        "assigned_donor_id": assigned.id if assigned else None,
+        "primary_candidate_donor_id": primary_candidate.id if primary_candidate else None,
     }

@@ -32,8 +32,6 @@ class ApiClient {
         PrettyDioLogger(
           requestHeader: true,
           requestBody: true,
-          responseBody: true,
-          responseHeader: false,
           compact: false,
         ),
     ]);

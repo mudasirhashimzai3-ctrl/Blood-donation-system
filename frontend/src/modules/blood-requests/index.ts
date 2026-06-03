@@ -8,7 +8,6 @@ export { default as BloodRequestFilters } from "./components/BloodRequestFilters
 export { default as BloodRequestForm } from "./components/BloodRequestForm";
 export { default as BloodRequestStatusBadge } from "./components/BloodRequestStatusBadge";
 export { default as BloodRequestTypeBadge } from "./components/BloodRequestTypeBadge";
-export { default as AssignDonorDialog } from "./components/AssignDonorDialog";
 export { default as CancelBloodRequestDialog } from "./components/CancelBloodRequestDialog";
 export { default as CompleteBloodRequestDialog } from "./components/CompleteBloodRequestDialog";
 export { default as VerifyBloodRequestDialog } from "./components/VerifyBloodRequestDialog";

@@ -20,7 +20,7 @@ Future<void> _debugApiPreflight() async {
     BaseOptions(
       connectTimeout: const Duration(seconds: 4),
       receiveTimeout: const Duration(seconds: 4),
-      headers: const {"Accept": "application/json"},
+      headers: const {'Accept': 'application/json'},
     ),
   );
 

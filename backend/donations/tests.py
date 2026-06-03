@@ -1,17 +1,19 @@
 from datetime import timedelta
 from decimal import Decimal
 
+from django.test import override_settings
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from accounts.models import RolePermission, User
-from blood_requests.models import BloodRequest
+from blood_requests.models import BloodRequest, BloodRequestNotification
 from core.models import Permission
 from donations.models import Donation
 from donations.tasks import process_due_reminders
 from donors.models import Donor
 from hospitals.models import Hospital
+from notifications.models import Notification
 from recipients.models import Recipient
 
 
@@ -133,10 +135,23 @@ class DonationApiTests(APITestCase):
             "distance_km": Decimal("1.25"),
             "estimated_arrival_time": 8,
             "notified_at": timezone.now() - timedelta(minutes=30),
-            "priority_score": Decimal("42.50"),
         }
         payload.update(kwargs)
         return Donation.objects.create(**payload)
+
+    def _create_candidate_notification(self, donor, **kwargs):
+        payload = {
+            "blood_request": self.request_obj,
+            "donor": donor,
+            "distance_km": Decimal("1.25"),
+            "channel": "in_app",
+            "delivery_status": "sent",
+            "response_status": "pending",
+            "queued_at": timezone.now() - timedelta(minutes=30),
+            "sent_at": timezone.now() - timedelta(minutes=29),
+        }
+        payload.update(kwargs)
+        return BloodRequestNotification.objects.create(**payload)
 
     def test_status_transition_and_response_time(self):
         donation = self._create_donation(self.donor_a)
@@ -231,9 +246,12 @@ class DonationApiTests(APITestCase):
         )
         self.assertEqual(denied.status_code, status.HTTP_403_FORBIDDEN)
 
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_donor_accepts_request_and_others_expire(self):
         donation_a = self._create_donation(self.donor_a)
         donation_b = self._create_donation(self.donor_b, distance_km=Decimal("2.15"))
+        notification_a = self._create_candidate_notification(self.donor_a)
+        notification_b = self._create_candidate_notification(self.donor_b, distance_km=Decimal("2.15"))
 
         self.client.force_authenticate(user=self.donor_a.user)
         response = self.client.post(
@@ -251,6 +269,21 @@ class DonationApiTests(APITestCase):
         self.assertEqual(donation_b.status, "expired")
         self.assertEqual(self.request_obj.status, "matched")
         self.assertEqual(self.request_obj.assigned_donor_id, self.donor_a.id)
+        notification_a.refresh_from_db()
+        notification_b.refresh_from_db()
+        self.assertEqual(notification_a.response_status, "accepted")
+        self.assertEqual(notification_b.response_status, "expired")
+
+        other_donor_notification = Notification.objects.filter(
+            user=self.donor_b.user,
+            event_key="blood_request_assigned",
+            request=self.request_obj,
+            sent_via="in_app",
+            hidden_at__isnull=True,
+            deleted_at__isnull=True,
+        ).latest("created_at")
+        self.assertEqual(other_donor_notification.status, "delivered")
+        self.assertIn("already been assigned", other_donor_notification.message)
 
     def test_donor_cannot_accept_after_request_is_already_matched(self):
         donation_a = self._create_donation(self.donor_a)

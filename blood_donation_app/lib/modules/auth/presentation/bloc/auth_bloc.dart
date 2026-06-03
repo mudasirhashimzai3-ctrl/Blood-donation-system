@@ -1,10 +1,10 @@
-import 'package:equatable/equatable.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:blood_donation_app/core/utils/use_case.dart';
 import 'package:blood_donation_app/modules/auth/domain/entities/user_entity.dart';
 import 'package:blood_donation_app/modules/auth/domain/usecases/login_usecase.dart';
 import 'package:blood_donation_app/modules/auth/domain/usecases/logout_usecase.dart';
 import 'package:blood_donation_app/modules/auth/domain/usecases/register_usecase.dart';
-import 'package:blood_donation_app/core/utils/use_case.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';

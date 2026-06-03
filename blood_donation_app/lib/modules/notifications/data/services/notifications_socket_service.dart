@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:web_socket_channel/web_socket_channel.dart';
-
 import 'package:blood_donation_app/core/config/app_config.dart';
 import 'package:blood_donation_app/core/constants/app_constants.dart';
 import 'package:blood_donation_app/core/storage/secure_storage.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class NotificationsSocketService {
 

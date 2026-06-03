@@ -241,11 +241,13 @@ class _DonorHistoryScreenState extends State<_DonorHistoryScreen> {
       body: FutureBuilder<List<DonationItem>>(
         future: _future,
         builder: (context, snapshot) {
-          if (!snapshot.hasData)
+          if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
+          }
           final items = snapshot.data ?? const [];
-          if (items.isEmpty)
+          if (items.isEmpty) {
             return const Center(child: Text('No previous donations'));
+          }
           return ListView(
             children: items
                 .map(
@@ -331,7 +333,7 @@ class _DonorProfileScreenState extends State<_DonorProfileScreen> {
                       keyboardType: TextInputType.emailAddress,
                     ),
                     DropdownButtonFormField<String>(
-                      value: selectedBloodGroup,
+                      initialValue: selectedBloodGroup,
                       items: AppConstants.bloodTypes
                           .map((value) => DropdownMenuItem(
                                 value: value,
@@ -426,8 +428,9 @@ class _DonorProfileScreenState extends State<_DonorProfileScreen> {
       body: FutureBuilder<Map<String, dynamic>>(
         future: _future,
         builder: (context, snapshot) {
-          if (!snapshot.hasData)
+          if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
+          }
           final p = snapshot.data ?? {};
           return ListView(
             padding: const EdgeInsets.all(16),

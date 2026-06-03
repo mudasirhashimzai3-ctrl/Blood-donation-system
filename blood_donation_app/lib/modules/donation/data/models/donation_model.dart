@@ -15,7 +15,6 @@ class DonationModel extends DonationEntity {
           ? DateTime.parse(json['updated_at'] as String)
           : null,
       notes: json['notes'] as String?,
-      amountMl: null,
     );
   }
   const DonationModel({

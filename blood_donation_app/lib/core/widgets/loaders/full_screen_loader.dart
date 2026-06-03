@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:blood_donation_app/core/theme/app_colors.dart';
 import 'package:blood_donation_app/core/theme/app_text_styles.dart';
 import 'package:blood_donation_app/core/widgets/loaders/app_loading_indicator.dart';
+import 'package:flutter/material.dart';
 
 class FullScreenLoader extends StatelessWidget {
 

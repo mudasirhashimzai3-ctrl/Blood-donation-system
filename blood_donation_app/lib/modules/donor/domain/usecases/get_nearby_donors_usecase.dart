@@ -1,7 +1,7 @@
-import 'package:equatable/equatable.dart';
 import 'package:blood_donation_app/core/utils/use_case.dart';
 import 'package:blood_donation_app/modules/donor/domain/entities/donor_entity.dart';
 import 'package:blood_donation_app/modules/donor/domain/repositories/donor_repository.dart';
+import 'package:equatable/equatable.dart';
 
 class GetNearbyDonorsUseCase
     extends UseCase<List<DonorEntity>, GetNearbyDonorsParams> {

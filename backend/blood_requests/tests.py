@@ -18,7 +18,9 @@ from hospitals.models import Hospital
 from notifications.models import Notification
 from recipients.models import Recipient
 
-from .models import BloodRequest
+from donations.models import Donation
+
+from .models import BloodRequest, BloodRequestNotification
 
 
 def sample_pdf(name="report.pdf"):
@@ -168,12 +170,15 @@ class BloodRequestApiTests(APITestCase):
         self.client.post(f"{self.base_url}{request_id}/run-auto-match/", {}, format="json")
         obj = BloodRequest.objects.get(pk=request_id)
         self.assertEqual(obj.status, "pending")
+        self.assertIsNone(obj.assigned_donor_id)
         self.assertTrue(obj.is_verified)
         self.assertTrue(obj.is_emergency)
         self.assertEqual(obj.estimated_time_to_fulfill, 60)
         self.assertIsNotNone(obj.response_deadline)
         self.assertEqual(obj.nearby_donors_count, 1)
         self.assertEqual(obj.total_notified_donors, 1)
+        self.assertEqual(Donation.objects.filter(request=obj, status="pending").count(), 1)
+        self.assertEqual(BloodRequestNotification.objects.filter(blood_request=obj).count(), 1)
         self.assertTrue(bool(obj.medical_report))
         self.assertTrue(bool(obj.emergency_proof))
 
@@ -297,7 +302,7 @@ class BloodRequestApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(response.data["count"], 1)
 
-    def test_assign_rejects_donor_outside_radius_or_cooldown(self):
+    def test_manual_assign_endpoint_is_unavailable(self):
         self.client.force_authenticate(user=self.admin)
         request_obj = BloodRequest.objects.create(
             recipient=self.recipient,
@@ -310,31 +315,16 @@ class BloodRequestApiTests(APITestCase):
             auto_match_enabled=False,
             response_deadline=timezone.now() + timedelta(hours=3),
         )
-        far_donor = self._create_donor(
-            phone="0700222222",
-            latitude=Decimal("40.000000"),
-            longitude=Decimal("75.000000"),
-        )
-        cooldown_donor = self._create_donor(
-            phone="0700222223",
-            last_donation_date=timezone.localdate() - timedelta(days=10),
-        )
+        donor = self._create_donor(phone="0700222222")
 
-        far_response = self.client.patch(
+        response = self.client.patch(
             f"{self.base_url}{request_obj.id}/assign-donor/",
-            {"donor_id": far_donor.id},
+            {"donor_id": donor.id},
             format="json",
         )
-        self.assertEqual(far_response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        cooldown_response = self.client.patch(
-            f"{self.base_url}{request_obj.id}/assign-donor/",
-            {"donor_id": cooldown_donor.id},
-            format="json",
-        )
-        self.assertEqual(cooldown_response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_pending_to_matched_to_completed_transition(self):
+    def test_matched_to_completed_transition(self):
         self.client.force_authenticate(user=self.admin)
         donor = self._create_donor(phone="0700333333")
         request_obj = BloodRequest.objects.create(
@@ -347,15 +337,10 @@ class BloodRequestApiTests(APITestCase):
             location_lon="69.207500",
             auto_match_enabled=False,
             response_deadline=timezone.now() + timedelta(hours=3),
+            status="matched",
+            assigned_donor=donor,
+            matched_at=timezone.now(),
         )
-
-        assign_response = self.client.patch(
-            f"{self.base_url}{request_obj.id}/assign-donor/",
-            {"donor_id": donor.id},
-            format="json",
-        )
-        self.assertEqual(assign_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(assign_response.data["status"], "matched")
 
         complete_response = self.client.patch(
             f"{self.base_url}{request_obj.id}/complete/",

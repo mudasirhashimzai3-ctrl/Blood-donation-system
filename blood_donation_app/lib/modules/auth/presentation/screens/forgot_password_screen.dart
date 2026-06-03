@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:blood_donation_app/core/di/injection.dart';
 import 'package:blood_donation_app/core/theme/app_colors.dart';
 import 'package:blood_donation_app/core/theme/app_dimensions.dart';
@@ -7,6 +6,7 @@ import 'package:blood_donation_app/core/widgets/buttons/app_button.dart';
 import 'package:blood_donation_app/core/widgets/fields/app_text_field.dart';
 import 'package:blood_donation_app/core/widgets/layouts/app_scaffold.dart';
 import 'package:blood_donation_app/modules/auth/domain/repositories/auth_repository.dart';
+import 'package:flutter/material.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});

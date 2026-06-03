@@ -57,9 +57,9 @@ def notify_request_fulfilled_to_other_donors(*, blood_request, winning_donor_id:
     create_notifications(
         event_key="blood_request_assigned",
         type="request_update",
-        title=f"Blood request #{blood_request.id} fulfilled",
+        title=f"Blood request #{blood_request.id} already assigned",
         message=(
-            f"Blood request #{blood_request.id} has been accepted by another donor. "
+            f"Blood request #{blood_request.id} has already been assigned to another donor. "
             "No further action is needed."
         ),
         sent_via=["in_app"],

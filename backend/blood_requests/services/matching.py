@@ -206,9 +206,6 @@ def auto_assign_primary_candidate(blood_request: BloodRequest):
         .first()
     )
     if not primary_candidate:
-        if blood_request.assigned_donor_id is not None:
-            blood_request.assigned_donor = None
-            blood_request.save(update_fields=["assigned_donor", "updated_at"])
         return None
 
     now = timezone.now()
@@ -222,10 +219,6 @@ def auto_assign_primary_candidate(blood_request: BloodRequest):
     if not primary_candidate.is_primary:
         primary_candidate.is_primary = True
         primary_candidate.save(update_fields=["is_primary", "updated_at"])
-
-    if blood_request.assigned_donor_id != primary_candidate.donor_id:
-        blood_request.assigned_donor = primary_candidate.donor
-        blood_request.save(update_fields=["assigned_donor", "updated_at"])
 
     return primary_candidate.donor
 

@@ -114,23 +114,6 @@ export const useRunAutoMatch = (id?: number) => {
   });
 };
 
-export const useAssignDonor = (id: number) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (donorId: number) => bloodRequestService.assignDonor(id, donorId).then((res) => res.data),
-    onSuccess: () => {
-      toast.success("Donor assigned successfully");
-      queryClient.invalidateQueries({ queryKey: bloodRequestKeys.detail(id) });
-      queryClient.invalidateQueries({ queryKey: bloodRequestKeys.notifications(id) });
-      queryClient.invalidateQueries({ queryKey: bloodRequestKeys.lists() });
-    },
-    onError: (error) => {
-      toast.error(extractAxiosError(error, "Failed to assign donor"));
-    },
-  });
-};
-
 export const useCompleteBloodRequest = (id: number) => {
   const queryClient = useQueryClient();
 

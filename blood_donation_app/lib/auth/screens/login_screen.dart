@@ -87,7 +87,6 @@ class _AppLoginScreenState extends State<AppLoginScreen> {
         : Icons.volunteer_activism_rounded;
 
     return AuthEntryScaffold(
-      maxContentWidth: 560,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -98,7 +97,6 @@ class _AppLoginScreenState extends State<AppLoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             AuthGlassCard(
-              borderRadius: 24,
               padding: const EdgeInsets.all(18),
               child: Row(
                 children: [

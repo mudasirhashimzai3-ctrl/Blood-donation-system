@@ -1,8 +1,8 @@
-import 'package:blood_donation_app/modules/auth/domain/entities/user_entity.dart';
-import 'package:blood_donation_app/modules/auth/domain/repositories/auth_repository.dart';
 import 'package:blood_donation_app/modules/auth/data/datasources/auth_local_datasource.dart';
 import 'package:blood_donation_app/modules/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:blood_donation_app/modules/auth/data/models/user_model.dart';
+import 'package:blood_donation_app/modules/auth/domain/entities/user_entity.dart';
+import 'package:blood_donation_app/modules/auth/domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
 

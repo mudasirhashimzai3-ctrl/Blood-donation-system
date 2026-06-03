@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:blood_donation_app/core/di/injection.dart';
+import 'package:blood_donation_app/core/router/app_routes.dart';
 import 'package:blood_donation_app/modules/auth/domain/repositories/auth_repository.dart';
 import 'package:blood_donation_app/modules/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:blood_donation_app/modules/auth/presentation/screens/login_screen.dart';
@@ -13,8 +13,8 @@ import 'package:blood_donation_app/modules/donor/presentation/screens/profile_sc
 import 'package:blood_donation_app/modules/home/presentation/screens/home_screen.dart';
 import 'package:blood_donation_app/modules/home/presentation/screens/main_shell.dart';
 import 'package:blood_donation_app/modules/notifications/presentation/screens/notifications_screen.dart';
-import 'package:blood_donation_app/core/di/injection.dart';
-import 'package:blood_donation_app/core/router/app_routes.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class AppRouter {
   AppRouter._();

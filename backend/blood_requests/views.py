@@ -18,15 +18,12 @@ from donations.models import Donation
 from donations.services.compatibility import get_legacy_notifications_for_request
 from donations.services.sync import (
     expire_pending_donations_for_request,
-    notify_request_fulfilled_to_other_donors,
-    sync_candidate_notification_for_donation,
 )
 
 from recipients.models import Recipient
 
 from .models import BloodRequest, BloodRequestNotification
 from .serializers import (
-    AssignDonorSerializer,
     BloodRequestDetailSerializer,
     BloodRequestListSerializer,
     BloodRequestNotificationSerializer,
@@ -263,103 +260,6 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
             },
             status=status.HTTP_200_OK,
         )
-
-    @action(detail=True, methods=["patch"], url_path="assign-donor")
-    def assign_donor(self, request, pk=None):
-        blood_request = self.get_object()
-        if blood_request.status != "pending":
-            raise ValidationError({"detail": "Only pending requests can be assigned."})
-
-        serializer = AssignDonorSerializer(data=request.data, context={"blood_request": blood_request})
-        serializer.is_valid(raise_exception=True)
-        donor = serializer.context["donor"]
-
-        from django.utils import timezone
-        now = timezone.now()
-        blood_request.assigned_donor = donor
-        blood_request.status = "matched"
-        blood_request.matched_at = now
-        blood_request.save(update_fields=["assigned_donor", "status", "matched_at", "updated_at"])
-        _create_system_notifications(
-            event_key="blood_request_assigned",
-            type="request_update",
-            title=f"Donor assigned to request #{blood_request.id}",
-            message=f"Assigned donor {donor} to blood request #{blood_request.id}.",
-            sent_via=["in_app"],
-            role_names=["admin", "receptionist"],
-            request_id=blood_request.id,
-            metadata={"donor_id": donor.id, "status": blood_request.status},
-        )
-
-        Donation.objects.filter(
-            request=blood_request,
-            deleted_at__isnull=True,
-            is_primary=True,
-        ).exclude(donor=donor).update(is_primary=False, updated_at=now)
-        donation = Donation.objects.filter(
-            request=blood_request,
-            donor=donor,
-            deleted_at__isnull=True,
-        ).first()
-        if donation:
-            donation.is_primary = True
-            if donation.status == "pending":
-                donation.status = "accepted"
-                donation.responded_at = now
-                if donation.notified_at:
-                    delta = donation.responded_at - donation.notified_at
-                    donation.response_time = max(0, int(delta.total_seconds() // 60))
-            donation.save(
-                update_fields=[
-                    "is_primary",
-                    "status",
-                    "responded_at",
-                    "response_time",
-                    "updated_at",
-                ]
-            )
-            sync_candidate_notification_for_donation(donation)
-
-        other_candidates = Donation.objects.filter(
-            request=blood_request,
-            deleted_at__isnull=True,
-            status__in=Donation.PRIMARY_ACTIVE_STATUSES,
-        ).exclude(donor=donor)
-        for candidate in other_candidates:
-            candidate.is_primary = False
-            candidate.status = "expired"
-            candidate.responded_at = candidate.responded_at or now
-            if candidate.notified_at and candidate.response_time is None:
-                delta = candidate.responded_at - candidate.notified_at
-                candidate.response_time = max(0, int(delta.total_seconds() // 60))
-            candidate.save(
-                update_fields=[
-                    "is_primary",
-                    "status",
-                    "responded_at",
-                    "response_time",
-                    "updated_at",
-                ]
-            )
-            sync_candidate_notification_for_donation(candidate)
-
-        BloodRequestNotification.objects.filter(
-            blood_request=blood_request,
-            channel="in_app",
-            response_status="pending",
-        ).exclude(donor=donor).update(response_status="expired", responded_at=now, updated_at=now)
-        BloodRequestNotification.objects.filter(
-            blood_request=blood_request,
-            donor=donor,
-            channel="in_app",
-        ).update(response_status="accepted", responded_at=now, updated_at=now)
-        notify_request_fulfilled_to_other_donors(
-            blood_request=blood_request,
-            winning_donor_id=donor.id,
-        )
-
-        output = BloodRequestDetailSerializer(blood_request, context={"request": request})
-        return Response(output.data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["patch"])
     def complete(self, request, pk=None):

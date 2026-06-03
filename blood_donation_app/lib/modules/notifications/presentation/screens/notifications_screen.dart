@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:blood_donation_app/core/di/injection.dart';
 import 'package:blood_donation_app/core/storage/secure_storage.dart';
 import 'package:blood_donation_app/core/theme/app_dimensions.dart';
@@ -8,6 +7,7 @@ import 'package:blood_donation_app/core/widgets/loaders/app_loading_indicator.da
 import 'package:blood_donation_app/modules/notifications/data/services/notification_service.dart';
 import 'package:blood_donation_app/modules/notifications/data/services/notifications_socket_service.dart';
 import 'package:blood_donation_app/modules/notifications/domain/entities/notification_entity.dart';
+import 'package:flutter/material.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});

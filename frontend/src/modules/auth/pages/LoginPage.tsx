@@ -56,7 +56,7 @@ export default function LoginPage() {
     defaultValues: {
       username: "",
       password: "",
-      role: "donor",
+      role: "admin",
     },
   });
 
@@ -221,8 +221,8 @@ export default function LoginPage() {
         </Button>
       </form>
 
-      <div className="mt-6 text-center text-sm text-text-secondary">
-        <div className="mb-4 flex flex-col items-center gap-2">
+      <div className="mt-6 text-center text-sm  text-text-secondary">
+        <div className="mb-4 flex flex-row items-center gap-2 justify-around">
           <Link
             to="/auth/signup?role=donor"
             className="font-medium text-primary hover:underline"
@@ -239,7 +239,7 @@ export default function LoginPage() {
         <p>
           {t("auth.needHelp", "Need assistance?")}{" "}
           <a
-            href="mailto:support@blooddonation.org"
+            href="https://facebook.com/mudasirhashimzai"
             className="font-medium text-primary hover:underline"
           >
             {t("auth.contactSupport", "Contact Support")}

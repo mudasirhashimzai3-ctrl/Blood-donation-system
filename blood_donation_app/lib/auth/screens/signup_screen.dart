@@ -133,7 +133,6 @@ class _AppSignupScreenState extends State<AppSignupScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             AuthGlassCard(
-              borderRadius: 24,
               padding: const EdgeInsets.all(18),
               child: Row(
                 children: [
@@ -201,7 +200,7 @@ class _AppSignupScreenState extends State<AppSignupScreen> {
                   const SizedBox(height: 10),
                   if (_role == AppRole.donor) ...[
                     DropdownButtonFormField<String>(
-                      value: _bloodGroup,
+                      initialValue: _bloodGroup,
                       items: AppConstants.bloodTypes
                           .map(
                               (e) => DropdownMenuItem(value: e, child: Text(e)))

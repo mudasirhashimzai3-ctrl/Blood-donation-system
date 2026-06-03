@@ -1,4 +1,3 @@
-import 'package:get_it/get_it.dart';
 import 'package:blood_donation_app/core/network/api_client.dart';
 import 'package:blood_donation_app/core/storage/local_storage.dart';
 import 'package:blood_donation_app/core/storage/secure_storage.dart';
@@ -10,6 +9,7 @@ import 'package:blood_donation_app/modules/auth/domain/usecases/login_usecase.da
 import 'package:blood_donation_app/modules/auth/domain/usecases/logout_usecase.dart';
 import 'package:blood_donation_app/modules/auth/domain/usecases/register_usecase.dart';
 import 'package:blood_donation_app/modules/auth/presentation/bloc/auth_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 class AuthDi {
   AuthDi._();

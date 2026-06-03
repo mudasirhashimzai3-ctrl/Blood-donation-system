@@ -4,13 +4,9 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from accounts.models import normalize_role_name
-from donors.models import Donor
-from donors.services.blood_groups import get_compatible_donor_groups
-from donors.services.eligibility import get_donor_eligibility
 from recipients.models import Recipient
 
 from .models import BloodRequest, BloodRequestNotification
-from .services.matching import get_max_match_radius_km, haversine_distance_km
 
 
 class BloodRequestListSerializer(serializers.ModelSerializer):
@@ -369,40 +365,6 @@ class BloodRequestNotificationSerializer(serializers.ModelSerializer):
 
     def get_donor_name(self, obj):
         return str(obj.donor)
-
-
-class AssignDonorSerializer(serializers.Serializer):
-    donor_id = serializers.IntegerField(min_value=1)
-
-    def validate_donor_id(self, value):
-        request = self.context["blood_request"]
-
-        try:
-            donor = Donor.objects.get(pk=value, deleted_at__isnull=True)
-        except Donor.DoesNotExist as exc:
-            raise serializers.ValidationError("Donor not found.") from exc
-
-        if donor.status != "active":
-            raise serializers.ValidationError("Only active donors can be assigned.")
-        if donor.blood_group not in get_compatible_donor_groups(request.blood_group):
-            raise serializers.ValidationError("Donor blood group is not compatible with the request.")
-        if donor.latitude is None or donor.longitude is None:
-            raise serializers.ValidationError("Donor has no coordinates set.")
-
-        if not get_donor_eligibility(donor.last_donation_date)["is_eligible"]:
-            raise serializers.ValidationError("Donor is still in cooldown period.")
-
-        distance_km = haversine_distance_km(
-            request.location_lat,
-            request.location_lon,
-            donor.latitude,
-            donor.longitude,
-        )
-        if distance_km > get_max_match_radius_km():
-            raise serializers.ValidationError("Donor is outside the matching radius.")
-
-        self.context["donor"] = donor
-        return value
 
 
 class CancelBloodRequestSerializer(serializers.Serializer):

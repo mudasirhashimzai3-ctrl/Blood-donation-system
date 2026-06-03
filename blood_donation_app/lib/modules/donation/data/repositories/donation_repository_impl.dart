@@ -1,6 +1,6 @@
+import 'package:blood_donation_app/modules/donation/data/datasources/donation_remote_datasource.dart';
 import 'package:blood_donation_app/modules/donation/domain/entities/donation_entity.dart';
 import 'package:blood_donation_app/modules/donation/domain/repositories/donation_repository.dart';
-import 'package:blood_donation_app/modules/donation/data/datasources/donation_remote_datasource.dart';
 
 class DonationRepositoryImpl implements DonationRepository {
   DonationRepositoryImpl(this._remote);

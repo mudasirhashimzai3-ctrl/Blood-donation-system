@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:blood_donation_app/core/di/injection.dart';
 import 'package:blood_donation_app/core/theme/app_dimensions.dart';
 import 'package:blood_donation_app/core/widgets/cards/app_card.dart';
@@ -6,6 +5,7 @@ import 'package:blood_donation_app/core/widgets/layouts/app_scaffold.dart';
 import 'package:blood_donation_app/core/widgets/loaders/app_loading_indicator.dart';
 import 'package:blood_donation_app/modules/blood_bank/domain/entities/blood_bank_entity.dart';
 import 'package:blood_donation_app/modules/blood_bank/domain/repositories/blood_bank_repository.dart';
+import 'package:flutter/material.dart';
 
 class BloodBankListScreen extends StatefulWidget {
   const BloodBankListScreen({super.key});
