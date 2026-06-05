@@ -1,7 +1,7 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, viewsets
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from core.pagination import StandardResultsSetPagination
 from core.permissions import PermissionMixin
@@ -21,6 +21,11 @@ class HospitalViewSet(PermissionMixin, viewsets.ModelViewSet):
     search_fields = ["name", "phone", "email", "province", "city", "address"]
     ordering_fields = ["name", "province", "city", "created_at", "updated_at"]
     ordering = ["name"]
+
+    def get_permissions(self):
+        if self.action in {"list", "retrieve"}:
+            return [AllowAny()]
+        return super().get_permissions()
 
     def get_serializer_class(self):
         if self.action == "list":

@@ -1,6 +1,6 @@
 import type { BloodGroup, BloodRequestListItem } from "@/modules/blood-requests/types/bloodRequest.types";
 
-export const DONOR_SEARCH_RADIUS_OPTIONS = [10, 20, 50, 100] as const;
+export const DONOR_SEARCH_RADIUS_OPTIONS = [ 10, 20, 50, 100] as const;
 
 export type DonorSearchRadius = (typeof DONOR_SEARCH_RADIUS_OPTIONS)[number];
 export type DonorMatchType = "exact" | "compatible";

@@ -4,8 +4,8 @@ import 'package:blood_donation_app/models/app_models.dart';
 import 'package:blood_donation_app/services/app_services.dart';
 import 'package:blood_donation_app/shared/app_routes.dart';
 import 'package:blood_donation_app/shared/app_session.dart';
-import 'package:blood_donation_app/shared/ui/error_message.dart';
 import 'package:blood_donation_app/shared/ui/app_style.dart';
+import 'package:blood_donation_app/shared/ui/error_message.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -20,6 +20,7 @@ class _AppLoginScreenState extends State<AppLoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _loading = false;
+  bool _passwordVisible = false;
   AppRole _role = AppRole.donor;
 
   @override
@@ -46,9 +47,12 @@ class _AppLoginScreenState extends State<AppLoginScreen> {
       );
       if (!mounted) return;
       if (user.role == AppRole.recipient) {
-        Navigator.pushReplacementNamed(context, AppRoutes.recipientDashboard);
+        await Navigator.pushReplacementNamed(
+          context,
+          AppRoutes.recipientDashboard,
+        );
       } else {
-        Navigator.pushReplacementNamed(context, AppRoutes.donorDashboard);
+        await Navigator.pushReplacementNamed(context, AppRoutes.donorDashboard);
       }
     } catch (error) {
       if (!mounted) return;
@@ -97,7 +101,6 @@ class _AppLoginScreenState extends State<AppLoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             AuthGlassCard(
-              padding: const EdgeInsets.all(18),
               child: Row(
                 children: [
                   Container(
@@ -144,8 +147,22 @@ class _AppLoginScreenState extends State<AppLoginScreen> {
                   const SizedBox(height: 12),
                   TextField(
                     controller: _passwordController,
-                    obscureText: true,
-                    decoration: AppStyle.fieldDecoration('Password'),
+                    obscureText: !_passwordVisible,
+                    decoration: AppStyle.fieldDecoration('Password').copyWith(
+                      suffixIcon: IconButton(
+                        tooltip: _passwordVisible
+                            ? 'Hide password'
+                            : 'Show password',
+                        onPressed: () => setState(
+                          () => _passwordVisible = !_passwordVisible,
+                        ),
+                        icon: Icon(
+                          _passwordVisible
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                        ),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 20),
                   SizedBox(

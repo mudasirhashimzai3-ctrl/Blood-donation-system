@@ -8,6 +8,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from accounts.models import User
 from core.models import Settings
 from donors.models import Donor
+from hospitals.models import Hospital
 from recipients.models import Recipient
 
 
@@ -182,6 +183,13 @@ class AuthSignupTests(APITestCase):
                 "email": "donor-signup@example.com",
                 "phone": "0700000001",
                 "donor_blood_group": "O+",
+                "donor_latitude": "34.555300",
+                "donor_longitude": "69.207500",
+                "donor_age": 28,
+                "donor_date_of_birth": "1996-05-01",
+                "donor_last_donation_date": "2024-12-15",
+                "donor_permanent_address_city": "Kabul",
+                "donor_local_address_city": "Herat",
                 "password": "StrongPass123!",
                 "confirm_password": "StrongPass123!",
                 "role": "donor",
@@ -194,8 +202,13 @@ class AuthSignupTests(APITestCase):
         donor_profile = Donor.objects.get(user=created)
         self.assertEqual(donor_profile.blood_group, "O+")
         self.assertEqual(donor_profile.status, "active")
-        self.assertIsNone(donor_profile.latitude)
-        self.assertIsNone(donor_profile.longitude)
+        self.assertEqual(str(donor_profile.latitude), "34.555300")
+        self.assertEqual(str(donor_profile.longitude), "69.207500")
+        self.assertEqual(donor_profile.age, 28)
+        self.assertEqual(donor_profile.date_of_birth.isoformat(), "1996-05-01")
+        self.assertEqual(donor_profile.last_donation_date.isoformat(), "2024-12-15")
+        self.assertEqual(donor_profile.permanent_address_city, "Kabul")
+        self.assertEqual(donor_profile.local_address_city, "Herat")
 
     def test_signup_rejects_invalid_donor_latitude(self):
         response = self.client.post(
@@ -219,6 +232,13 @@ class AuthSignupTests(APITestCase):
         self.assertIn("donor_latitude", response.data)
 
     def test_recipient_signup_creates_recipient_role(self):
+        hospital = Hospital.objects.create(
+            name="City Hospital",
+            phone="0799999999",
+            email="hospital@example.com",
+            province="Kabul",
+            city="Kabul",
+        )
         response = self.client.post(
             self.signup_url,
             {
@@ -227,6 +247,9 @@ class AuthSignupTests(APITestCase):
                 "username": "recipient-signup",
                 "email": "recipient-signup@example.com",
                 "phone": "0700000002",
+                "recipient_required_blood_group": "B+",
+                "recipient_hospital": hospital.id,
+                "recipient_emergency_level": "urgent",
                 "password": "StrongPass123!",
                 "confirm_password": "StrongPass123!",
                 "role": "recipient",
@@ -237,7 +260,9 @@ class AuthSignupTests(APITestCase):
         created = User.objects.get(username="recipient-signup")
         self.assertEqual(created.role_name, "recipient")
         recipient_profile = Recipient.objects.get(user=created)
-        self.assertIsNone(recipient_profile.required_blood_group)
+        self.assertEqual(recipient_profile.required_blood_group, "B+")
+        self.assertEqual(recipient_profile.hospital, hospital)
+        self.assertEqual(recipient_profile.emergency_level, "urgent")
 
     def test_signup_rejects_invalid_role(self):
         response = self.client.post(

@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.db import IntegrityError, transaction
 from core.models import Permission
+from hospitals.models import Hospital
 from .models import (
     ROLE_CHOICES,
     PUBLIC_ROLE_NAMES,
@@ -75,6 +76,11 @@ class SignupSerializer(serializers.Serializer):
     )
     donor_latitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False)
     donor_longitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False)
+    donor_age = serializers.IntegerField(min_value=1, max_value=150, required=False)
+    donor_date_of_birth = serializers.DateField(required=False, allow_null=True)
+    donor_last_donation_date = serializers.DateField(required=False, allow_null=True)
+    donor_permanent_address_city = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    donor_local_address_city = serializers.CharField(max_length=100, required=False, allow_blank=True)
     recipient_required_blood_group = serializers.ChoiceField(
         choices=[
             ("A+", "A+"),
@@ -87,6 +93,16 @@ class SignupSerializer(serializers.Serializer):
             ("O-", "O-"),
         ],
         required=False,
+    )
+    recipient_hospital = serializers.PrimaryKeyRelatedField(
+        queryset=Hospital.objects.all(),
+        required=False,
+        allow_null=True,
+    )
+    recipient_emergency_level = serializers.ChoiceField(
+        choices=[("normal", "Normal"), ("urgent", "Urgent"), ("critical", "Critical")],
+        required=False,
+        default="normal",
     )
     password = serializers.CharField(write_only=True, validators=[validate_password])
     confirm_password = serializers.CharField(write_only=True)
@@ -152,8 +168,14 @@ class SignupSerializer(serializers.Serializer):
         donor_blood_group = validated_data.pop("donor_blood_group", None)
         donor_latitude = validated_data.pop("donor_latitude", None)
         donor_longitude = validated_data.pop("donor_longitude", None)
-        # Recipient blood group is chosen per realtime request, not at signup.
-        validated_data.pop("recipient_required_blood_group", None)
+        donor_age = validated_data.pop("donor_age", None)
+        donor_date_of_birth = validated_data.pop("donor_date_of_birth", None)
+        donor_last_donation_date = validated_data.pop("donor_last_donation_date", None)
+        donor_permanent_address_city = validated_data.pop("donor_permanent_address_city", "")
+        donor_local_address_city = validated_data.pop("donor_local_address_city", "")
+        recipient_required_blood_group = validated_data.pop("recipient_required_blood_group", None)
+        recipient_hospital = validated_data.pop("recipient_hospital", None)
+        recipient_emergency_level = validated_data.pop("recipient_emergency_level", "normal")
 
         try:
             with transaction.atomic():
@@ -181,6 +203,14 @@ class SignupSerializer(serializers.Serializer):
                             donor.latitude = donor_latitude
                         if donor_longitude is not None:
                             donor.longitude = donor_longitude
+                        if donor_age is not None:
+                            donor.age = donor_age
+                        if donor_date_of_birth is not None:
+                            donor.date_of_birth = donor_date_of_birth
+                        if donor_last_donation_date is not None:
+                            donor.last_donation_date = donor_last_donation_date
+                        donor.permanent_address_city = donor_permanent_address_city or None
+                        donor.local_address_city = donor_local_address_city or None
                         update_fields = [
                             "user",
                             "first_name",
@@ -194,6 +224,13 @@ class SignupSerializer(serializers.Serializer):
                             update_fields.append("latitude")
                         if donor_longitude is not None:
                             update_fields.append("longitude")
+                        if donor_age is not None:
+                            update_fields.append("age")
+                        if donor_date_of_birth is not None:
+                            update_fields.append("date_of_birth")
+                        if donor_last_donation_date is not None:
+                            update_fields.append("last_donation_date")
+                        update_fields.extend(["permanent_address_city", "local_address_city"])
                         donor.save(update_fields=update_fields)
                     else:
                         Donor.objects.create(
@@ -206,6 +243,11 @@ class SignupSerializer(serializers.Serializer):
                             status="active",
                             latitude=donor_latitude,
                             longitude=donor_longitude,
+                            age=donor_age,
+                            date_of_birth=donor_date_of_birth,
+                            last_donation_date=donor_last_donation_date,
+                            permanent_address_city=donor_permanent_address_city or None,
+                            local_address_city=donor_local_address_city or None,
                         )
                 elif role_name == "recipient":
                     full_name = f"{user.first_name} {user.last_name}".strip() or user.username
@@ -218,16 +260,29 @@ class SignupSerializer(serializers.Serializer):
                         recipient.user = user
                         recipient.full_name = full_name
                         recipient.email = user.email or None
-                        # Normalize potential legacy null/empty recipient state.
-                        recipient.emergency_level = recipient.emergency_level or "normal"
-                        recipient.save(update_fields=["user", "full_name", "email", "emergency_level", "updated_at"])
+                        recipient.required_blood_group = recipient_required_blood_group
+                        recipient.hospital = recipient_hospital
+                        recipient.emergency_level = recipient_emergency_level or "normal"
+                        recipient.save(
+                            update_fields=[
+                                "user",
+                                "full_name",
+                                "email",
+                                "required_blood_group",
+                                "hospital",
+                                "emergency_level",
+                                "updated_at",
+                            ]
+                        )
                     else:
                         Recipient.objects.create(
                             user=user,
                             full_name=full_name,
                             email=user.email or None,
                             phone=user.phone,
-                            emergency_level="normal",
+                            required_blood_group=recipient_required_blood_group,
+                            hospital=recipient_hospital,
+                            emergency_level=recipient_emergency_level or "normal",
                         )
                 return user
         except IntegrityError as exc:

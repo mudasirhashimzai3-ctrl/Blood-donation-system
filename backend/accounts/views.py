@@ -184,7 +184,14 @@ class AuthViewSet(viewsets.ViewSet):
             "donor_blood_group": serializer.validated_data.get("donor_blood_group"),
             "donor_latitude": serializer.validated_data.get("donor_latitude"),
             "donor_longitude": serializer.validated_data.get("donor_longitude"),
+            "donor_age": serializer.validated_data.get("donor_age"),
+            "donor_date_of_birth": serializer.validated_data.get("donor_date_of_birth"),
+            "donor_last_donation_date": serializer.validated_data.get("donor_last_donation_date"),
+            "donor_permanent_address_city": serializer.validated_data.get("donor_permanent_address_city"),
+            "donor_local_address_city": serializer.validated_data.get("donor_local_address_city"),
             "recipient_required_blood_group": serializer.validated_data.get("recipient_required_blood_group"),
+            "recipient_hospital": getattr(serializer.validated_data.get("recipient_hospital"), "id", None),
+            "recipient_emergency_level": serializer.validated_data.get("recipient_emergency_level"),
             "profile_status": _get_profile_status(user),
         }
 

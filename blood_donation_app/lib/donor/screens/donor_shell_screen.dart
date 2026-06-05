@@ -1,10 +1,11 @@
-import 'package:blood_donation_app/core/di/injection.dart';
 import 'package:blood_donation_app/core/constants/app_constants.dart';
+import 'package:blood_donation_app/core/di/injection.dart';
 import 'package:blood_donation_app/models/app_models.dart';
 import 'package:blood_donation_app/services/app_services.dart';
 import 'package:blood_donation_app/shared/app_routes.dart';
-import 'package:blood_donation_app/shared/ui/error_message.dart';
 import 'package:blood_donation_app/shared/ui/app_style.dart';
+import 'package:blood_donation_app/shared/ui/error_message.dart';
+import 'package:blood_donation_app/shared/widgets/mobile_dashboard_widgets.dart';
 import 'package:blood_donation_app/shared/widgets/request_card.dart';
 import 'package:flutter/material.dart';
 
@@ -34,33 +35,52 @@ class _DonorShellScreenState extends State<DonorShellScreen> {
   @override
   Widget build(BuildContext context) {
     final pages = [
-      const _DonorHomeScreen(),
+      _DonorHomeScreen(onNavigate: (value) => setState(() => _index = value)),
       const _DonorDonateScreen(),
       const _DonorHistoryScreen(),
       const _DonorProfileScreen(),
       const _DonorSettingsScreen(),
     ];
-    return Scaffold(
-      body: pages[_index],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _index,
-        type: BottomNavigationBarType.fixed,
-        onTap: (value) => setState(() => _index = value),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Donate'),
-          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: 'Settings'),
-        ],
-      ),
+
+    return MobileDashboardShell(
+      currentIndex: _index,
+      onChanged: (value) => setState(() => _index = value),
+      pages: pages,
+      items: const [
+        DashboardNavItem(
+          icon: Icons.home_outlined,
+          activeIcon: Icons.home_rounded,
+          label: 'Home',
+        ),
+        DashboardNavItem(
+          icon: Icons.favorite_border_rounded,
+          activeIcon: Icons.favorite_rounded,
+          label: 'Donate',
+        ),
+        DashboardNavItem(
+          icon: Icons.history_rounded,
+          activeIcon: Icons.history_toggle_off_rounded,
+          label: 'History',
+        ),
+        DashboardNavItem(
+          icon: Icons.person_outline_rounded,
+          activeIcon: Icons.person_rounded,
+          label: 'Profile',
+        ),
+        DashboardNavItem(
+          icon: Icons.settings_outlined,
+          activeIcon: Icons.settings_rounded,
+          label: 'More',
+        ),
+      ],
     );
   }
 }
 
 class _DonorHomeScreen extends StatefulWidget {
-  const _DonorHomeScreen();
+  const _DonorHomeScreen({required this.onNavigate});
+
+  final ValueChanged<int> onNavigate;
 
   @override
   State<_DonorHomeScreen> createState() => _DonorHomeScreenState();
@@ -75,53 +95,139 @@ class _DonorHomeScreenState extends State<_DonorHomeScreen> {
     _future = DonorService(getIt()).getDashboard();
   }
 
+  Future<void> _refresh() async {
+    setState(() => _future = DonorService(getIt()).getDashboard());
+    await _future;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Donor Home'),
-        foregroundColor: Colors.white,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(gradient: AppStyle.headerGradient),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () =>
-                Navigator.pushNamed(context, AppRoutes.notifications),
-            icon: const Icon(Icons.notifications),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: FutureBuilder<Map<String, dynamic>>(
-          future: _future,
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            final data = snapshot.data ?? {};
-            final nearby =
-                (data['nearbyRequests'] as List?)?.cast<BloodRequestItem>() ??
-                    const [];
-            return RefreshIndicator(
-              onRefresh: () async {
-                setState(() => _future = DonorService(getIt()).getDashboard());
-              },
-              child: ListView(
-                padding: const EdgeInsets.all(14),
-                children: [
-                  const Text('Nearby Blood Requests',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  ...nearby.take(3).map((e) => RequestCard(item: e)),
-                  const SizedBox(height: 12),
-                  Text(
-                      'Notifications: ${data['unreadNotifications'] ?? 0} unread'),
-                ],
+    return FutureBuilder<Map<String, dynamic>>(
+      future: _future,
+      builder: (context, snapshot) {
+        final data = snapshot.data ?? {};
+        final unread = (data['unreadNotifications'] as int?) ?? 0;
+
+        return MobileDashboardScaffold(
+          title: 'Donor Dashboard',
+          subtitle: 'Find urgent requests and manage your donation journey.',
+          icon: Icons.volunteer_activism_rounded,
+          actions: [
+            DashboardIconButton(
+              icon: Icons.notifications_rounded,
+              badgeCount: unread,
+              onPressed: () =>
+                  Navigator.pushNamed(context, AppRoutes.notifications),
+            ),
+          ],
+          child: snapshot.hasData
+              ? _DonorHomeContent(
+                  data: data,
+                  onRefresh: _refresh,
+                  onNavigate: widget.onNavigate,
+                )
+              : const _LoadingView(),
+        );
+      },
+    );
+  }
+}
+
+class _DonorHomeContent extends StatelessWidget {
+  const _DonorHomeContent({
+    required this.data,
+    required this.onRefresh,
+    required this.onNavigate,
+  });
+
+  final Map<String, dynamic> data;
+  final Future<void> Function() onRefresh;
+  final ValueChanged<int> onNavigate;
+
+  @override
+  Widget build(BuildContext context) {
+    final profile = Map<String, dynamic>.from((data['profile'] as Map?) ?? {});
+    final nearby =
+        (data['nearbyRequests'] as List?)?.cast<BloodRequestItem>() ?? const [];
+    final emergency =
+        (data['emergencyRequests'] as List?)?.cast<BloodRequestItem>() ??
+            const [];
+    final historyCount = (data['historyCount'] as int?) ?? 0;
+    final unread = (data['unreadNotifications'] as int?) ?? 0;
+    final name = _donorName(profile);
+    final bloodGroup = (profile['blood_group'] ?? '-').toString();
+
+    return RefreshIndicator(
+      color: AppStyle.redPrimary,
+      onRefresh: onRefresh,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(18, 0, 18, 22),
+        children: [
+          HeroSummaryCard(
+            title: name.isEmpty ? 'Ready to save lives' : 'Hi, $name',
+            subtitle:
+                'Your profile is active. Nearby hospitals can reach you for compatible requests.',
+            icon: Icons.bloodtype_rounded,
+            stats: [
+              StatItem(
+                value: bloodGroup,
+                label: 'Blood',
+                icon: Icons.water_drop_rounded,
               ),
-            );
-          },
-        ),
+              StatItem(
+                value: '${nearby.length + emergency.length}',
+                label: 'Nearby',
+                icon: Icons.place_rounded,
+              ),
+              StatItem(
+                value: '$historyCount',
+                label: 'Donated',
+                icon: Icons.favorite_rounded,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          QuickActionCard(
+            icon: Icons.favorite_rounded,
+            title: 'Review donation requests',
+            subtitle: 'Accept or reject pending requests near you.',
+            onTap: () => onNavigate(1),
+          ),
+          const SectionTitle(
+            title: 'Emergency Matches',
+            subtitle: 'Requests that need attention first',
+          ),
+          if (emergency.isEmpty)
+            const EmptyDashboardCard(
+              icon: Icons.verified_user_rounded,
+              title: 'No emergency requests',
+              message: 'You are all caught up for critical alerts.',
+            )
+          else
+            ...emergency.take(3).map((item) => RequestCard(item: item)),
+          const SectionTitle(
+            title: 'Nearby Requests',
+            subtitle: 'Hospitals currently looking for donors',
+          ),
+          if (nearby.isEmpty)
+            const EmptyDashboardCard(
+              icon: Icons.location_off_rounded,
+              title: 'No nearby requests',
+              message: 'New compatible requests will appear here.',
+            )
+          else
+            ...nearby.take(4).map((item) => RequestCard(item: item)),
+          if (unread > 0) ...[
+            const SizedBox(height: 4),
+            QuickActionCard(
+              icon: Icons.notifications_rounded,
+              title: '$unread unread notification${unread == 1 ? '' : 's'}',
+              subtitle: 'Open alerts and updates from hospitals.',
+              onTap: () =>
+                  Navigator.pushNamed(context, AppRoutes.notifications),
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -143,74 +249,84 @@ class _DonorDonateScreenState extends State<_DonorDonateScreen> {
     _future = DonorService(getIt()).getDonationRequests();
   }
 
+  Future<void> _refresh() async {
+    setState(() => _future = DonorService(getIt()).getDonationRequests());
+    await _future;
+  }
+
+  Future<void> _respond(DonationItem item, String action) async {
+    await DonorService(getIt()).respondToDonation(
+      donationId: item.id,
+      action: action,
+    );
+    if (!mounted) return;
+    await _refresh();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Donate')),
-      body: FutureBuilder<List<DonationItem>>(
+    return MobileDashboardScaffold(
+      title: 'Donate',
+      subtitle: 'Respond quickly to pending hospital requests.',
+      icon: Icons.favorite_rounded,
+      child: FutureBuilder<List<DonationItem>>(
         future: _future,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
+          if (!snapshot.hasData) return const _LoadingView();
           final items = snapshot.data ?? const [];
-          if (items.isEmpty) {
-            return const Center(child: Text('No pending donation requests'));
-          }
-          return ListView.builder(
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              final item = items[index];
-              return Card(
-                margin: const EdgeInsets.all(10),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Hospital: ${item.hospitalName ?? '-'}'),
-                      Text('Blood: ${item.requestBloodGroup ?? '-'}'),
-                      Text(
-                          'Distance: ${item.distanceKm.toStringAsFixed(1)} km'),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () async {
-                                await DonorService(getIt()).respondToDonation(
-                                  donationId: item.id,
-                                  action: 'decline',
-                                );
-                                if (!mounted) return;
-                                setState(() => _future = DonorService(getIt())
-                                    .getDonationRequests());
-                              },
-                              child: const Text('Reject'),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: FilledButton(
-                              onPressed: () async {
-                                await DonorService(getIt()).respondToDonation(
-                                  donationId: item.id,
-                                  action: 'accept',
-                                );
-                                if (!mounted) return;
-                                setState(() => _future = DonorService(getIt())
-                                    .getDonationRequests());
-                              },
-                              child: const Text('Accept'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+          return RefreshIndicator(
+            color: AppStyle.redPrimary,
+            onRefresh: _refresh,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(18, 0, 18, 22),
+              children: [
+                HeroSummaryCard(
+                  title:
+                      '${items.length} pending request${items.length == 1 ? '' : 's'}',
+                  subtitle:
+                      'Accept the request you can confidently support today.',
+                  icon: Icons.local_hospital_rounded,
+                  stats: [
+                    StatItem(
+                      value: '${items.length}',
+                      label: 'Pending',
+                      icon: Icons.pending_actions_rounded,
+                    ),
+                    StatItem(
+                      value: items.isEmpty
+                          ? '-'
+                          : items.first.distanceKm.toStringAsFixed(1),
+                      label: 'Nearest km',
+                      icon: Icons.near_me_rounded,
+                    ),
+                    const StatItem(
+                      value: 'Live',
+                      label: 'Status',
+                      icon: Icons.sensors_rounded,
+                    ),
+                  ],
                 ),
-              );
-            },
+                const SectionTitle(
+                  title: 'Donation Requests',
+                  subtitle: 'Swipe down to refresh the queue',
+                ),
+                if (items.isEmpty)
+                  const EmptyDashboardCard(
+                    icon: Icons.inbox_rounded,
+                    title: 'No pending donation requests',
+                    message:
+                        'When hospitals request your help, they will show here.',
+                  )
+                else
+                  ...items.map(
+                    (item) => _DonationRequestCard(
+                      item: item,
+                      onAccept: () => _respond(item, 'accept'),
+                      onReject: () => _respond(item, 'decline'),
+                    ),
+                  ),
+              ],
+            ),
           );
         },
       ),
@@ -234,30 +350,64 @@ class _DonorHistoryScreenState extends State<_DonorHistoryScreen> {
     _future = DonorService(getIt()).getDonationHistory();
   }
 
+  Future<void> _refresh() async {
+    setState(() => _future = DonorService(getIt()).getDonationHistory());
+    await _future;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('History')),
-      body: FutureBuilder<List<DonationItem>>(
+    return MobileDashboardScaffold(
+      title: 'History',
+      subtitle: 'Track every donation and response status.',
+      icon: Icons.history_toggle_off_rounded,
+      child: FutureBuilder<List<DonationItem>>(
         future: _future,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
+          if (!snapshot.hasData) return const _LoadingView();
           final items = snapshot.data ?? const [];
-          if (items.isEmpty) {
-            return const Center(child: Text('No previous donations'));
-          }
-          return ListView(
-            children: items
-                .map(
-                  (e) => ListTile(
-                    title: Text(e.hospitalName ?? 'Hospital'),
-                    subtitle: Text('Status: ${e.status}'),
-                    trailing: Text(e.requestBloodGroup ?? ''),
-                  ),
-                )
-                .toList(),
+          return RefreshIndicator(
+            color: AppStyle.redPrimary,
+            onRefresh: _refresh,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(18, 0, 18, 22),
+              children: [
+                HeroSummaryCard(
+                  title: 'Donation Timeline',
+                  subtitle: 'A clear record of your blood donation activity.',
+                  icon: Icons.timeline_rounded,
+                  stats: [
+                    StatItem(
+                      value: '${items.length}',
+                      label: 'Total',
+                      icon: Icons.list_alt_rounded,
+                    ),
+                    StatItem(
+                      value:
+                          '${items.where((e) => e.status == 'completed').length}',
+                      label: 'Complete',
+                      icon: Icons.check_circle_rounded,
+                    ),
+                    StatItem(
+                      value:
+                          '${items.where((e) => e.status == 'pending').length}',
+                      label: 'Pending',
+                      icon: Icons.schedule_rounded,
+                    ),
+                  ],
+                ),
+                const SectionTitle(title: 'Recent Activity'),
+                if (items.isEmpty)
+                  const EmptyDashboardCard(
+                    icon: Icons.history_rounded,
+                    title: 'No previous donations',
+                    message:
+                        'Accepted and completed donations will appear here.',
+                  )
+                else
+                  ...items.map((item) => _HistoryDonationCard(item: item)),
+              ],
+            ),
           );
         },
       ),
@@ -423,34 +573,81 @@ class _DonorProfileScreenState extends State<_DonorProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
-      body: FutureBuilder<Map<String, dynamic>>(
+    return MobileDashboardScaffold(
+      title: 'Profile',
+      subtitle: 'Keep your contact and blood information ready.',
+      icon: Icons.person_rounded,
+      child: FutureBuilder<Map<String, dynamic>>(
         future: _future,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
+          if (!snapshot.hasData) return const _LoadingView();
           final p = snapshot.data ?? {};
+          final name = _donorName(p);
+          final city =
+              (p['local_address_city'] ?? p['permanent_address_city'] ?? '-')
+                  .toString();
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(18, 0, 18, 22),
             children: [
-              Align(
-                alignment: Alignment.centerRight,
-                child: OutlinedButton.icon(
-                  onPressed: () => _openEditDialog(p),
-                  icon: const Icon(Icons.edit),
-                  label: const Text('Edit Profile'),
+              HeroSummaryCard(
+                title: name.isEmpty ? 'Donor Profile' : name,
+                subtitle: 'Available donor profile for hospital matching.',
+                icon: Icons.badge_rounded,
+                stats: [
+                  StatItem(
+                    value: (p['blood_group'] ?? '-').toString(),
+                    label: 'Blood',
+                    icon: Icons.water_drop_rounded,
+                  ),
+                  StatItem(
+                    value: (p['age'] ?? '-').toString(),
+                    label: 'Age',
+                    icon: Icons.cake_rounded,
+                  ),
+                  const StatItem(
+                    value: 'Active',
+                    label: 'Status',
+                    icon: Icons.verified_rounded,
+                  ),
+                ],
+              ),
+              const SectionTitle(title: 'Personal Details'),
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: dashboardCardDecoration(),
+                child: Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: OutlinedButton.icon(
+                        onPressed: () => _openEditDialog(p),
+                        icon: const Icon(Icons.edit_rounded),
+                        label: const Text('Edit Profile'),
+                      ),
+                    ),
+                    InfoRow(
+                      icon: Icons.phone_rounded,
+                      label: 'Phone',
+                      value: (p['phone'] ?? '-').toString(),
+                    ),
+                    InfoRow(
+                      icon: Icons.email_rounded,
+                      label: 'Email',
+                      value: (p['email'] ?? '-').toString(),
+                    ),
+                    InfoRow(
+                      icon: Icons.location_city_rounded,
+                      label: 'City',
+                      value: city,
+                    ),
+                    const InfoRow(
+                      icon: Icons.event_available_rounded,
+                      label: 'Availability',
+                      value: 'Always Available',
+                    ),
+                  ],
                 ),
               ),
-              Text('${p['first_name'] ?? ''} ${p['last_name'] ?? ''}',
-                  style: const TextStyle(fontSize: 22)),
-              const SizedBox(height: 8),
-              Text('Blood Group: ${p['blood_group'] ?? '-'}'),
-              Text('Phone: ${p['phone'] ?? '-'}'),
-              Text(
-                  'Address: ${p['local_address_city'] ?? p['permanent_address_city'] ?? '-'}'),
-              const Text('Availability: Always Available'),
             ],
           );
         },
@@ -464,19 +661,264 @@ class _DonorSettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
-      body: Center(
-        child: FilledButton(
-          onPressed: () async {
-            await AuthService(getIt()).logout();
-            if (!context.mounted) return;
-            Navigator.pushNamedAndRemoveUntil(
-                context, AppRoutes.roleSelection, (route) => false);
-          },
-          child: const Text('Logout'),
-        ),
+    return MobileDashboardScaffold(
+      title: 'Settings',
+      subtitle: 'Manage your session and app preferences.',
+      icon: Icons.settings_rounded,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(18, 0, 18, 22),
+        children: [
+          const HeroSummaryCard(
+            title: 'Account Settings',
+            subtitle: 'Your donor account is protected and ready for use.',
+            icon: Icons.shield_rounded,
+            stats: [
+              StatItem(
+                value: 'Secure',
+                label: 'Session',
+                icon: Icons.lock_rounded,
+              ),
+              StatItem(
+                value: 'Live',
+                label: 'Alerts',
+                icon: Icons.sensors_rounded,
+              ),
+              StatItem(
+                value: 'Donor',
+                label: 'Role',
+                icon: Icons.favorite_rounded,
+              ),
+            ],
+          ),
+          const SectionTitle(title: 'Account'),
+          QuickActionCard(
+            icon: Icons.logout_rounded,
+            title: 'Logout',
+            subtitle: 'Sign out and return to role selection.',
+            onTap: () async {
+              await AuthService(getIt()).logout();
+              if (!context.mounted) return;
+              await Navigator.pushNamedAndRemoveUntil(
+                context,
+                AppRoutes.roleSelection,
+                (route) => false,
+              );
+            },
+          ),
+        ],
       ),
     );
+  }
+}
+
+class _DonationRequestCard extends StatelessWidget {
+  const _DonationRequestCard({
+    required this.item,
+    required this.onAccept,
+    required this.onReject,
+  });
+
+  final DonationItem item;
+  final VoidCallback onAccept;
+  final VoidCallback onReject;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: dashboardCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  gradient: AppStyle.headerGradient,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: const Icon(
+                  Icons.local_hospital_rounded,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 13),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.hospitalName ?? 'Hospital',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        color: AppStyle.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      'Request #${item.requestId}',
+                      style: const TextStyle(
+                        color: AppStyle.textMuted,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              StatusPill(
+                label: _titleCase(item.status),
+                color: const Color(0xFFB65B00),
+                icon: Icons.schedule_rounded,
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: InfoRow(
+                  icon: Icons.water_drop_rounded,
+                  label: 'Blood',
+                  value: item.requestBloodGroup ?? '-',
+                ),
+              ),
+              Expanded(
+                child: InfoRow(
+                  icon: Icons.near_me_rounded,
+                  label: 'Distance',
+                  value: '${item.distanceKm.toStringAsFixed(1)} km',
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: onReject,
+                  icon: const Icon(Icons.close_rounded),
+                  label: const Text('Reject'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: onAccept,
+                  icon: const Icon(Icons.check_rounded),
+                  label: const Text('Accept'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HistoryDonationCard extends StatelessWidget {
+  const _HistoryDonationCard({required this.item});
+
+  final DonationItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: dashboardCardDecoration(),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppStyle.redPrimary.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(17),
+            ),
+            child: const Icon(
+              Icons.bloodtype_rounded,
+              color: AppStyle.redPrimary,
+            ),
+          ),
+          const SizedBox(width: 13),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.hospitalName ?? 'Hospital',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppStyle.textPrimary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${item.requestBloodGroup ?? '-'} blood request',
+                  style: const TextStyle(
+                    color: AppStyle.textMuted,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          StatusPill(
+            label: _titleCase(item.status),
+            color: _statusColor(item.status),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LoadingView extends StatelessWidget {
+  const _LoadingView();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: CircularProgressIndicator(color: AppStyle.redPrimary),
+    );
+  }
+}
+
+String _donorName(Map<String, dynamic> profile) {
+  return '${profile['first_name'] ?? ''} ${profile['last_name'] ?? ''}'.trim();
+}
+
+String _titleCase(String value) {
+  final cleaned = value.trim();
+  if (cleaned.isEmpty) return '-';
+  return cleaned[0].toUpperCase() + cleaned.substring(1).toLowerCase();
+}
+
+Color _statusColor(String status) {
+  switch (status.toLowerCase()) {
+    case 'completed':
+    case 'accepted':
+    case 'matched':
+      return const Color(0xFF16835D);
+    case 'declined':
+    case 'rejected':
+    case 'cancelled':
+      return AppStyle.redPrimary;
+    default:
+      return const Color(0xFFB65B00);
   }
 }

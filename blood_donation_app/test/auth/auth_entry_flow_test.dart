@@ -196,7 +196,34 @@ void main() {
       expect(find.text('Donor Access'), findsNothing);
     });
 
-    testWidgets('signup screen hides donor blood group for recipient',
+    testWidgets('login password has visibility toggle', (tester) async {
+      await setupStorage({'selected_mobile_role': 'donor'});
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: AppLoginScreen(),
+        ),
+      );
+
+      expect(find.byIcon(Icons.visibility_outlined), findsOneWidget);
+    });
+
+    testWidgets('donor signup shows location button and password toggles',
+        (tester) async {
+      await setupStorage({'selected_mobile_role': 'donor'});
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: AppSignupScreen(),
+        ),
+      );
+
+      expect(find.text('Donor Registration'), findsOneWidget);
+      expect(find.text('Register My Location'), findsOneWidget);
+      expect(find.byIcon(Icons.visibility_outlined), findsNWidgets(2));
+    });
+
+    testWidgets('signup screen hides recipient-only removed inputs',
         (tester) async {
       await setupStorage({'selected_mobile_role': 'recipient'});
 
@@ -208,6 +235,10 @@ void main() {
 
       expect(find.text('Recipient Registration'), findsOneWidget);
       expect(find.text('Blood Group'), findsNothing);
+      expect(find.text('Required Blood Group'), findsNothing);
+      expect(find.text('Hospital'), findsNothing);
+      expect(find.text('Emergency Level'), findsNothing);
+      expect(find.text('Register My Location'), findsNothing);
     });
 
     testWidgets('signup can navigate back to login', (tester) async {

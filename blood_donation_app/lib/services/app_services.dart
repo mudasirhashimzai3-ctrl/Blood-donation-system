@@ -92,6 +92,16 @@ class AuthService {
     required String confirmPassword,
     required AppRole role,
     String? donorBloodGroup,
+    String? donorLatitude,
+    String? donorLongitude,
+    int? donorAge,
+    String? donorDateOfBirth,
+    String? donorLastDonationDate,
+    String? donorPermanentAddressCity,
+    String? donorLocalAddressCity,
+    String? recipientRequiredBloodGroup,
+    int? recipientHospitalId,
+    String? recipientEmergencyLevel,
   }) async {
     await AppSession.setSelectedRole(role);
     final payload = {
@@ -107,6 +117,41 @@ class AuthService {
           donorBloodGroup != null &&
           donorBloodGroup.isNotEmpty)
         'donor_blood_group': donorBloodGroup,
+      if (role == AppRole.donor &&
+          donorLatitude != null &&
+          donorLatitude.trim().isNotEmpty)
+        'donor_latitude': donorLatitude.trim(),
+      if (role == AppRole.donor &&
+          donorLongitude != null &&
+          donorLongitude.trim().isNotEmpty)
+        'donor_longitude': donorLongitude.trim(),
+      if (role == AppRole.donor && donorAge != null) 'donor_age': donorAge,
+      if (role == AppRole.donor &&
+          donorDateOfBirth != null &&
+          donorDateOfBirth.trim().isNotEmpty)
+        'donor_date_of_birth': donorDateOfBirth.trim(),
+      if (role == AppRole.donor &&
+          donorLastDonationDate != null &&
+          donorLastDonationDate.trim().isNotEmpty)
+        'donor_last_donation_date': donorLastDonationDate.trim(),
+      if (role == AppRole.donor &&
+          donorPermanentAddressCity != null &&
+          donorPermanentAddressCity.trim().isNotEmpty)
+        'donor_permanent_address_city': donorPermanentAddressCity.trim(),
+      if (role == AppRole.donor &&
+          donorLocalAddressCity != null &&
+          donorLocalAddressCity.trim().isNotEmpty)
+        'donor_local_address_city': donorLocalAddressCity.trim(),
+      if (role == AppRole.recipient &&
+          recipientRequiredBloodGroup != null &&
+          recipientRequiredBloodGroup.isNotEmpty)
+        'recipient_required_blood_group': recipientRequiredBloodGroup,
+      if (role == AppRole.recipient && recipientHospitalId != null)
+        'recipient_hospital': recipientHospitalId,
+      if (role == AppRole.recipient &&
+          recipientEmergencyLevel != null &&
+          recipientEmergencyLevel.isNotEmpty)
+        'recipient_emergency_level': recipientEmergencyLevel,
     };
 
     await _apiClient.post<Map<String, dynamic>>('/accounts/auth/signup/',
