@@ -1,5 +1,9 @@
 import json
+import shutil
+import tempfile
 
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
 from django.core.cache import cache
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -10,6 +14,108 @@ from core.models import Settings
 from donors.models import Donor
 from hospitals.models import Hospital
 from recipients.models import Recipient
+
+
+def tiny_gif_file(name="avatar.gif"):
+    gif_bytes = (
+        b"\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00"
+        b"\x00\x00\x00\xff\xff\xff\x21\xf9\x04\x00\x00\x00\x00\x00"
+        b"\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x4c\x01\x00\x3b"
+    )
+    return SimpleUploadedFile(name, gif_bytes, content_type="image/gif")
+
+
+class UserAvatarApiTests(APITestCase):
+    media_dir = None
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.media_dir = tempfile.mkdtemp()
+        cls.override_media = override_settings(MEDIA_ROOT=cls.media_dir)
+        cls.override_media.enable()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.override_media.disable()
+        if cls.media_dir:
+            shutil.rmtree(cls.media_dir, ignore_errors=True)
+        super().tearDownClass()
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="avatar-user",
+            password="StrongPass123!",
+            role_name="donor",
+        )
+        self.other_user = User.objects.create_user(
+            username="avatar-other-user",
+            password="StrongPass123!",
+            role_name="recipient",
+        )
+        self.client.force_authenticate(user=self.user)
+
+    def test_user_can_upload_avatar(self):
+        response = self.client.post(
+            f"/api/accounts/users/{self.user.id}/upload-photo/",
+            {"photo": tiny_gif_file()},
+            format="multipart",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("avatar_url", response.data)
+        self.assertTrue(response.data["avatar_url"])
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.avatar)
+
+    def test_user_can_delete_avatar(self):
+        upload_response = self.client.post(
+            f"/api/accounts/users/{self.user.id}/upload-photo/",
+            {"photo": tiny_gif_file("delete-me.gif")},
+            format="multipart",
+        )
+        self.assertEqual(upload_response.status_code, status.HTTP_200_OK)
+
+        response = self.client.delete(f"/api/accounts/users/{self.user.id}/delete-photo/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["avatar_url"], "")
+        self.user.refresh_from_db()
+        self.assertFalse(bool(self.user.avatar))
+
+    def test_avatar_upload_rejects_invalid_or_oversized_file(self):
+        invalid_response = self.client.post(
+            f"/api/accounts/users/{self.user.id}/upload-photo/",
+            {"photo": SimpleUploadedFile("avatar.txt", b"not-image", content_type="text/plain")},
+            format="multipart",
+        )
+        self.assertEqual(invalid_response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("photo", invalid_response.data)
+
+        too_large_response = self.client.post(
+            f"/api/accounts/users/{self.user.id}/upload-photo/",
+            {
+                "photo": SimpleUploadedFile(
+                    "large.jpg",
+                    b"a" * (5 * 1024 * 1024 + 1),
+                    content_type="image/jpeg",
+                )
+            },
+            format="multipart",
+        )
+        self.assertEqual(too_large_response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("photo", too_large_response.data)
+
+    def test_non_admin_cannot_upload_photo_for_another_user(self):
+        response = self.client.post(
+            f"/api/accounts/users/{self.other_user.id}/upload-photo/",
+            {"photo": tiny_gif_file("other.gif")},
+            format="multipart",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.other_user.refresh_from_db()
+        self.assertFalse(bool(self.other_user.avatar))
 
 
 class AuthSecuritySettingsTests(APITestCase):

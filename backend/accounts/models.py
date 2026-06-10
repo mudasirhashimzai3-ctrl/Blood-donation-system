@@ -6,6 +6,7 @@ from core.base_models import BaseModel
 from core.managers import UserManager
 from django.contrib.auth.models import UserManager as BaseUserManager
 from typing import Iterable
+from .image_path import user_avatar_upload_path
 
 PUBLIC_ROLE_CHOICES = [
     ("admin", "Administrator"),
@@ -66,6 +67,11 @@ def expand_role_names(role_names: Iterable[str] | None) -> list[str]:
 class User(AbstractUser, BaseModel):
     """Extended user model"""
     phone = models.CharField(max_length=20, blank=True, null=True)
+    avatar = models.ImageField(
+        upload_to=user_avatar_upload_path,
+        null=True,
+        blank=True,
+    )
 
 
     role_name = models.CharField(

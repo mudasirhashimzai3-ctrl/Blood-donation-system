@@ -1,0 +1,7 @@
+Template: C:\blood donation project\Blood donation system\frontend\src\modules\recipients\components\۱۴۰۵ کال پروژې لیکنې فارمټ.docx
+Output: C:\blood donation project\Blood donation system\docs\monograph\Blood_Donation_Management_System_Monograph_1405.docx
+Outline: C:\blood donation project\Blood donation system\docs\monograph\Blood_Donation_Management_System_Outline.md
+Estimated minimum pages from explicit page breaks: 105
+Word count estimate: 28450
+Tables: 11
+Figures/descriptions: 16

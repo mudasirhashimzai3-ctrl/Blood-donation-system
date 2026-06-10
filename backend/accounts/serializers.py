@@ -294,13 +294,14 @@ class SignupSerializer(serializers.Serializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializer for User profile data"""
     permissions = serializers.SerializerMethodField()
+    avatarUrl = serializers.SerializerMethodField()
     
     
     class Meta:
         model = User
         fields = [
             'id', 'first_name', 'last_name', 'username', 'email', 'phone',
-            'role_name', 'permissions',
+            'role_name', 'permissions', 'avatarUrl',
             'language_preference', 
             'theme', 'is_active', 'last_login'
         ]
@@ -334,6 +335,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
             permissions.discard(dp.permission.module)
         
         return list(permissions)
+
+    def get_avatarUrl(self, obj):
+        if not obj.avatar:
+            return ""
+        request = self.context.get("request")
+        url = obj.avatar.url
+        return request.build_absolute_uri(url) if request else url
     
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -352,6 +360,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'email': data['email'],
             'phone': data['phone'],
             'role': role,
+            'avatarUrl': data['avatarUrl'],
             'profileStatus': profile_status,
             'profile_status': profile_status,
             'permissions': data['permissions'],

@@ -8,7 +8,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.contrib.auth import update_session_auth_hash
-from django.core.files.storage import default_storage
 from core.models import Permission
 from django.db.models import Count
 from core.permissions import (
@@ -90,6 +89,27 @@ def _get_profile_status(user: User) -> str:
     return "active"
 
 
+def _avatar_url(request, user: User) -> str:
+    if not user.avatar:
+        return ""
+    return request.build_absolute_uri(user.avatar.url)
+
+
+def _validate_avatar_upload(file):
+    if not file:
+        return "Photo is required."
+
+    content_type = getattr(file, "content_type", "")
+    if not content_type.startswith("image/"):
+        return "Profile photo must be an image file."
+
+    max_size = 5 * 1024 * 1024
+    if file.size > max_size:
+        return "Profile photo size must be 5MB or less."
+
+    return None
+
+
 class UserViewSet(PermissionMixin, viewsets.ModelViewSet):
     """ViewSet for User management"""
     serializer_class = UserProfileSerializer
@@ -103,7 +123,7 @@ class UserViewSet(PermissionMixin, viewsets.ModelViewSet):
             return User.objects.all()
         else:
             # Regular users can only see themselves
-            return User.objects.filter(id=user.id).select_related('location', 'preferred_currency')
+            return User.objects.filter(id=user.id)
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -127,6 +147,41 @@ class UserViewSet(PermissionMixin, viewsets.ModelViewSet):
         user.is_active = True
         user.save()
         return Response({'message': 'User activated successfully'})
+
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="upload-photo",
+        permission_classes=[IsAuthenticated],
+        permission_module=None,
+    )
+    def upload_photo(self, request, pk=None):
+        user = self.get_object()
+        photo = request.FILES.get("photo")
+        validation_error = _validate_avatar_upload(photo)
+        if validation_error:
+            return Response({"photo": [validation_error]}, status=status.HTTP_400_BAD_REQUEST)
+
+        if user.avatar:
+            user.avatar.delete(save=False)
+        user.avatar = photo
+        user.save(update_fields=["avatar", "updated_at"])
+        return Response({"avatar_url": _avatar_url(request, user)}, status=status.HTTP_200_OK)
+
+    @action(
+        detail=True,
+        methods=["delete"],
+        url_path="delete-photo",
+        permission_classes=[IsAuthenticated],
+        permission_module=None,
+    )
+    def delete_photo(self, request, pk=None):
+        user = self.get_object()
+        if user.avatar:
+            user.avatar.delete(save=False)
+            user.avatar = None
+            user.save(update_fields=["avatar", "updated_at"])
+        return Response({"avatar_url": ""}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get', 'patch'], permission_module=None)
     def me(self, request):

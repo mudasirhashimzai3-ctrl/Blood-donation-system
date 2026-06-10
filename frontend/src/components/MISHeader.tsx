@@ -7,7 +7,6 @@ import {
   LogOut,
   Menu,
   Moon,
-  Search,
   Settings,
   Sun,
   User,
@@ -82,15 +81,6 @@ export default function MISHeader() {
         >
           <Menu className="h-5 w-5" />
         </button>
-
-        <div className="relative hidden max-w-xl flex-1 md:block">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
-          <input
-            type="text"
-            placeholder={t("mis.header.search", "Search")}
-            className="w-full rounded-full border border-border bg-background py-2.5 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-muted shadow-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
-          />
-        </div>
 
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
           {canViewNotifications ? (
