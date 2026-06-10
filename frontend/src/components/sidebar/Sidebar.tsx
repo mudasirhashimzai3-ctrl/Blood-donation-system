@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { HeartPulse, X } from "lucide-react";
 import SidebarItem from "./SidebarItem";
 import SidebarToggle from "./SidebarToggle";
@@ -9,6 +10,7 @@ import { useUserStore } from "@/modules/auth/stores/useUserStore";
 import { normalizePublicRole } from "@/modules/auth/utils/roleRouting";
 
 export function Sidebar() {
+  const { t } = useTranslation();
   const { isCollapsed, isMobileOpen, closeMobile } = useSidebarState();
   const { can } = useCan();
   const role = useUserStore((state) => state.userProfile?.role);
@@ -62,10 +64,10 @@ export function Sidebar() {
             {!isCollapsed && (
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-text-primary">
-                  Blood Donation
+                  {t("mis.brand.title", "Blood Donation")}
                 </p>
                 <p className="truncate text-xs text-text-secondary">
-                  Management System
+                  {t("mis.brand.subtitle", "Management System")}
                 </p>
               </div>
             )}
@@ -87,7 +89,7 @@ export function Sidebar() {
         <nav className="sidebar-scrollbar flex-1 overflow-y-auto px-3 py-4">
           {!isCollapsed && (
             <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-text-muted">
-              Navigation
+              {t("mis.nav.group", "Navigation")}
             </p>
           )}
 

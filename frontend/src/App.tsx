@@ -13,6 +13,10 @@ function App() {
   const preferredLanguage = useUserStore((state) => state.userProfile?.preferences?.language);
 
   useEffect(() => {
+    if (!preferredLanguage) {
+      return;
+    }
+
     const normalizedPreferred = normalizeLanguageCode(preferredLanguage);
     const normalizedCurrent = normalizeLanguageCode(i18n.language, normalizedPreferred);
 

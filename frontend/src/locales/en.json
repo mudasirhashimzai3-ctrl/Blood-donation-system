@@ -546,5 +546,20 @@
   "mis.nav.overview": "Overview",
   "mis.nav.general": "General",
   "mis.nav.usermanagement": "User Management",
-  "mis.nav.profile": "Profile"
+  "mis.nav.profile": "Profile",
+  "mis.brand.title": "Blood Donation",
+  "mis.brand.subtitle": "Management System",
+  "mis.nav.group": "Navigation",
+  "mis.nav.bloodrequests": "Blood Requests",
+  "mis.nav.donations": "Donations",
+  "mis.nav.reports": "Reports",
+  "mis.nav.notifications": "Notifications",
+  "mis.nav.donordashboard": "Donor Dashboard",
+  "mis.nav.nearbyrequests": "Nearby Requests",
+  "mis.nav.accept/rejectdonation": "Accept / Reject Donation",
+  "mis.nav.donationhistory": "Donation History",
+  "mis.nav.recipientdashboard": "Recipient Dashboard",
+  "mis.nav.createbloodrequest": "Create Blood Request",
+  "mis.nav.myrequests": "My Requests",
+  "mis.nav.donorresponses": "Donor Responses"
 }
