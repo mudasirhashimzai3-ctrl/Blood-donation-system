@@ -9,7 +9,7 @@ export const BLOOD_GROUP_OPTIONS = [
   "O-",
 ] as const;
 
-export const DONOR_STATUS_OPTIONS = ["active"] as const;
+export const DONOR_STATUS_OPTIONS = ["active", "inactive"] as const;
 
 export type BloodGroup = (typeof BLOOD_GROUP_OPTIONS)[number];
 export type DonorStatus = (typeof DONOR_STATUS_OPTIONS)[number];

@@ -24,6 +24,7 @@ from donations.serializers import (
 )
 from donations.services.reminders import send_donation_reminder
 from donations.services.sync import notify_request_fulfilled_to_other_donors, sync_candidate_notification_for_donation
+from donors.services.eligibility import mark_donor_temporarily_inactive
 
 
 def _create_system_notifications(**kwargs):
@@ -137,6 +138,7 @@ class DonationViewSet(PermissionMixin, viewsets.ModelViewSet):
                 "updated_at",
             ]
         )
+        mark_donor_temporarily_inactive(donation.donor)
         sync_candidate_notification_for_donation(donation)
 
         blood_request = donation.request

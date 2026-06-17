@@ -10,6 +10,14 @@ interface DonorStatusBadgeProps {
 export default function DonorStatusBadge({ status }: DonorStatusBadgeProps) {
   const { t } = useTranslation();
 
+  if (status === "inactive") {
+    return (
+      <Badge variant="warning" dot data-testid={`donor-status-${status}`}>
+        {t("donors.status.inactive", "Inactive")}
+      </Badge>
+    );
+  }
+
   return (
     <Badge variant="success" dot data-testid={`donor-status-${status}`}>
       {t("donors.status.active", "Active")}

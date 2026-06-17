@@ -4,6 +4,8 @@ import type { BloodGroup } from "@/modules/blood-requests/types/bloodRequest.typ
 import { useDashboardUiStore } from "../stores/useDashboardUiStore";
 import type { DashboardBloodRequestOption, DonorSearchRadius } from "../types/dashboard.types";
 
+const DONOR_SEARCH_PAGE_SIZE = 5;
+
 export const useDashboardDonorSearch = (requests: DashboardBloodRequestOption[]) => {
   const {
     bloodRequestId,
@@ -18,6 +20,12 @@ export const useDashboardDonorSearch = (requests: DashboardBloodRequestOption[])
     setPageSize,
     reset,
   } = useDashboardUiStore();
+
+  useEffect(() => {
+    if (pageSize !== DONOR_SEARCH_PAGE_SIZE) {
+      setPageSize(DONOR_SEARCH_PAGE_SIZE);
+    }
+  }, [pageSize, setPageSize]);
 
   const selectedRequest = useMemo(
     () => requests.find((request) => request.id === bloodRequestId) ?? null,
@@ -44,9 +52,9 @@ export const useDashboardDonorSearch = (requests: DashboardBloodRequestOption[])
       blood_group: bloodGroup || selectedRequest?.blood_group,
       radius_km: radiusKm,
       page,
-      page_size: pageSize,
+      page_size: DONOR_SEARCH_PAGE_SIZE,
     }),
-    [bloodGroup, bloodRequestId, page, pageSize, radiusKm, selectedRequest?.blood_group]
+    [bloodGroup, bloodRequestId, page, radiusKm, selectedRequest?.blood_group]
   );
 
   const selectBloodRequest = (nextId: number | null) => {

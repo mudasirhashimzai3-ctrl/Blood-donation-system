@@ -31,7 +31,7 @@ export interface DonorCandidate {
   phone: string;
   email: string | null;
   blood_group: BloodGroup;
-  status: "active";
+  status: "active" | "inactive";
   last_donation_date: string | null;
   distance_km: string;
   match_type: DonorMatchType;

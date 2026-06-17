@@ -15,6 +15,7 @@ from blood_requests.models import BloodRequest
 from hospitals.models import Hospital
 from recipients.models import Recipient
 from .models import Donor
+from .tasks import refresh_donor_availability_task
 
 
 def tiny_gif_file(name="avatar.gif"):
@@ -447,7 +448,7 @@ class DonorApiTests(APITestCase):
         self.assertEqual(response.data["results"][0]["match_type"], "compatible")
         self.assertEqual(response.data["results"][1]["match_type"], "exact")
 
-    def test_candidates_exposes_six_month_eligibility_and_radius_filter(self):
+    def test_candidates_show_only_active_eligible_donors_and_radius_filter(self):
         hospital = Hospital.objects.create(
             name="Eligibility Hospital",
             phone="0700400001",
@@ -506,13 +507,107 @@ class DonorApiTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         ids = [item["id"] for item in response.data["results"]]
-        self.assertEqual(ids, [recent.id, eligible.id])
+        self.assertEqual(ids, [eligible.id])
         by_id = {item["id"]: item for item in response.data["results"]}
-        self.assertFalse(by_id[recent.id]["is_eligible"])
-        self.assertEqual(by_id[recent.id]["eligibility_status"], "not_eligible")
         self.assertTrue(by_id[eligible.id]["is_eligible"])
+        recent.refresh_from_db()
+        self.assertEqual(recent.status, "inactive")
 
-    def test_candidates_are_admin_only(self):
+    def test_recipient_can_search_only_own_active_request_candidates(self):
+        recipient_user = User.objects.create_user(
+            username="recipient-candidate-user",
+            password="StrongPass123!",
+            role_name="recipient",
+            phone="0700500001",
+        )
+        other_user = User.objects.create_user(
+            username="recipient-other-candidate-user",
+            password="StrongPass123!",
+            role_name="recipient",
+            phone="0700500002",
+        )
+        hospital = Hospital.objects.create(
+            name="Recipient Candidate Hospital",
+            phone="0700500003",
+            province="Kabul",
+            city="Kabul",
+            latitude=Decimal("34.555300"),
+            longitude=Decimal("69.207500"),
+        )
+        recipient = Recipient.objects.create(
+            user=recipient_user,
+            full_name="Candidate Owner",
+            phone="0700500001",
+            required_blood_group="O+",
+            hospital=hospital,
+        )
+        other_recipient = Recipient.objects.create(
+            user=other_user,
+            full_name="Candidate Other",
+            phone="0700500002",
+            required_blood_group="O+",
+            hospital=hospital,
+        )
+        own_request = BloodRequest.objects.create(
+            recipient=recipient,
+            hospital=hospital,
+            blood_group="O+",
+            units_needed=1,
+            request_type="urgent",
+            location_lat=Decimal("34.555300"),
+            location_lon=Decimal("69.207500"),
+            response_deadline=timezone.now() + timedelta(hours=2),
+        )
+        other_request = BloodRequest.objects.create(
+            recipient=other_recipient,
+            hospital=hospital,
+            blood_group="O+",
+            units_needed=1,
+            request_type="urgent",
+            location_lat=Decimal("34.555300"),
+            location_lon=Decimal("69.207500"),
+            response_deadline=timezone.now() + timedelta(hours=2),
+        )
+        donor = Donor.objects.create(
+            first_name="Recipient",
+            last_name="Candidate",
+            phone="0700500011",
+            blood_group="O+",
+            latitude=Decimal("34.555500"),
+            longitude=Decimal("69.207700"),
+        )
+
+        self.client.force_authenticate(user=recipient_user)
+        own_response = self.client.get(
+            f"{self.base_url}candidates/",
+            {"blood_request_id": own_request.id, "radius_km": 10},
+        )
+        other_response = self.client.get(
+            f"{self.base_url}candidates/",
+            {"blood_request_id": other_request.id, "radius_km": 10},
+        )
+
+        self.assertEqual(own_response.status_code, status.HTTP_200_OK)
+        self.assertEqual([item["id"] for item in own_response.data["results"]], [donor.id])
+        self.assertEqual(other_response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_candidates_reject_disallowed_roles(self):
         self.client.force_authenticate(user=self.viewer_user)
         response = self.client.get(f"{self.base_url}candidates/", {"blood_request_id": 1})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_daily_refresh_reactivates_eligible_inactive_donors(self):
+        donor = Donor.objects.create(
+            first_name="Ready",
+            last_name="Again",
+            phone="0700600011",
+            blood_group="A+",
+            status="inactive",
+            last_donation_date=timezone.localdate() - timedelta(days=220),
+        )
+
+        result = refresh_donor_availability_task()
+
+        donor.refresh_from_db()
+        self.assertEqual(result["updated"], 1)
+        self.assertEqual(donor.status, "active")

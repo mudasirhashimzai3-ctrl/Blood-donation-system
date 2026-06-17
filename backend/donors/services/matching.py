@@ -3,6 +3,7 @@ from decimal import Decimal
 from blood_requests.services.matching import haversine_distance_km
 from donors.models import Donor
 from donors.services.blood_groups import get_compatible_donor_groups, get_match_type
+from donors.services.eligibility import get_donor_eligibility, refresh_donor_availability
 
 ALLOWED_RADIUS_KM = (10, 20, 50, 100)
 
@@ -16,6 +17,7 @@ def normalize_radius_km(value, *, default=10) -> int:
 
 
 def build_donor_candidates(*, blood_group: str, origin_lat, origin_lon, radius_km):
+    refresh_donor_availability()
     radius = Decimal(str(radius_km))
     compatible_groups = get_compatible_donor_groups(blood_group)
     donors = Donor.objects.filter(
@@ -27,6 +29,8 @@ def build_donor_candidates(*, blood_group: str, origin_lat, origin_lon, radius_k
 
     candidates = []
     for donor in donors:
+        if not get_donor_eligibility(donor.last_donation_date)["is_eligible"]:
+            continue
         distance_km = haversine_distance_km(origin_lat, origin_lon, donor.latitude, donor.longitude)
         if distance_km <= radius:
             candidates.append(

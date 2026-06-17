@@ -13,6 +13,7 @@ interface DonorSearchFiltersProps {
   bloodRequestId: number | null;
   bloodGroup: BloodGroup | "";
   radiusKm: DonorSearchRadius;
+  showBloodRequestFilter?: boolean;
   onBloodRequestChange: (id: number | null) => void;
   onBloodGroupChange: (bloodGroup: BloodGroup | "") => void;
   onRadiusChange: (radius: DonorSearchRadius) => void;
@@ -24,24 +25,27 @@ export default function DonorSearchFilters({
   bloodRequestId,
   bloodGroup,
   radiusKm,
+  showBloodRequestFilter = true,
   onBloodRequestChange,
   onBloodGroupChange,
   onRadiusChange,
   onReset,
 }: DonorSearchFiltersProps) {
   return (
-    <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr_1fr_auto]">
-      <Select
-        label="Blood Request"
-        value={bloodRequestId ? String(bloodRequestId) : ""}
-        onChange={(event) => onBloodRequestChange(event.target.value ? Number(event.target.value) : null)}
-        options={requests.map((request) => ({
-          value: String(request.id),
-          label: `Number : ${request.id} - ${request.hospital_name} - ${request.blood_group}`,
-        }))}
-        placeholder="Select active request"
-        leftIcon={<Search className="h-4 w-4" />}
-      />
+    <div className={showBloodRequestFilter ? "grid gap-4 lg:grid-cols-[1.6fr_1fr_1fr_auto]" : "grid gap-4 lg:grid-cols-[1fr_1fr_auto]"}>
+      {showBloodRequestFilter ? (
+        <Select
+          label="Blood Request"
+          value={bloodRequestId ? String(bloodRequestId) : ""}
+          onChange={(event) => onBloodRequestChange(event.target.value ? Number(event.target.value) : null)}
+          options={requests.map((request) => ({
+            value: String(request.id),
+            label: `Number : ${request.id} - ${request.hospital_name} - ${request.blood_group}`,
+          }))}
+          placeholder="Select active request"
+          leftIcon={<Search className="h-4 w-4" />}
+        />
+      ) : null}
 
       <Select
         label="Blood Group"

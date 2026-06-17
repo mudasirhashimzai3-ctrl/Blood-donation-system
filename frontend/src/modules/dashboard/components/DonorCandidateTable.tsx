@@ -1,13 +1,13 @@
-import { Badge, Card, CardContent, Pagination, PaginationInfo, Skeleton } from "@components/ui";
+import { Badge, Button, Card, CardContent, Skeleton } from "@components/ui";
 import type { DonorCandidate } from "../types/dashboard.types";
 
 interface DonorCandidateTableProps {
   donors: DonorCandidate[];
   isLoading: boolean;
+  isLoadingMore?: boolean;
   totalCount: number;
-  page: number;
-  pageSize: number;
-  onPageChange: (page: number) => void;
+  hasMore: boolean;
+  onLoadMore: () => void;
 }
 
 function LoadingRows() {
@@ -30,13 +30,11 @@ function LoadingRows() {
 export default function DonorCandidateTable({
   donors,
   isLoading,
+  isLoadingMore = false,
   totalCount,
-  page,
-  pageSize,
-  onPageChange,
+  hasMore,
+  onLoadMore,
 }: DonorCandidateTableProps) {
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
-
   return (
     <Card>
       <CardContent className="mt-0 p-0">
@@ -77,7 +75,7 @@ export default function DonorCandidateTable({
                       <td className="px-4 py-3">
                         <div className="space-y-1">
                           <Badge variant={donor.is_eligible ? "success" : "warning"}>
-                            {donor.is_eligible ? "Active and Eligible" : "Inactive / Not Eligible"}
+                            {donor.is_eligible ? "Active" : "Inactive / Not Eligible"}
                           </Badge>
                           {!donor.is_eligible && donor.eligible_from ? (
                             <p className="text-xs text-text-secondary">Eligible from {donor.eligible_from}</p>
@@ -92,8 +90,14 @@ export default function DonorCandidateTable({
               </table>
             </div>
             <div className="flex flex-col gap-3 border-t border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-              <PaginationInfo currentPage={page} pageSize={pageSize} totalItems={totalCount} />
-              <Pagination currentPage={page} totalPages={totalPages} onPageChange={onPageChange} />
+              <p className="text-sm text-text-secondary">
+                Showing {donors.length} of {totalCount} results
+              </p>
+              {hasMore ? (
+                <Button type="button" variant="outline" loading={isLoadingMore} onClick={onLoadMore}>
+                  More
+                </Button>
+              ) : null}
             </div>
           </>
         )}

@@ -289,6 +289,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "donations.process_due_reminders",
         "schedule": 300.0,
     },
+    "refresh-donor-availability-daily": {
+        "task": "donors.refresh_donor_availability",
+        "schedule": 86400.0,
+    },
     "retry-failed-notifications-every-10-minutes": {
         "task": "notifications.retry_failed_notifications",
         "schedule": 600.0,

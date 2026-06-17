@@ -26,6 +26,7 @@ class Donor(BaseModel):
 
     STATUS_CHOICES = [
         ("active", "Active"),
+        ("inactive", "Inactive"),
     ]
 
     user = models.OneToOneField(

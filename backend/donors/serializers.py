@@ -2,7 +2,7 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from .models import Donor
-from .services.eligibility import get_donor_eligibility
+from .services.eligibility import get_donor_eligibility, sync_donor_status
 
 
 class DonorListSerializer(serializers.ModelSerializer):
@@ -188,7 +188,10 @@ class DonorDetailSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data.pop("remove_profile_picture", None)
-        validated_data["status"] = "active"
+        validated_data["status"] = sync_donor_status(
+            Donor(**validated_data),
+            save=False,
+        )
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
@@ -196,8 +199,9 @@ class DonorDetailSerializer(serializers.ModelSerializer):
         if remove_picture and instance.profile_picture:
             instance.profile_picture.delete(save=False)
             instance.profile_picture = None
-        validated_data["status"] = "active"
-        return super().update(instance, validated_data)
+        updated = super().update(instance, validated_data)
+        sync_donor_status(updated)
+        return updated
 
 
 class DonorCandidateSerializer(serializers.Serializer):

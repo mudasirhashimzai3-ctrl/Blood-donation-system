@@ -19,6 +19,7 @@ from donations.services.compatibility import get_legacy_notifications_for_reques
 from donations.services.sync import (
     expire_pending_donations_for_request,
 )
+from donors.services.eligibility import mark_donor_temporarily_inactive
 
 from recipients.models import Recipient
 
@@ -285,8 +286,7 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
         )
 
         if blood_request.assigned_donor_id:
-            blood_request.assigned_donor.last_donation_date = timezone.localdate()
-            blood_request.assigned_donor.save(update_fields=["last_donation_date", "updated_at"])
+            mark_donor_temporarily_inactive(blood_request.assigned_donor)
             assigned = Donation.objects.filter(
                 request=blood_request,
                 donor_id=blood_request.assigned_donor_id,

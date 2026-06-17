@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { DashboardCard, PageHeader } from "@/components";
 import { Button, Card, CardContent } from "@/components/ui";
 import { getBloodRequestsRouteByRole } from "@/modules/auth/utils/roleRouting";
+import DonorSearchPanel from "@/modules/dashboard/components/DonorSearchPanel";
 import { formatLocalDateTime } from "@/utils/formatLocalDateTime";
 import { useRecipientDashboard } from "../queries/useRoleAccessQueries";
 
@@ -92,6 +93,21 @@ export default function RecipientDashboardPage() {
           ))}
         </CardContent>
       </Card>
+
+      <DonorSearchPanel
+        requests={data?.active_requests ?? []}
+        requestsLoading={isLoading}
+        title={t("recipient.dashboard.donorSearch", "Donor Search")}
+        subtitle={t(
+          "recipient.dashboard.donorSearchSubtitle",
+          "Find active eligible donors by blood group and distance."
+        )}
+        emptyRequestsMessage={t(
+          "recipient.dashboard.noSearchRequests",
+          "Create an active blood request before searching for donors."
+        )}
+        showBloodRequestFilter={false}
+      />
     </div>
   );
 }

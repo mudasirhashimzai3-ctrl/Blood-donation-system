@@ -25,19 +25,19 @@ export const useDashboardUiStore = create<DashboardUiState>()(
       bloodGroup: "",
       radiusKm: 10,
       page: 1,
-      pageSize: 10,
+      pageSize: 5,
       setBloodRequestId: (bloodRequestId) => set({ bloodRequestId, page: 1 }),
       setBloodGroup: (bloodGroup) => set({ bloodGroup, page: 1 }),
       setRadiusKm: (radiusKm) => set({ radiusKm, page: 1 }),
       setPage: (page) => set({ page }),
       setPageSize: (pageSize) => set({ pageSize, page: 1 }),
-      reset: () => set({ bloodRequestId: null, bloodGroup: "", radiusKm: 10, page: 1 }),
+      reset: () => set({ bloodRequestId: null, bloodGroup: "", radiusKm: 10, page: 1, pageSize: 5 }),
     }),
     {
       name: "admin-dashboard-ui-state",
       partialize: (state) => ({
         radiusKm: state.radiusKm,
-        pageSize: state.pageSize,
+        pageSize: 5,
       }),
     }
   )

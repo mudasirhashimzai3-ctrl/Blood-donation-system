@@ -15,6 +15,7 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from donations.models import Donation
 from .models import Donor
 from .serializers import DonorCandidateSerializer, DonorDetailSerializer, DonorListSerializer
+from .services.eligibility import refresh_donor_availability
 from .services.matching import ALLOWED_RADIUS_KM, build_donor_candidates, normalize_radius_km
 
 
@@ -31,6 +32,7 @@ class DonorViewSet(PermissionMixin, viewsets.ModelViewSet):
     ordering = ["-created_at"]
 
     def get_queryset(self):
+        refresh_donor_availability()
         queryset = super().get_queryset()
         role_name = normalize_role_name(getattr(self.request.user, "role_name", None))
         if role_name == "admin":
@@ -49,20 +51,31 @@ class DonorViewSet(PermissionMixin, viewsets.ModelViewSet):
             return DonorCandidateSerializer
         return DonorDetailSerializer
 
-    @action(detail=False, methods=["get"], url_path="candidates")
+    @action(detail=False, methods=["get"], url_path="candidates", permission_module=None)
     def candidates(self, request):
         role_name = normalize_role_name(getattr(request.user, "role_name", None))
-        if role_name != "admin":
-            raise PermissionDenied("Only admin users can search donor candidates.")
+        if role_name not in {"admin", "recipient"}:
+            raise PermissionDenied("Only admin and recipient users can search donor candidates.")
 
         blood_request_id = request.query_params.get("blood_request_id")
         if not blood_request_id:
             raise ValidationError({"blood_request_id": "Blood request is required."})
 
+        request_queryset = BloodRequest.objects.filter(
+            pk=blood_request_id,
+            deleted_at__isnull=True,
+            is_active=True,
+        )
+        if role_name == "recipient":
+            recipient = getattr(request.user, "recipient", None)
+            if recipient is None:
+                raise ValidationError({"detail": "Recipient profile is not configured for this account."})
+            request_queryset = request_queryset.filter(recipient=recipient)
+
         try:
-            blood_request = BloodRequest.objects.get(pk=blood_request_id, deleted_at__isnull=True)
+            blood_request = request_queryset.get()
         except (BloodRequest.DoesNotExist, ValueError) as exc:
-            raise ValidationError({"blood_request_id": "Blood request not found."}) from exc
+            raise ValidationError({"blood_request_id": "Active blood request not found."}) from exc
 
         blood_group = request.query_params.get("blood_group") or blood_request.blood_group
         valid_groups = {value for value, _label in Donor.BLOOD_GROUP_CHOICES}

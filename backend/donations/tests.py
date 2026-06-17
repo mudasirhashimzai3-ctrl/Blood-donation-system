@@ -173,6 +173,16 @@ class DonationApiTests(APITestCase):
         )
         self.assertEqual(invalid.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_complete_marks_donor_inactive_until_eligible(self):
+        donation = self._create_donation(self.donor_a, status="accepted")
+
+        response = self.client.patch(f"{self.base_url}{donation.id}/complete/", {}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.donor_a.refresh_from_db()
+        self.assertEqual(self.donor_a.last_donation_date, timezone.localdate())
+        self.assertEqual(self.donor_a.status, "inactive")
+
     def test_set_primary_keeps_single_primary(self):
         first = self._create_donation(self.donor_a)
         second = self._create_donation(self.donor_b, distance_km=Decimal("2.15"))

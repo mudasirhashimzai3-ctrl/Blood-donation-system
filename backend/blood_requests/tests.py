@@ -350,6 +350,9 @@ class BloodRequestApiTests(APITestCase):
         self.assertEqual(complete_response.status_code, status.HTTP_200_OK)
         self.assertEqual(complete_response.data["status"], "completed")
         self.assertFalse(complete_response.data["is_active"])
+        donor.refresh_from_db()
+        self.assertEqual(donor.last_donation_date, timezone.localdate())
+        self.assertEqual(donor.status, "inactive")
 
     def test_cancel_sets_terminal_state(self):
         self.client.force_authenticate(user=self.admin)
