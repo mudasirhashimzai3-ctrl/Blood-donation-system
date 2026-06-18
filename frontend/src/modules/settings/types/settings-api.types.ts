@@ -1,5 +1,6 @@
 import type {
   AutoMatchingSettings,
+  BackupScheduleSettings,
   BloodRequestRuleSettings,
   DonorEligibilitySettings,
   EmergencyAlertSettings,
@@ -32,6 +33,7 @@ export interface SettingsOverviewResponse {
     auto_matching: SectionEnvelope<AutoMatchingSettings>;
     localization: SectionEnvelope<LocalizationSettings>;
     security: SectionEnvelope<SecuritySettings>;
+    backup_restore: SectionEnvelope<BackupScheduleSettings>;
   };
   permissions: {
     canEdit: boolean;

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { changePasswordSchema } from "@/modules/settings/schemas/changePassword.schema";
+import { backupRestoreSettingsSchema } from "@/modules/settings/schemas/backupRestoreSettings.schema";
 import { rolePermissionMatrixSchema } from "@/modules/settings/schemas/rolePermissionMatrix.schema";
 
 describe("settingsSchemas", () => {
@@ -36,5 +37,32 @@ describe("settingsSchemas", () => {
     });
 
     expect(parsed.matrix[0].module).toBe("settings");
+  });
+
+  it("validates backup restore schedule settings", () => {
+    const parsed = backupRestoreSettingsSchema.parse({
+      daily_enabled: true,
+      weekly_enabled: true,
+      monthly_enabled: false,
+      daily_retention_count: "30",
+      weekly_retention_count: 12,
+      monthly_retention_count: 6,
+    });
+
+    expect(parsed.daily_retention_count).toBe(30);
+    expect(parsed.monthly_enabled).toBe(false);
+  });
+
+  it("rejects invalid backup retention counts", () => {
+    const result = backupRestoreSettingsSchema.safeParse({
+      daily_enabled: true,
+      weekly_enabled: true,
+      monthly_enabled: true,
+      daily_retention_count: 0,
+      weekly_retention_count: 12,
+      monthly_retention_count: 12,
+    });
+
+    expect(result.success).toBe(false);
   });
 });

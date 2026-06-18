@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 from rest_framework import serializers
 
 from accounts.models import PUBLIC_ROLE_NAMES
-from core.models import Permission, SettingAuditLog
+from core.models import BackupRecord, Permission, SettingAuditLog
 from core.services.role_permission_service import MATRIX_ACTIONS
 
 SUPPORTED_LANGUAGES = ("en", "da", "pa")
@@ -105,6 +105,15 @@ class AutoMatchingSettingsSerializer(serializers.Serializer):
     retry_interval_minutes = serializers.IntegerField(required=False, min_value=1, max_value=1440)
 
 
+class BackupRestoreSettingsSerializer(serializers.Serializer):
+    daily_enabled = serializers.BooleanField(required=False)
+    weekly_enabled = serializers.BooleanField(required=False)
+    monthly_enabled = serializers.BooleanField(required=False)
+    daily_retention_count = serializers.IntegerField(required=False, min_value=1, max_value=365)
+    weekly_retention_count = serializers.IntegerField(required=False, min_value=1, max_value=104)
+    monthly_retention_count = serializers.IntegerField(required=False, min_value=1, max_value=120)
+
+
 class RolePermissionMatrixRowSerializer(serializers.Serializer):
     role_name = serializers.ChoiceField(choices=list(PUBLIC_ROLE_NAMES))
     module = serializers.ChoiceField(choices=[module for module, _ in Permission.MODULES])
@@ -154,4 +163,29 @@ class SettingAuditLogSerializer(serializers.ModelSerializer):
             "ip_address",
             "user_agent",
             "changed_at",
+        ]
+
+
+class BackupRecordSerializer(serializers.ModelSerializer):
+    created_by_username = serializers.CharField(source="created_by.username", read_only=True)
+    restored_by_username = serializers.CharField(source="restored_by.username", read_only=True)
+
+    class Meta:
+        model = BackupRecord
+        fields = [
+            "id",
+            "backup_type",
+            "status",
+            "file_size",
+            "checksum",
+            "error_message",
+            "created_by",
+            "created_by_username",
+            "restored_by",
+            "restored_by_username",
+            "started_at",
+            "finished_at",
+            "restored_at",
+            "created_at",
+            "updated_at",
         ]

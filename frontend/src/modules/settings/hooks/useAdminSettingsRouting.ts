@@ -15,6 +15,7 @@ const VALID_SECTIONS: SystemSettingsSection[] = [
   "auto_matching",
   "localization",
   "security",
+  "backup_restore",
 ];
 
 const parseTab = (value: string | null): AdminSettingsTab =>

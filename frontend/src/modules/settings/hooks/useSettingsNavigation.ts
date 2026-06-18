@@ -21,6 +21,7 @@ const sectionItems: SettingsNavItem[] = [
   { key: "auto_matching", label: "Auto Matching", path: "/settings/auto-matching", live: true },
   { key: "localization", label: "Language & Timezone", path: "/settings/localization", live: true },
   { key: "security", label: "Security", path: "/settings/security", live: true },
+  { key: "backup_restore", label: "Backup & Restore", path: "/settings/backup-restore", live: true },
 ];
 
 export const useSettingsNavigation = () => {

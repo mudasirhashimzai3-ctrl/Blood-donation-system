@@ -42,6 +42,7 @@ import {
 import { useSettingsUiStore } from "../stores/useSettingsUiStore";
 import type { SystemSettingsSection } from "../types/settings.types";
 import AutoMatchingSettingsForm from "./AutoMatchingSettingsForm";
+import BackupRestoreSettingsPanel from "./BackupRestoreSettingsPanel";
 import GeneralSettingsForm from "./GeneralSettingsForm";
 import LocalizationSettingsForm from "./LocalizationSettingsForm";
 import NotificationSettingsForm from "./NotificationSettingsForm";
@@ -60,6 +61,7 @@ const sectionItems: Array<{ key: SystemSettingsSection; label: string }> = [
   { key: "auto_matching", label: "Auto Matching" },
   { key: "localization", label: "Localization" },
   { key: "security", label: "Security" },
+  { key: "backup_restore", label: "Backup & Restore" },
 ];
 
 const plannedItems = [
@@ -413,6 +415,7 @@ export default function SystemSettingsWorkspace({
       {section === "auto_matching" ? <AutoMatchingSection canEdit={canEdit} /> : null}
       {section === "localization" ? <LocalizationSection canEdit={canEdit} /> : null}
       {section === "security" ? <SecuritySection canEdit={canEdit} /> : null}
+      {section === "backup_restore" ? <BackupRestoreSettingsPanel canEdit={canEdit} /> : null}
 
       <Card>
         <CardContent className="space-y-2">

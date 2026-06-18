@@ -77,6 +77,7 @@ function AppRouterProvider() {
               element: <Navigate to="/settings?tab=system_settings&section=localization" replace />,
             },
             { path: "settings/security", element: <Navigate to="/settings?tab=system_settings&section=security" replace /> },
+            { path: "settings/backup-restore", element: <Navigate to="/settings?tab=system_settings&section=backup_restore" replace /> },
             { path: "settings/user-roles", element: <Navigate to="/settings?tab=manage_roles" replace /> },
             { path: "settings/emergency-alerts", element: <Navigate to="/settings?tab=system_settings&section=general" replace /> },
             {

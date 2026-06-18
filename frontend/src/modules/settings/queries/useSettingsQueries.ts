@@ -5,6 +5,7 @@ import { extractAxiosError } from "@/utils/extractError";
 import { settingsService } from "../services/settingsService";
 import type {
   AutoMatchingSettings,
+  BackupScheduleSettings,
   ChangePasswordPayload,
   GeneralSettings,
   LocalizationSettings,
@@ -56,6 +57,12 @@ export const useAutoMatchingSettings = () =>
   useQuery({
     queryKey: settingsKeys.section("auto_matching"),
     queryFn: () => settingsService.getAutoMatching().then((res) => res.data),
+  });
+
+export const useBackupRestoreOverview = () =>
+  useQuery({
+    queryKey: settingsKeys.backupRestore(),
+    queryFn: () => settingsService.getBackupRestore().then((res) => res.data),
   });
 
 export const useRolePermissionMatrix = () =>
@@ -197,6 +204,72 @@ export const useUpdateAutoMatchingSettings = () => {
     },
   });
 };
+
+export const useUpdateBackupRestoreSettings = () => {
+  const queryClient = useQueryClient();
+  const invalidate = useInvalidateSettings();
+
+  return useMutation({
+    mutationFn: (payload: Partial<BackupScheduleSettings>) =>
+      settingsService.updateBackupRestore(payload).then((res) => res.data),
+    onSuccess: () => {
+      toast.success("Backup schedule saved");
+      queryClient.invalidateQueries({ queryKey: settingsKeys.backupRestore() });
+      invalidate("backup_restore");
+    },
+    onError: (error) => {
+      toast.error(extractAxiosError(error, "Failed to save backup schedule"));
+    },
+  });
+};
+
+export const useCreateManualBackup = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => settingsService.createManualBackup().then((res) => res.data),
+    onSuccess: () => {
+      toast.success("Backup completed");
+      queryClient.invalidateQueries({ queryKey: settingsKeys.backupRestore() });
+    },
+    onError: (error) => {
+      toast.error(extractAxiosError(error, "Failed to create backup"));
+    },
+  });
+};
+
+export const useRestoreBackup = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => settingsService.restoreBackup(id).then((res) => res.data),
+    onSuccess: () => {
+      toast.success("Backup restored");
+      queryClient.invalidateQueries({ queryKey: settingsKeys.backupRestore() });
+    },
+    onError: (error) => {
+      toast.error(extractAxiosError(error, "Failed to restore backup"));
+    },
+  });
+};
+
+export const useDownloadBackup = () =>
+  useMutation({
+    mutationFn: async ({ id, filename }: { id: number; filename: string }) => {
+      const response = await settingsService.downloadBackup(id);
+      const blobUrl = URL.createObjectURL(response.data);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(blobUrl);
+    },
+    onError: (error) => {
+      toast.error(extractAxiosError(error, "Failed to download backup"));
+    },
+  });
 
 export const useUpdateRolePermissionMatrix = () => {
   const queryClient = useQueryClient();

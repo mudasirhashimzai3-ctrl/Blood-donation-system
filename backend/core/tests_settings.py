@@ -1,11 +1,14 @@
 import os
+import tempfile
+from pathlib import Path
 from unittest.mock import patch
 
+from django.test import override_settings
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APITransactionTestCase
 
 from accounts.models import RolePermission, User
-from core.models import Permission
+from core.models import BackupRecord, Permission
 from core.models import SettingAuditLog
 
 
@@ -254,3 +257,136 @@ class SettingsApiTests(APITestCase):
         response = self.client.post(f"{self.base_url}notifications/test-email/", {}, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("detail", response.data)
+
+
+class BackupRestoreApiTests(APITransactionTestCase):
+    base_url = "/api/core/settings/"
+
+    @classmethod
+    def setUpTestData(cls):
+        view_perm, _ = Permission.objects.get_or_create(
+            module="settings",
+            action="view",
+            defaults={"description": "Can view settings"},
+        )
+        change_perm, _ = Permission.objects.get_or_create(
+            module="settings",
+            action="change",
+            defaults={"description": "Can change settings"},
+        )
+
+        RolePermission.objects.get_or_create(role_name="admin", permission=view_perm)
+        RolePermission.objects.get_or_create(role_name="admin", permission=change_perm)
+        RolePermission.objects.get_or_create(role_name="recipient", permission=view_perm)
+
+    def setUp(self):
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp_dir.cleanup)
+        root = Path(self.temp_dir.name)
+        self.settings_override = override_settings(
+            BACKUP_ROOT=root / "backups",
+            MEDIA_ROOT=root / "media",
+        )
+        self.settings_override.enable()
+        self.addCleanup(self.settings_override.disable)
+
+        self.admin = User.objects.create_user(
+            username=f"backup-admin-{User.objects.count() + 1}",
+            password="StrongPass123!",
+            role_name="admin",
+            email="backup-admin@example.com",
+        )
+        self.recipient = User.objects.create_user(
+            username=f"backup-rec-{User.objects.count() + 1}",
+            password="StrongPass123!",
+            role_name="recipient",
+            email="backup-rec@example.com",
+        )
+
+    def test_admin_can_create_manual_backup(self):
+        self.client.force_authenticate(self.admin)
+
+        response = self.client.post(f"{self.base_url}backup-restore/manual-backup/", {}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["backup_type"], "manual")
+        self.assertEqual(response.data["status"], "completed")
+        self.assertTrue(BackupRecord.objects.filter(status="completed").exists())
+
+    def test_non_admin_cannot_access_backup_restore(self):
+        self.client.force_authenticate(self.recipient)
+
+        response = self.client.get(f"{self.base_url}backup-restore/")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_backup_history_lists_created_records(self):
+        self.client.force_authenticate(self.admin)
+        self.client.post(f"{self.base_url}backup-restore/manual-backup/", {}, format="json")
+
+        response = self.client.get(f"{self.base_url}backup-restore/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("settings", response.data)
+        self.assertIn("last_backup", response.data)
+        self.assertEqual(len(response.data["history"]), 1)
+
+    def test_download_returns_zip_file(self):
+        self.client.force_authenticate(self.admin)
+        create_response = self.client.post(f"{self.base_url}backup-restore/manual-backup/", {}, format="json")
+        backup_id = create_response.data["id"]
+
+        response = self.client.get(f"{self.base_url}backup-restore/backups/{backup_id}/download/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response["Content-Type"], "application/zip")
+        response.close()
+
+    def test_restore_creates_pre_restore_snapshot(self):
+        self.client.force_authenticate(self.admin)
+        create_response = self.client.post(f"{self.base_url}backup-restore/manual-backup/", {}, format="json")
+        backup_id = create_response.data["id"]
+
+        response = self.client.post(f"{self.base_url}backup-restore/backups/{backup_id}/restore/", {}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(BackupRecord.objects.filter(backup_type="pre_restore", status="completed").exists())
+
+    @patch("core.services.backup_service.call_command", side_effect=Exception("dump failed"))
+    def test_failed_backup_records_error_status(self, _call_command):
+        self.client.force_authenticate(self.admin)
+
+        response = self.client.post(f"{self.base_url}backup-restore/manual-backup/", {}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        record = BackupRecord.objects.get()
+        self.assertEqual(record.status, "failed")
+        self.assertIn("dump failed", record.error_message)
+
+    def test_admin_can_update_backup_schedule_settings(self):
+        self.client.force_authenticate(self.admin)
+        payload = {
+            "daily_enabled": False,
+            "weekly_enabled": True,
+            "monthly_enabled": False,
+            "daily_retention_count": 10,
+            "weekly_retention_count": 8,
+            "monthly_retention_count": 6,
+        }
+
+        response = self.client.put(f"{self.base_url}backup-restore/", payload, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data["daily_enabled"])
+        self.assertEqual(response.data["weekly_retention_count"], 8)
+
+    def test_non_admin_cannot_update_backup_schedule_settings(self):
+        self.client.force_authenticate(self.recipient)
+
+        response = self.client.put(
+            f"{self.base_url}backup-restore/",
+            {"daily_enabled": False},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

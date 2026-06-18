@@ -2,6 +2,8 @@ from datetime import datetime, time
 
 from accounts.models import normalize_role_name
 from django.db.models import Count
+from django.http import FileResponse
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_date, parse_datetime
 from rest_framework import serializers, status, viewsets
@@ -13,10 +15,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.models import SettingAuditLog, Settings
+from core.models import BackupRecord
 from core.pagination import StandardResultsSetPagination
 from core.permissions import PermissionMixin
 from core.serializers_settings import (
     AutoMatchingSettingsSerializer,
+    BackupRecordSerializer,
+    BackupRestoreSettingsSerializer,
     GeneralSettingsSerializer,
     LocalizationSettingsSerializer,
     NotificationSettingsSerializer,
@@ -31,6 +36,7 @@ from core.services.role_permission_service import (
     get_permission_matrix_payload,
     replace_permission_matrix,
 )
+from core.services.backup_service import create_backup, get_backup_overview, restore_backup
 from core.services.settings_defaults import SETTINGS_SECTION_KEYS
 from core.services.settings_service import (
     can_user_edit_settings,
@@ -223,6 +229,66 @@ class SettingsViewSet(PermissionMixin, viewsets.ViewSet):
     @action(detail=False, methods=["get", "put"], url_path="auto-matching")
     def auto_matching(self, request):
         return self._live_section_get_put(request, "auto_matching", AutoMatchingSettingsSerializer)
+
+    @action(detail=False, methods=["get", "put"], url_path="backup-restore")
+    def backup_restore(self, request):
+        if request.method == "GET":
+            overview = get_backup_overview()
+            return Response(
+                {
+                    "settings": overview["settings"],
+                    "last_backup": (
+                        BackupRecordSerializer(overview["last_backup"]).data
+                        if overview["last_backup"]
+                        else None
+                    ),
+                    "history": BackupRecordSerializer(overview["history"], many=True).data,
+                    "generated_at": timezone.now().isoformat(),
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        return self._live_section_get_put(request, "backup_restore", BackupRestoreSettingsSerializer)
+
+    @action(detail=False, methods=["post"], url_path="backup-restore/manual-backup", permission_action="change")
+    def manual_backup(self, request):
+        record = create_backup(backup_type="manual", user=request.user)
+        response_status = status.HTTP_201_CREATED if record.status == "completed" else status.HTTP_500_INTERNAL_SERVER_ERROR
+        return Response(BackupRecordSerializer(record).data, status=response_status)
+
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path=r"backup-restore/backups/(?P<backup_id>\d+)/download",
+    )
+    def download_backup(self, request, backup_id=None):
+        record = get_object_or_404(BackupRecord, pk=backup_id)
+        from pathlib import Path
+
+        backup_path = Path(record.file_path)
+        if record.status not in {"completed", "restored"} or not backup_path.exists():
+            return Response({"detail": "Backup file is unavailable."}, status=status.HTTP_404_NOT_FOUND)
+
+        return FileResponse(
+            backup_path.open("rb"),
+            as_attachment=True,
+            filename=backup_path.name,
+            content_type="application/zip",
+        )
+
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path=r"backup-restore/backups/(?P<backup_id>\d+)/restore",
+        permission_action="change",
+    )
+    def restore_backup(self, request, backup_id=None):
+        record = get_object_or_404(BackupRecord, pk=backup_id)
+        try:
+            restored = restore_backup(record, user=request.user)
+        except Exception as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(BackupRecordSerializer(restored).data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["get"], url_path="audit-logs")
     def audit_logs(self, request):

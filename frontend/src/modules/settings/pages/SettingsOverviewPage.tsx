@@ -17,6 +17,7 @@ const descriptions: Record<SettingsSection, string> = {
   auto_matching: "Candidate matching algorithm controls (scaffolded).",
   localization: "Language, date/time and timezone defaults.",
   security: "Authentication lockout and session controls.",
+  backup_restore: "System data backups, schedule retention, downloads and restore points.",
 };
 
 export default function SettingsOverviewPage() {

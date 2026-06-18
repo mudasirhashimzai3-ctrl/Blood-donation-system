@@ -1,0 +1,2888 @@
+[
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "about.page.title"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\LoginPage.tsx",
+    "key": "auth.accountLocked",
+    "fallback": "Account Locked"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\components\\AccountLockedMessage.tsx",
+    "key": "auth.accountLockedMessage",
+    "fallback": "Your account has been temporarily locked due to multiple failed login attempts."
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\LoginPage.tsx",
+    "key": "auth.attemptsRemaining",
+    "fallback": "{{count}} attempts remaining"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ResetPasswordPage.tsx",
+    "key": "auth.backToForgotPassword",
+    "fallback": "Back to Forgot Password"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\VerifyEmailPage.tsx",
+    "key": "auth.backToLogin",
+    "fallback": "Back to Login"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.bloodGroup",
+    "fallback": "Blood Group"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ForgotPasswordPage.tsx",
+    "key": "auth.changeEmail",
+    "fallback": "Change Email/Username"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "auth.changePassword",
+    "fallback": "Change Password"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ForgotPasswordPage_OLD.tsx",
+    "key": "auth.checkYourEmail",
+    "fallback": "Check Your Email"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ForgotPasswordPage.tsx",
+    "key": "auth.codeExpiresIn",
+    "fallback": "Code expires in 15 minutes"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ForgotPasswordPage.tsx",
+    "key": "auth.codeFiveAttempts",
+    "fallback": "You have 5 attempts to enter the correct code"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "auth.confirmPassword",
+    "fallback": "Confirm Password"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.confirmPasswordPlaceholder",
+    "fallback": "Confirm your password"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\LoginPage.tsx",
+    "key": "auth.contactSupport",
+    "fallback": "Contact Support"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "auth.currentPassword",
+    "fallback": "Current Password"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.donorLatitude",
+    "fallback": "Latitude"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.donorLatitudePlaceholder",
+    "fallback": "Enter latitude"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.donorLongitude",
+    "fallback": "Longitude"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.donorLongitudePlaceholder",
+    "fallback": "Enter longitude"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.emailOptional",
+    "fallback": "Email (Optional)"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ForgotPasswordPage_OLD.tsx",
+    "key": "auth.emailOrUsername",
+    "fallback": "Email or Username"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ForgotPasswordPage_OLD.tsx",
+    "key": "auth.emailOrUsernamePlaceholder",
+    "fallback": "Enter your email or username"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.emailPlaceholderOptional",
+    "fallback": "Enter your email (optional)"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ForgotPasswordPage_OLD.tsx",
+    "key": "auth.emailSentMessage",
+    "fallback": "If an account exists for {identifier}, you will receive a password reset link shortly."
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\VerifyEmailPage.tsx",
+    "key": "auth.emailVerifiedMessage",
+    "fallback": "Your email is confirmed and your account is ready for secure sign in."
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\VerifyEmailPage.tsx",
+    "key": "auth.emailVerifiedTitle",
+    "fallback": "Email Verified"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.firstName",
+    "fallback": "First Name"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.firstNamePlaceholder",
+    "fallback": "Enter first name"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\LoginPage.tsx",
+    "key": "auth.footerCopyright",
+    "fallback": "© 2026 Blood Donation Network. All rights reserved."
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\LoginPage.tsx",
+    "key": "auth.forgotPassword",
+    "fallback": "Forgot password?"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ForgotPasswordPage_OLD.tsx",
+    "key": "auth.forgotPasswordSubtitle",
+    "fallback": "Enter your email or username to receive a reset link"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ForgotPasswordPage_OLD.tsx",
+    "key": "auth.forgotPasswordTitle",
+    "fallback": "Reset Your Password"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\VerifyEmailPage.tsx",
+    "key": "auth.goToLogin",
+    "fallback": "Go to Login"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ResetPasswordPage_OLD.tsx",
+    "key": "auth.invalidToken",
+    "fallback": "Invalid Reset Link"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ResetPasswordPage_OLD.tsx",
+    "key": "auth.invalidTokenMessage",
+    "fallback": "This password reset link is invalid or has expired. Please request a new one."
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.lastName",
+    "fallback": "Last Name"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.lastNamePlaceholder",
+    "fallback": "Enter last name"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.locationFailed",
+    "fallback": "Unable to register your location right now."
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.locationNotSupported",
+    "fallback": "Geolocation is not supported in this browser."
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\LoginPage.tsx",
+    "key": "auth.loggingIn",
+    "fallback": "Signing in..."
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\LoginPage.tsx",
+    "key": "auth.login",
+    "fallback": "Sign In"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\LoginPage.tsx",
+    "key": "auth.loginButton",
+    "fallback": "Sign In"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\LoginPage.tsx",
+    "key": "auth.loginDescription",
+    "fallback": "Access your secure operations workspace"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\LoginPage.tsx",
+    "key": "auth.loginError",
+    "fallback": "Invalid username or password"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\LoginPage.tsx",
+    "key": "auth.loginSubtitle",
+    "fallback": "Sign in to coordinate donors, recipients, and urgent blood requests."
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\LoginPage.tsx",
+    "key": "auth.loginSuccess",
+    "fallback": "Welcome back!"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\LoginPage.tsx",
+    "key": "auth.loginTitle",
+    "fallback": "Blood Donation Command Center"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\PersonalSettingsPage.tsx",
+    "key": "auth.logout",
+    "fallback": "Logout"
+  },
+  {
+    "file": "frontend\\src\\components\\MISHeader.tsx",
+    "key": "auth.logoutSuccess",
+    "fallback": "Logged out successfully"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\LoginPage.tsx",
+    "key": "auth.needHelp",
+    "fallback": "Need assistance?"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "auth.newPassword",
+    "fallback": "New Password"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ResetPasswordPage_OLD.tsx",
+    "key": "auth.newPasswordPlaceholder",
+    "fallback": "Enter your new password"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.password",
+    "fallback": "Password"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "auth.passwordChanged",
+    "fallback": "Password changed successfully"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.passwordPlaceholder",
+    "fallback": "Enter your password"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\components\\PasswordStrengthMeter.tsx",
+    "key": "auth.passwordRequirements",
+    "fallback": "Password must contain:"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ResetPasswordPage.tsx",
+    "key": "auth.passwordResetSuccess",
+    "fallback": "Password Reset Successfully"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ResetPasswordPage.tsx",
+    "key": "auth.passwordResetSuccessMessage",
+    "fallback": "Your credentials were updated. You can now continue to secure operations."
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\components\\PasswordStrengthMeter.tsx",
+    "key": "auth.passwordStrength",
+    "fallback": "Password Strength"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.phone",
+    "fallback": "Phone"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.phonePlaceholder",
+    "fallback": "Enter your phone number"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\components\\AuthShell.tsx",
+    "key": "auth.portalBadge",
+    "fallback": "Secure Donor Portal"
+  },
+  {
+    "file": "frontend\\src\\components\\MISHeader.tsx",
+    "key": "auth.profile",
+    "fallback": "Profile"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\VerifyEmailPage.tsx",
+    "key": "auth.redirectingIn",
+    "fallback": "Redirecting to login in {seconds} seconds..."
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.registerLocation",
+    "fallback": "Register Location"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ResetPasswordPage_OLD.tsx",
+    "key": "auth.requestNewLink",
+    "fallback": "Request New Link"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\components\\PasswordStrengthMeter.tsx",
+    "key": "auth.requirementLowercase",
+    "fallback": "One lowercase letter (a-z)"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\components\\PasswordStrengthMeter.tsx",
+    "key": "auth.requirementMinLength",
+    "fallback": "At least 8 characters"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\components\\PasswordStrengthMeter.tsx",
+    "key": "auth.requirementNumber",
+    "fallback": "One number (0-9)"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\components\\PasswordStrengthMeter.tsx",
+    "key": "auth.requirementSpecial",
+    "fallback": "One special character (!@#$...)"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\components\\PasswordStrengthMeter.tsx",
+    "key": "auth.requirementUppercase",
+    "fallback": "One uppercase letter (A-Z)"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ForgotPasswordPage.tsx",
+    "key": "auth.resendCode",
+    "fallback": "Resend Code"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\VerifyEmailPage.tsx",
+    "key": "auth.resendVerification",
+    "fallback": "Resend Verification Email"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ResetPasswordPage_OLD.tsx",
+    "key": "auth.resetPassword",
+    "fallback": "Reset Password"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ResetPasswordPage_OLD.tsx",
+    "key": "auth.resetPasswordSubtitle",
+    "fallback": "Create a strong password for your account"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ResetPasswordPage_OLD.tsx",
+    "key": "auth.resetPasswordTitle",
+    "fallback": "Set New Password"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.role",
+    "fallback": "Role"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\LoginPage.tsx",
+    "key": "auth.rolePlaceholder",
+    "fallback": "Select your role"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ForgotPasswordPage.tsx",
+    "key": "auth.sendCode",
+    "fallback": "Send Verification Code"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ForgotPasswordPage_OLD.tsx",
+    "key": "auth.sendResetLink",
+    "fallback": "Send Reset Link"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\components\\SessionTimeoutModal.tsx",
+    "key": "auth.sessionExpiringSoon",
+    "fallback": "Your session will expire due to inactivity"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\components\\SessionTimeoutModal.tsx",
+    "key": "auth.sessionTimeout",
+    "fallback": "Session Timeout"
+  },
+  {
+    "file": "frontend\\src\\components\\MISHeader.tsx",
+    "key": "auth.settings",
+    "fallback": "Settings"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.signupButton",
+    "fallback": "Create Account"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.signupSubtitle",
+    "fallback": "Sign up as a donor or recipient to access the blood donation system."
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.signupTitle",
+    "fallback": "Create Your Account"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\components\\SessionTimeoutModal.tsx",
+    "key": "auth.stayLoggedIn",
+    "fallback": "Stay Logged In"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\components\\SessionTimeoutModal.tsx",
+    "key": "auth.timeRemaining",
+    "fallback": "Time Remaining"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\components\\AccountLockedMessage.tsx",
+    "key": "auth.tryAgainIn",
+    "fallback": "Try again in {minutes} minutes"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.username",
+    "fallback": "Username"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\SignupPage.tsx",
+    "key": "auth.usernamePlaceholder",
+    "fallback": "Enter your username"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ForgotPasswordPage.tsx",
+    "key": "auth.verificationCode",
+    "fallback": "Verification Code"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\VerifyEmailPage.tsx",
+    "key": "auth.verificationFailed",
+    "fallback": "Verification Failed"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\VerifyEmailPage.tsx",
+    "key": "auth.verificationFailedMessage",
+    "fallback": "The verification link is invalid or expired. Request a new verification email."
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ForgotPasswordPage.tsx",
+    "key": "auth.verifyCode",
+    "fallback": "Verify Code"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ForgotPasswordPage.tsx",
+    "key": "auth.verifyCodeSubtitle",
+    "fallback": "Enter the 6-digit code sent to {{email}}"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\ForgotPasswordPage.tsx",
+    "key": "auth.verifyCodeTitle",
+    "fallback": "Verify Security Code"
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\VerifyEmailPage.tsx",
+    "key": "auth.verifyingEmail",
+    "fallback": "Verifying your email..."
+  },
+  {
+    "file": "frontend\\src\\modules\\auth\\pages\\VerifyEmailPage.tsx",
+    "key": "auth.verifyingEmailHint",
+    "fallback": "Please wait while we validate your secure link."
+  },
+  {
+    "file": "frontend\\src\\components\\Lodear.tsx",
+    "key": "BeingProcessed"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestListPage.tsx",
+    "key": "bloodRequests.actions.add",
+    "fallback": "Add Request"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestForm.tsx",
+    "key": "bloodRequests.actions.addHospital",
+    "fallback": "Add Hospital"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.actions.backToList",
+    "fallback": "Back to list"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestForm.tsx",
+    "key": "bloodRequests.actions.cancel",
+    "fallback": "Cancel"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.actions.cancelRequest",
+    "fallback": "Cancel Request"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\VerifyBloodRequestDialog.tsx",
+    "key": "bloodRequests.actions.close",
+    "fallback": "Close"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.actions.complete",
+    "fallback": "Complete"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.actions.delete",
+    "fallback": "Delete"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.actions.edit",
+    "fallback": "Edit"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestCreatePage.tsx",
+    "key": "bloodRequests.actions.save",
+    "fallback": "Save Request"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.actions.unverified",
+    "fallback": "Unverified"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\VerifyBloodRequestDialog.tsx",
+    "key": "bloodRequests.actions.unverify",
+    "fallback": "Unverify"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestEditPage.tsx",
+    "key": "bloodRequests.actions.update",
+    "fallback": "Update Request"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.actions.verified",
+    "fallback": "Verified"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\VerifyBloodRequestDialog.tsx",
+    "key": "bloodRequests.actions.verify",
+    "fallback": "Verify"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestTable.tsx",
+    "key": "bloodRequests.actions.view",
+    "fallback": "View"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\CancelBloodRequestDialog.tsx",
+    "key": "bloodRequests.cancel.description",
+    "fallback": "This request will be marked as cancelled."
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\CancelBloodRequestDialog.tsx",
+    "key": "bloodRequests.cancel.reason",
+    "fallback": "Rejection reason (optional)"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\CancelBloodRequestDialog.tsx",
+    "key": "bloodRequests.cancel.title",
+    "fallback": "Cancel Blood Request"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\CompleteBloodRequestDialog.tsx",
+    "key": "bloodRequests.complete.description",
+    "fallback": "Mark this matched request as completed."
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\CompleteBloodRequestDialog.tsx",
+    "key": "bloodRequests.complete.title",
+    "fallback": "Complete Blood Request"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\CompleteBloodRequestDialog.tsx",
+    "key": "bloodRequests.complete.warning",
+    "fallback": "Completed requests are terminal and cannot be edited."
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestCreatePage.tsx",
+    "key": "bloodRequests.create.subtitle",
+    "fallback": "Submit a new blood request"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestCreatePage.tsx",
+    "key": "bloodRequests.create.title",
+    "fallback": "Create Blood Request"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.delete.confirm",
+    "fallback": "Delete this blood request?"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestEditPage.tsx",
+    "key": "bloodRequests.edit.subtitle",
+    "fallback": "Update blood request information"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestEditPage.tsx",
+    "key": "bloodRequests.edit.title",
+    "fallback": "Edit Blood Request"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.errors.loadFailed",
+    "fallback": "Failed to load blood request details"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.errors.noPermission",
+    "fallback": "You do not have permission to access blood requests."
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.errors.notFound",
+    "fallback": "Blood request not found"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestFilters.tsx",
+    "key": "bloodRequests.filters.allBloodGroups",
+    "fallback": "All Blood Groups"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestFilters.tsx",
+    "key": "bloodRequests.filters.allStatuses",
+    "fallback": "All Statuses"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestFilters.tsx",
+    "key": "bloodRequests.filters.allTypes",
+    "fallback": "All Request Types"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestFilters.tsx",
+    "key": "bloodRequests.filters.bloodGroup",
+    "fallback": "Blood Group"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestFilters.tsx",
+    "key": "bloodRequests.filters.requestType",
+    "fallback": "Urgency"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestFilters.tsx",
+    "key": "bloodRequests.filters.reset",
+    "fallback": "Reset"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestFilters.tsx",
+    "key": "bloodRequests.filters.search",
+    "fallback": "Search"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestFilters.tsx",
+    "key": "bloodRequests.filters.searchPlaceholder",
+    "fallback": "Search by hospital or assigned donor"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestFilters.tsx",
+    "key": "bloodRequests.filters.status",
+    "fallback": "Status"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestForm.tsx",
+    "key": "bloodRequests.form.autoMatchEnabled",
+    "fallback": "Auto match enabled"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestForm.tsx",
+    "key": "bloodRequests.form.bloodGroup",
+    "fallback": "Blood Group"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.form.emergencyProof",
+    "fallback": "Emergency Proof"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "bloodRequests.form.hospital",
+    "fallback": "Hospital"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "bloodRequests.form.hospitalPlaceholder",
+    "fallback": "Select hospital"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.form.latitude",
+    "fallback": "Latitude"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.form.longitude",
+    "fallback": "Longitude"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.form.medicalReport",
+    "fallback": "Medical Report"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.form.prescriptionImage",
+    "fallback": "Prescription Image"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "bloodRequests.form.province",
+    "fallback": "Province"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "bloodRequests.form.provincePlaceholder",
+    "fallback": "Select province"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestForm.tsx",
+    "key": "bloodRequests.form.recipient",
+    "fallback": "Recipient"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestForm.tsx",
+    "key": "bloodRequests.form.recipientPlaceholder",
+    "fallback": "Select recipient"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestForm.tsx",
+    "key": "bloodRequests.form.requestType",
+    "fallback": "Urgency Status"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.form.responseDeadline",
+    "fallback": "Response Deadline"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestForm.tsx",
+    "key": "bloodRequests.form.section.advanced",
+    "fallback": "Advanced Settings"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestForm.tsx",
+    "key": "bloodRequests.form.section.attachments",
+    "fallback": "Attachments"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestForm.tsx",
+    "key": "bloodRequests.form.section.location",
+    "fallback": "Location & Hospital"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestForm.tsx",
+    "key": "bloodRequests.form.section.request",
+    "fallback": "Request Details"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "bloodRequests.form.selectProvinceFirst",
+    "fallback": "Select province first"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.form.unitsNeeded",
+    "fallback": "Units Needed"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestForm.tsx",
+    "key": "bloodRequests.form.viewExisting",
+    "fallback": "View existing file"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestTable.tsx",
+    "key": "bloodRequests.list.empty",
+    "fallback": "No blood requests found"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.loading",
+    "fallback": "Loading blood request details..."
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestStatusBadge.tsx",
+    "key": "bloodRequests.status.cancelled",
+    "fallback": "Cancelled"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestStatusBadge.tsx",
+    "key": "bloodRequests.status.completed",
+    "fallback": "Completed"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestStatusBadge.tsx",
+    "key": "bloodRequests.status.matched",
+    "fallback": "Matched"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestStatusBadge.tsx",
+    "key": "bloodRequests.status.pending",
+    "fallback": "Pending"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestListPage.tsx",
+    "key": "bloodRequests.subtitle",
+    "fallback": "Manage blood request workflow from pending to completion"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestTable.tsx",
+    "key": "bloodRequests.table.actions",
+    "fallback": "Actions"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestTable.tsx",
+    "key": "bloodRequests.table.bloodGroup",
+    "fallback": "Blood Group"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestTable.tsx",
+    "key": "bloodRequests.table.deadline",
+    "fallback": "Deadline"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestTable.tsx",
+    "key": "bloodRequests.table.hospital",
+    "fallback": "Hospital"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestTable.tsx",
+    "key": "bloodRequests.table.recipient",
+    "fallback": "Recipient"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestTable.tsx",
+    "key": "bloodRequests.table.status",
+    "fallback": "Status"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestTable.tsx",
+    "key": "bloodRequests.table.type",
+    "fallback": "Type"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestListPage.tsx",
+    "key": "bloodRequests.title",
+    "fallback": "Blood Requests"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestTypeBadge.tsx",
+    "key": "bloodRequests.type.critical",
+    "fallback": "Critical"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestTypeBadge.tsx",
+    "key": "bloodRequests.type.normal",
+    "fallback": "Normal"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\BloodRequestTypeBadge.tsx",
+    "key": "bloodRequests.type.urgent",
+    "fallback": "Urgent"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\VerifyBloodRequestDialog.tsx",
+    "key": "bloodRequests.verify.hint",
+    "fallback": "Verification indicates hospital documents have been reviewed."
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\VerifyBloodRequestDialog.tsx",
+    "key": "bloodRequests.verify.unverifyDescription",
+    "fallback": "This request will be marked as unverified."
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\VerifyBloodRequestDialog.tsx",
+    "key": "bloodRequests.verify.unverifyTitle",
+    "fallback": "Unverify Request"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\VerifyBloodRequestDialog.tsx",
+    "key": "bloodRequests.verify.verifyDescription",
+    "fallback": "This request will be marked as verified."
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\VerifyBloodRequestDialog.tsx",
+    "key": "bloodRequests.verify.verifyTitle",
+    "fallback": "Verify Request"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.view.assignedDonor",
+    "fallback": "Assigned Donor"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\DonorCandidatesPanel.tsx",
+    "key": "bloodRequests.view.candidates",
+    "fallback": "Candidate Donors"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.view.nearbyDonors",
+    "fallback": "Nearby Donors"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\components\\DonorCandidatesPanel.tsx",
+    "key": "bloodRequests.view.noCandidates",
+    "fallback": "No candidate donors found yet."
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.view.notifiedDonors",
+    "fallback": "Total Notified Donors"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.view.subtitle",
+    "fallback": "View request workflow and donor matches"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.view.title",
+    "fallback": "Blood Request Details"
+  },
+  {
+    "file": "frontend\\src\\modules\\blood-requests\\pages\\BloodRequestViewPage.tsx",
+    "key": "bloodRequests.view.verified",
+    "fallback": "Verified"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\RecipientDonorResponsesPage.tsx",
+    "key": "common.loading",
+    "fallback": "Loading..."
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\PersonalSettingsPage.tsx",
+    "key": "common.save",
+    "fallback": "Save"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\RecipientDashboardPage.tsx",
+    "key": "common.view",
+    "fallback": "View"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationActionsPanel.tsx",
+    "key": "donations.actions.acceptRequest",
+    "fallback": "Accept Request"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\pages\\DonationViewPage.tsx",
+    "key": "donations.actions.backToList",
+    "fallback": "Back to list"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationActionsPanel.tsx",
+    "key": "donations.actions.declineRequest",
+    "fallback": "Decline"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationActionsPanel.tsx",
+    "key": "donations.actions.markCompleted",
+    "fallback": "Mark as Completed"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationActionsPanel.tsx",
+    "key": "donations.actions.notes",
+    "fallback": "Notes"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationActionsPanel.tsx",
+    "key": "donations.actions.primaryToggle",
+    "fallback": "Set as primary"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationActionsPanel.tsx",
+    "key": "donations.actions.refreshEstimate",
+    "fallback": "Refresh Estimate"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\SendReminderDialog.tsx",
+    "key": "donations.actions.send",
+    "fallback": "Send"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\SendReminderDialog.tsx",
+    "key": "donations.actions.sendReminder",
+    "fallback": "Send Reminder"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\SendReminderDialog.tsx",
+    "key": "donations.actions.sendReminderDescription",
+    "fallback": "Select reminder channels and dispatch now."
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationActionsPanel.tsx",
+    "key": "donations.actions.title",
+    "fallback": "Actions"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationActionsPanel.tsx",
+    "key": "donations.actions.updateStatus",
+    "fallback": "Update Status"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationTable.tsx",
+    "key": "donations.actions.view",
+    "fallback": "View"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\pages\\DonationViewPage.tsx",
+    "key": "donations.dynamic.bestEta",
+    "fallback": "Estimated Time (Dynamic)"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\pages\\DonationViewPage.tsx",
+    "key": "donations.dynamic.closestDistance",
+    "fallback": "Distance (Dynamic)"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\pages\\DonationViewPage.tsx",
+    "key": "donations.dynamic.nearbyCount",
+    "fallback": "Nearby Donors (Dynamic)"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\SendReminderDialog.tsx",
+    "key": "donations.errors.atLeastOneChannel",
+    "fallback": "Select at least one channel"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\pages\\DonationViewPage.tsx",
+    "key": "donations.errors.loadFailed",
+    "fallback": "Failed to load donation details"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\pages\\DonationViewPage.tsx",
+    "key": "donations.errors.noPermission",
+    "fallback": "You do not have permission to access donations."
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\pages\\DonationViewPage.tsx",
+    "key": "donations.errors.notFound",
+    "fallback": "Donation not found"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\pages\\DonationViewPage.tsx",
+    "key": "donations.fields.distance",
+    "fallback": "Distance"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\pages\\DonationViewPage.tsx",
+    "key": "donations.fields.eta",
+    "fallback": "ETA"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\pages\\DonationViewPage.tsx",
+    "key": "donations.fields.recipientUnknown",
+    "fallback": "Recipient"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\pages\\DonationViewPage.tsx",
+    "key": "donations.fields.remindersSent",
+    "fallback": "Reminders Sent"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\pages\\DonationViewPage.tsx",
+    "key": "donations.fields.requestDeadline",
+    "fallback": "Request Deadline"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\pages\\DonationViewPage.tsx",
+    "key": "donations.fields.responseTime",
+    "fallback": "Response Time"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationFilters.tsx",
+    "key": "donations.filters.allStatuses",
+    "fallback": "All Statuses"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationFilters.tsx",
+    "key": "donations.filters.orderDistance",
+    "fallback": "Nearest Distance"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationFilters.tsx",
+    "key": "donations.filters.orderEta",
+    "fallback": "Lowest ETA"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationFilters.tsx",
+    "key": "donations.filters.orderNewest",
+    "fallback": "Newest"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationFilters.tsx",
+    "key": "donations.filters.orderOldest",
+    "fallback": "Oldest"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationFilters.tsx",
+    "key": "donations.filters.reset",
+    "fallback": "Reset"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationFilters.tsx",
+    "key": "donations.filters.searchPlaceholder",
+    "fallback": "Search by hospital"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\pages\\DonationViewPage.tsx",
+    "key": "donations.labels.primary",
+    "fallback": "Primary"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationTable.tsx",
+    "key": "donations.list.empty",
+    "fallback": "No donations found"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\pages\\DonationViewPage.tsx",
+    "key": "donations.loading",
+    "fallback": "Loading donation details..."
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\pages\\DonationListPage.tsx",
+    "key": "donations.subtitle",
+    "fallback": "Track donor assignment and response lifecycle"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationTable.tsx",
+    "key": "donations.table.actions",
+    "fallback": "Actions"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationTable.tsx",
+    "key": "donations.table.distance",
+    "fallback": "Distance"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationTable.tsx",
+    "key": "donations.table.donor",
+    "fallback": "Donor"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationTable.tsx",
+    "key": "donations.table.eta",
+    "fallback": "ETA"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationTable.tsx",
+    "key": "donations.table.notifiedAt",
+    "fallback": "Notified"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationTable.tsx",
+    "key": "donations.table.recipient",
+    "fallback": "Recipient"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationTable.tsx",
+    "key": "donations.table.status",
+    "fallback": "Status"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationTimeline.tsx",
+    "key": "donations.timeline.createdAt",
+    "fallback": "Created"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationTimeline.tsx",
+    "key": "donations.timeline.lastReminderAt",
+    "fallback": "Last Reminder"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationTimeline.tsx",
+    "key": "donations.timeline.notifiedAt",
+    "fallback": "Notified At"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationTimeline.tsx",
+    "key": "donations.timeline.respondedAt",
+    "fallback": "Responded At"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationTimeline.tsx",
+    "key": "donations.timeline.title",
+    "fallback": "Donation Timeline"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\components\\DonationTimeline.tsx",
+    "key": "donations.timeline.updatedAt",
+    "fallback": "Updated"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\pages\\DonationListPage.tsx",
+    "key": "donations.title",
+    "fallback": "Donations"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\pages\\DonationViewPage.tsx",
+    "key": "donations.view.subtitle",
+    "fallback": "Review lifecycle, response and reminder details"
+  },
+  {
+    "file": "frontend\\src\\modules\\donations\\pages\\DonationViewPage.tsx",
+    "key": "donations.view.title",
+    "fallback": "Donation Details"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\DonorDashboardPage.tsx",
+    "key": "donor.dashboard.emptyNearby",
+    "fallback": "No nearby requests right now."
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\DonorDashboardPage.tsx",
+    "key": "donor.dashboard.history",
+    "fallback": "Donation History"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\DonorDashboardPage.tsx",
+    "key": "donor.dashboard.loadError",
+    "fallback": "Failed to load donor dashboard"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\DonorDashboardPage.tsx",
+    "key": "donor.dashboard.nearby",
+    "fallback": "Nearby Requests"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\DonorDashboardPage.tsx",
+    "key": "donor.dashboard.nearbyPreview",
+    "fallback": "Nearby Requests Preview"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\DonorDashboardPage.tsx",
+    "key": "donor.dashboard.notifications",
+    "fallback": "Notifications"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\DonorDashboardPage.tsx",
+    "key": "donor.dashboard.openActions",
+    "fallback": "Accept / Reject Donation"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\DonorDashboardPage.tsx",
+    "key": "donor.dashboard.quickActions",
+    "fallback": "Quick Actions"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\DonorDashboardPage.tsx",
+    "key": "donor.dashboard.subtitle",
+    "fallback": "Track nearby requests and respond to donations"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\DonorDashboardPage.tsx",
+    "key": "donor.dashboard.title",
+    "fallback": "Donor Dashboard"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\DonorDashboardPage.tsx",
+    "key": "donor.dashboard.viewNearby",
+    "fallback": "View Nearby Requests"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\DonorNearbyRequestsPage.tsx",
+    "key": "donor.nearby.empty",
+    "fallback": "No nearby requests found"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\DonorNearbyRequestsPage.tsx",
+    "key": "donor.nearby.error",
+    "fallback": "Failed to load nearby requests"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\DonorNearbyRequestsPage.tsx",
+    "key": "donor.nearby.subtitle",
+    "fallback": "Requests matched near your location"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\DonorNearbyRequestsPage.tsx",
+    "key": "donor.nearby.title",
+    "fallback": "Nearby Requests"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorListPage.tsx",
+    "key": "donors.actions.add",
+    "fallback": "Add Donor"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorViewPage.tsx",
+    "key": "donors.actions.backToList",
+    "fallback": "Back to list"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.actions.cancel",
+    "fallback": "Cancel"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorViewPage.tsx",
+    "key": "donors.actions.delete",
+    "fallback": "Delete"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorViewPage.tsx",
+    "key": "donors.actions.edit",
+    "fallback": "Edit"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.actions.removePicture",
+    "fallback": "Remove Picture"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorCreatePage.tsx",
+    "key": "donors.actions.save",
+    "fallback": "Save Donor"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorEditPage.tsx",
+    "key": "donors.actions.update",
+    "fallback": "Update Donor"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorTable.tsx",
+    "key": "donors.actions.view",
+    "fallback": "View"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorCreatePage.tsx",
+    "key": "donors.create.subtitle",
+    "fallback": "Add a new donor record"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorCreatePage.tsx",
+    "key": "donors.create.title",
+    "fallback": "Create Donor"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DeleteDonorDialog.tsx",
+    "key": "donors.delete.description",
+    "fallback": "Are you sure you want to delete this donor? This action cannot be undone."
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DeleteDonorDialog.tsx",
+    "key": "donors.delete.title",
+    "fallback": "Delete Donor"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DeleteDonorDialog.tsx",
+    "key": "donors.delete.warning",
+    "fallback": "This will soft-delete the donor record."
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorEditPage.tsx",
+    "key": "donors.edit.subtitle",
+    "fallback": "Update donor profile information"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorEditPage.tsx",
+    "key": "donors.edit.title",
+    "fallback": "Edit Donor"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorViewPage.tsx",
+    "key": "donors.errors.loadFailed",
+    "fallback": "Failed to load donor details"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorViewPage.tsx",
+    "key": "donors.errors.noPermission",
+    "fallback": "You do not have permission to access donors."
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorViewPage.tsx",
+    "key": "donors.errors.notFound",
+    "fallback": "Donor not found"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorFilters.tsx",
+    "key": "donors.filters.allBloodGroups",
+    "fallback": "All Blood Groups"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorFilters.tsx",
+    "key": "donors.filters.cityPlaceholder",
+    "fallback": "City"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorFilters.tsx",
+    "key": "donors.filters.reset",
+    "fallback": "Reset"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorViewPage.tsx",
+    "key": "donors.form.age",
+    "fallback": "Age"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.agePlaceholder",
+    "fallback": "Enter age"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.bloodGroup",
+    "fallback": "Blood Group"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorViewPage.tsx",
+    "key": "donors.form.dateOfBirth",
+    "fallback": "Date of Birth"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorViewPage.tsx",
+    "key": "donors.form.email",
+    "fallback": "Email"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.emailPlaceholder",
+    "fallback": "Enter email"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.firstName",
+    "fallback": "First Name"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.firstNamePlaceholder",
+    "fallback": "Enter first name"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorViewPage.tsx",
+    "key": "donors.form.lastDonationDate",
+    "fallback": "Last Donation Date"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.lastName",
+    "fallback": "Last Name"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.lastNamePlaceholder",
+    "fallback": "Enter last name"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "donors.form.latitude",
+    "fallback": "Latitude"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.latitudePlaceholder",
+    "fallback": "Enter latitude"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorViewPage.tsx",
+    "key": "donors.form.localAddress",
+    "fallback": "Local Address"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "donors.form.localAddressCity",
+    "fallback": "Local Address City"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.localAddressCityPlaceholder",
+    "fallback": "Enter city"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.locationGenericError",
+    "fallback": "Failed to register location."
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.locationNotSupported",
+    "fallback": "Geolocation is not supported in this browser."
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.locationPermissionDenied",
+    "fallback": "Location access was denied."
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.locationTimeout",
+    "fallback": "Location request timed out. Please try again."
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.locationUnavailable",
+    "fallback": "Unable to detect your location right now."
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "donors.form.longitude",
+    "fallback": "Longitude"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.longitudePlaceholder",
+    "fallback": "Enter longitude"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorViewPage.tsx",
+    "key": "donors.form.permanentAddress",
+    "fallback": "Permanent Address"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "donors.form.permanentAddressCity",
+    "fallback": "Permanent Address City"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.permanentAddressCityPlaceholder",
+    "fallback": "Enter city"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.phone",
+    "fallback": "Phone"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.phonePlaceholder",
+    "fallback": "Enter phone number"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.profilePicture",
+    "fallback": "Profile Picture"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.profilePictureHint",
+    "fallback": "Accepted image files up to 5MB"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "donors.form.registerLocation",
+    "fallback": "Register My Location"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.sections.basicInfo",
+    "fallback": "Basic Information"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.sections.basicInfoHint",
+    "fallback": "Name and contact details"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.sections.location",
+    "fallback": "Location Details"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.sections.locationHint",
+    "fallback": "Register location and provide address information"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.sections.profileInfo",
+    "fallback": "Profile Information"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorForm.tsx",
+    "key": "donors.form.sections.profileInfoHint",
+    "fallback": "Age and donation history"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorViewPage.tsx",
+    "key": "donors.form.status",
+    "fallback": "Status"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorTable.tsx",
+    "key": "donors.list.empty",
+    "fallback": "No donors found"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorViewPage.tsx",
+    "key": "donors.loading",
+    "fallback": "Loading donor details..."
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorStatusBadge.tsx",
+    "key": "donors.status.active",
+    "fallback": "Active"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorStatusBadge.tsx",
+    "key": "donors.status.inactive",
+    "fallback": "Inactive"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorListPage.tsx",
+    "key": "donors.subtitle",
+    "fallback": "Manage donor records by blood group"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorTable.tsx",
+    "key": "donors.table.actions",
+    "fallback": "Actions"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorTable.tsx",
+    "key": "donors.table.bloodGroup",
+    "fallback": "Blood Group"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorTable.tsx",
+    "key": "donors.table.lastDonation",
+    "fallback": "Last Donation"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorTable.tsx",
+    "key": "donors.table.name",
+    "fallback": "Name"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorTable.tsx",
+    "key": "donors.table.phone",
+    "fallback": "Phone"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\components\\DonorTable.tsx",
+    "key": "donors.table.status",
+    "fallback": "Status"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorListPage.tsx",
+    "key": "donors.title",
+    "fallback": "Donors"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorViewPage.tsx",
+    "key": "donors.view.subtitle",
+    "fallback": "View donor profile information"
+  },
+  {
+    "file": "frontend\\src\\modules\\donors\\pages\\DonorViewPage.tsx",
+    "key": "donors.view.title",
+    "fallback": "Donor Details"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Footer.tsx",
+    "key": "footer.contactUs.address"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Footer.tsx",
+    "key": "footer.contactUs.title"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Footer.tsx",
+    "key": "footer.copyright"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Footer.tsx",
+    "key": "footer.portals.alumni"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Footer.tsx",
+    "key": "footer.portals.parent"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Footer.tsx",
+    "key": "footer.portals.staff"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Footer.tsx",
+    "key": "footer.portals.student"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Footer.tsx",
+    "key": "footer.portals.teacher"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Footer.tsx",
+    "key": "footer.portals.title"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Footer.tsx",
+    "key": "footer.quickLinks.aboutUs"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Footer.tsx",
+    "key": "footer.quickLinks.academics"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Footer.tsx",
+    "key": "footer.quickLinks.admissions"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Footer.tsx",
+    "key": "footer.quickLinks.contact"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Footer.tsx",
+    "key": "footer.quickLinks.newsEvents"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Footer.tsx",
+    "key": "footer.quickLinks.title"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Footer.tsx",
+    "key": "footer.schoolDescription"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalListPage.tsx",
+    "key": "hospitals.actions.add",
+    "fallback": "Add Hospital"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalViewPage.tsx",
+    "key": "hospitals.actions.backToList",
+    "fallback": "Back to list"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalQuickCreateModal.tsx",
+    "key": "hospitals.actions.cancel",
+    "fallback": "Cancel"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalViewPage.tsx",
+    "key": "hospitals.actions.delete",
+    "fallback": "Delete"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalViewPage.tsx",
+    "key": "hospitals.actions.edit",
+    "fallback": "Edit"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalCreatePage.tsx",
+    "key": "hospitals.actions.save",
+    "fallback": "Save Hospital"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalEditPage.tsx",
+    "key": "hospitals.actions.update",
+    "fallback": "Update Hospital"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalTable.tsx",
+    "key": "hospitals.actions.view",
+    "fallback": "View"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalCreatePage.tsx",
+    "key": "hospitals.create.subtitle",
+    "fallback": "Add a new hospital record"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalCreatePage.tsx",
+    "key": "hospitals.create.title",
+    "fallback": "Create Hospital"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\DeleteHospitalDialog.tsx",
+    "key": "hospitals.delete.description",
+    "fallback": "Are you sure you want to delete this hospital? This action cannot be undone."
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\DeleteHospitalDialog.tsx",
+    "key": "hospitals.delete.title",
+    "fallback": "Delete Hospital"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\DeleteHospitalDialog.tsx",
+    "key": "hospitals.delete.warning",
+    "fallback": "This will soft-delete the hospital record."
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalEditPage.tsx",
+    "key": "hospitals.edit.subtitle",
+    "fallback": "Update hospital information"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalEditPage.tsx",
+    "key": "hospitals.edit.title",
+    "fallback": "Edit Hospital"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalViewPage.tsx",
+    "key": "hospitals.errors.loadFailed",
+    "fallback": "Failed to load hospital details"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalViewPage.tsx",
+    "key": "hospitals.errors.noPermission",
+    "fallback": "You do not have permission to access hospitals."
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalViewPage.tsx",
+    "key": "hospitals.errors.notFound",
+    "fallback": "Hospital not found"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalSearchSelect.tsx",
+    "key": "hospitals.filters.provincePlaceholder",
+    "fallback": "Select province"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalFilters.tsx",
+    "key": "hospitals.filters.reset",
+    "fallback": "Reset"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalFilters.tsx",
+    "key": "hospitals.filters.searchPlaceholder",
+    "fallback": "Search hospitals"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalSearchSelect.tsx",
+    "key": "hospitals.filters.selectProvinceFirst",
+    "fallback": "Select province first"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalViewPage.tsx",
+    "key": "hospitals.form.address",
+    "fallback": "Address"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalForm.tsx",
+    "key": "hospitals.form.addressPlaceholder",
+    "fallback": "Enter address"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalViewPage.tsx",
+    "key": "hospitals.form.createdAt",
+    "fallback": "Created At"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalViewPage.tsx",
+    "key": "hospitals.form.email",
+    "fallback": "Email"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalForm.tsx",
+    "key": "hospitals.form.emailPlaceholder",
+    "fallback": "Enter email"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalViewPage.tsx",
+    "key": "hospitals.form.latitude",
+    "fallback": "Latitude"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalViewPage.tsx",
+    "key": "hospitals.form.longitude",
+    "fallback": "Longitude"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalQuickCreateModal.tsx",
+    "key": "hospitals.form.name",
+    "fallback": "Hospital Name"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalForm.tsx",
+    "key": "hospitals.form.namePlaceholder",
+    "fallback": "Enter hospital name"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalViewPage.tsx",
+    "key": "hospitals.form.phone",
+    "fallback": "Phone"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalForm.tsx",
+    "key": "hospitals.form.phonePlaceholder",
+    "fallback": "Enter phone number"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalSearchSelect.tsx",
+    "key": "hospitals.form.province",
+    "fallback": "Province"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalViewPage.tsx",
+    "key": "hospitals.form.updatedAt",
+    "fallback": "Updated At"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalTable.tsx",
+    "key": "hospitals.list.empty",
+    "fallback": "No hospitals found"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalViewPage.tsx",
+    "key": "hospitals.loading",
+    "fallback": "Loading hospital details..."
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalSearchSelect.tsx",
+    "key": "hospitals.quickCreate.action",
+    "fallback": "Quick Create Hospital"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalQuickCreateModal.tsx",
+    "key": "hospitals.quickCreate.create",
+    "fallback": "Create Hospital"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalQuickCreateModal.tsx",
+    "key": "hospitals.quickCreate.subtitle",
+    "fallback": "Create a hospital and select it immediately"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalQuickCreateModal.tsx",
+    "key": "hospitals.quickCreate.title",
+    "fallback": "Quick Create Hospital"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalSearchSelect.tsx",
+    "key": "hospitals.search.empty",
+    "fallback": "No hospitals found"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalListPage.tsx",
+    "key": "hospitals.subtitle",
+    "fallback": "Manage hospital records for recipient assignments"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalTable.tsx",
+    "key": "hospitals.table.actions",
+    "fallback": "Actions"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalTable.tsx",
+    "key": "hospitals.table.email",
+    "fallback": "Email"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalTable.tsx",
+    "key": "hospitals.table.name",
+    "fallback": "Hospital Name"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalTable.tsx",
+    "key": "hospitals.table.phone",
+    "fallback": "Phone"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalTable.tsx",
+    "key": "hospitals.table.province",
+    "fallback": "Province"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalListPage.tsx",
+    "key": "hospitals.title",
+    "fallback": "Hospitals"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalViewPage.tsx",
+    "key": "hospitals.view.subtitle",
+    "fallback": "View hospital information"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\pages\\HospitalViewPage.tsx",
+    "key": "hospitals.view.title",
+    "fallback": "Hospital Details"
+  },
+  {
+    "file": "frontend\\src\\components\\MISHeader.tsx",
+    "key": "language.dari",
+    "fallback": "Dari"
+  },
+  {
+    "file": "frontend\\src\\components\\MISHeader.tsx",
+    "key": "language.english",
+    "fallback": "English"
+  },
+  {
+    "file": "frontend\\src\\components\\MISHeader.tsx",
+    "key": "language.pashto",
+    "fallback": "Pashto"
+  },
+  {
+    "file": "frontend\\src\\components\\MISHeader.tsx",
+    "key": "language.select",
+    "fallback": "Select language"
+  },
+  {
+    "file": "frontend\\src\\components\\MISHeader.tsx",
+    "key": "language.updateFailed",
+    "fallback": "Failed to update language"
+  },
+  {
+    "file": "frontend\\src\\components\\Loader.tsx",
+    "key": "Loading..."
+  },
+  {
+    "file": "frontend\\src\\components\\sidebar\\Sidebar.tsx",
+    "key": "mis.brand.subtitle",
+    "fallback": "Management System"
+  },
+  {
+    "file": "frontend\\src\\components\\sidebar\\Sidebar.tsx",
+    "key": "mis.brand.title",
+    "fallback": "Blood Donation"
+  },
+  {
+    "file": "frontend\\src\\components\\sidebar\\Sidebar.tsx",
+    "key": "mis.nav.group",
+    "fallback": "Navigation"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.about"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.about.teachers"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.academics"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.academics.competitions"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.academics.educationalTrips"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.academics.internships"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.academics.libraryServices"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.academics.onlineLibrary"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.academics.programs"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.academics.projects"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.achievements"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.achievements.honorsCertificates"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.achievements.schoolAwards"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.achievements.studentAchievements"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.achievements.testimonials"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.careers"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.careers.alumniRelations"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.careers.opportunities"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.community"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.community.charityEvents"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.community.support"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.contact"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.contact.feedbackForm"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.contact.locationMap"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.contact.securityPrivacy"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.contact.us"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.home"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.media"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.media.gallery"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.media.historicalPhotos"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.media.studentArtwork"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.newsEvents"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.parents"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.portalLogin"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.students.artsCrafts"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.students.cultural"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.students.recreational"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.students.sportsTeams"
+  },
+  {
+    "file": "frontend\\src\\components\\layout\\Navbar.tsx",
+    "key": "nav.studentsactivities"
+  },
+  {
+    "file": "frontend\\src\\components\\MISHeader.tsx",
+    "key": "nav.toggleTheme",
+    "fallback": "Toggle theme"
+  },
+  {
+    "file": "frontend\\src\\modules\\notifications\\pages\\NotificationViewPage.tsx",
+    "key": "notifications.actions.backToList",
+    "fallback": "Back to list"
+  },
+  {
+    "file": "frontend\\src\\modules\\notifications\\pages\\NotificationViewPage.tsx",
+    "key": "notifications.actions.delete",
+    "fallback": "Remove"
+  },
+  {
+    "file": "frontend\\src\\modules\\notifications\\pages\\NotificationViewPage.tsx",
+    "key": "notifications.actions.markRead",
+    "fallback": "Mark read"
+  },
+  {
+    "file": "frontend\\src\\modules\\notifications\\pages\\NotificationViewPage.tsx",
+    "key": "notifications.actions.markUnread",
+    "fallback": "Mark unread"
+  },
+  {
+    "file": "frontend\\src\\modules\\notifications\\pages\\NotificationViewPage.tsx",
+    "key": "notifications.errors.loadFailed",
+    "fallback": "Failed to load notification details"
+  },
+  {
+    "file": "frontend\\src\\modules\\notifications\\pages\\NotificationViewPage.tsx",
+    "key": "notifications.errors.noPermission",
+    "fallback": "You do not have permission to access notifications."
+  },
+  {
+    "file": "frontend\\src\\modules\\notifications\\pages\\NotificationViewPage.tsx",
+    "key": "notifications.errors.notFound",
+    "fallback": "Notification not found"
+  },
+  {
+    "file": "frontend\\src\\modules\\notifications\\pages\\NotificationViewPage.tsx",
+    "key": "notifications.fields.createdAt",
+    "fallback": "Created At"
+  },
+  {
+    "file": "frontend\\src\\modules\\notifications\\pages\\NotificationViewPage.tsx",
+    "key": "notifications.fields.metadata",
+    "fallback": "Metadata"
+  },
+  {
+    "file": "frontend\\src\\modules\\notifications\\pages\\NotificationViewPage.tsx",
+    "key": "notifications.fields.readAt",
+    "fallback": "Read At"
+  },
+  {
+    "file": "frontend\\src\\modules\\notifications\\pages\\NotificationViewPage.tsx",
+    "key": "notifications.fields.readStatus",
+    "fallback": "Read Status"
+  },
+  {
+    "file": "frontend\\src\\modules\\notifications\\pages\\NotificationViewPage.tsx",
+    "key": "notifications.fields.sentAt",
+    "fallback": "Sent At"
+  },
+  {
+    "file": "frontend\\src\\modules\\notifications\\pages\\NotificationViewPage.tsx",
+    "key": "notifications.loading",
+    "fallback": "Loading notification details..."
+  },
+  {
+    "file": "frontend\\src\\modules\\notifications\\pages\\NotificationListPage.tsx",
+    "key": "notifications.subtitle",
+    "fallback": "Track in-app, email and SMS notification delivery"
+  },
+  {
+    "file": "frontend\\src\\modules\\notifications\\pages\\NotificationListPage.tsx",
+    "key": "notifications.title",
+    "fallback": "Notifications"
+  },
+  {
+    "file": "frontend\\src\\modules\\notifications\\pages\\NotificationViewPage.tsx",
+    "key": "notifications.view.subtitle",
+    "fallback": "Inspect delivery status and context payload"
+  },
+  {
+    "file": "frontend\\src\\modules\\notifications\\pages\\NotificationViewPage.tsx",
+    "key": "notifications.view.title",
+    "fallback": "Notification Details"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\PersonalSettingsPage.tsx",
+    "key": "personalSettings.dark",
+    "fallback": "Dark"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\PersonalSettingsPage.tsx",
+    "key": "personalSettings.language",
+    "fallback": "Language"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\PersonalSettingsPage.tsx",
+    "key": "personalSettings.languageSaved",
+    "fallback": "Language updated"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\PersonalSettingsPage.tsx",
+    "key": "personalSettings.light",
+    "fallback": "Light"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\PersonalSettingsPage.tsx",
+    "key": "personalSettings.profile",
+    "fallback": "Open Profile"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\PersonalSettingsPage.tsx",
+    "key": "personalSettings.subtitle",
+    "fallback": "Manage your personal app settings"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\PersonalSettingsPage.tsx",
+    "key": "personalSettings.theme",
+    "fallback": "Theme"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\PersonalSettingsPage.tsx",
+    "key": "personalSettings.title",
+    "fallback": "Settings"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.changePhoto",
+    "fallback": "Change Photo"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.confirmPasswordPlaceholder",
+    "fallback": "Confirm new password"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.currentPasswordPlaceholder",
+    "fallback": "Enter current password"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.deletePhoto",
+    "fallback": "Delete Photo"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.donorLocation",
+    "fallback": "Donor Location Details"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.email",
+    "fallback": "Email"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.emailReadonly",
+    "fallback": "Contact admin to change email"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.fileTooLarge",
+    "fallback": "File size must be less than 5MB"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.firstName",
+    "fallback": "First Name"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.firstNamePlaceholder",
+    "fallback": "Enter your first name"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.invalidFileType",
+    "fallback": "Please select an image file"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.lastName",
+    "fallback": "Last Name"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.lastNamePlaceholder",
+    "fallback": "Enter your last name"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.locationFailed",
+    "fallback": "Failed to register location."
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.locationNotSupported",
+    "fallback": "Geolocation is not supported in this browser."
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.newPasswordPlaceholder",
+    "fallback": "Enter new password"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.passwordHint",
+    "fallback": "Min 8 chars, include uppercase, lowercase, and number"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.personalInfo",
+    "fallback": "Personal Information"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.personalInfoSubtitle",
+    "fallback": "Update your personal details"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.phone",
+    "fallback": "Phone Number"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.phonePlaceholder",
+    "fallback": "+93 70 000 0000"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.photoDeleted",
+    "fallback": "Photo deleted successfully"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.photoUploaded",
+    "fallback": "Photo uploaded successfully"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.recipientLocation",
+    "fallback": "Recipient Location Details"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.role",
+    "fallback": "Role"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.roleReadonly",
+    "fallback": "Contact admin to change role"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.security",
+    "fallback": "Security"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.securitySubtitle",
+    "fallback": "Update your password to keep your account secure"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.subtitle",
+    "fallback": "Manage your account settings and preferences"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.title",
+    "fallback": "My Profile"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.updated",
+    "fallback": "Profile updated successfully"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.username",
+    "fallback": "Username"
+  },
+  {
+    "file": "frontend\\src\\modules\\profile\\UserProfile.tsx",
+    "key": "profile.usernameReadonly",
+    "fallback": "Username cannot be changed"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\RecipientDashboardPage.tsx",
+    "key": "recipient.dashboard.active",
+    "fallback": "My Requests"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\RecipientDashboardPage.tsx",
+    "key": "recipient.dashboard.createRequest",
+    "fallback": "Create Blood Request"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\RecipientDashboardPage.tsx",
+    "key": "recipient.dashboard.donorSearch",
+    "fallback": "Donor Search"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\RecipientDashboardPage.tsx",
+    "key": "recipient.dashboard.donorSearchSubtitle",
+    "fallback": "Find active eligible donors by blood group and distance."
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\RecipientDashboardPage.tsx",
+    "key": "recipient.dashboard.empty",
+    "fallback": "No requests found"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\RecipientDashboardPage.tsx",
+    "key": "recipient.dashboard.error",
+    "fallback": "Failed to load recipient dashboard"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\RecipientDashboardPage.tsx",
+    "key": "recipient.dashboard.noSearchRequests",
+    "fallback": "Create an active blood request before searching for donors."
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\RecipientDashboardPage.tsx",
+    "key": "recipient.dashboard.requestsPreview",
+    "fallback": "Recent Requests"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\RecipientDashboardPage.tsx",
+    "key": "recipient.dashboard.responses",
+    "fallback": "Donor Responses"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\RecipientDashboardPage.tsx",
+    "key": "recipient.dashboard.subtitle",
+    "fallback": "Create requests and track donor responses"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\RecipientDashboardPage.tsx",
+    "key": "recipient.dashboard.title",
+    "fallback": "Recipient Dashboard"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\RecipientDashboardPage.tsx",
+    "key": "recipient.dashboard.unread",
+    "fallback": "Unread Notifications"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\RecipientDonorResponsesPage.tsx",
+    "key": "recipient.responses.empty",
+    "fallback": "No donor responses available yet"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\RecipientDonorResponsesPage.tsx",
+    "key": "recipient.responses.error",
+    "fallback": "Failed to load donor responses"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\RecipientDonorResponsesPage.tsx",
+    "key": "recipient.responses.noEntries",
+    "fallback": "No responses yet"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\RecipientDonorResponsesPage.tsx",
+    "key": "recipient.responses.subtitle",
+    "fallback": "Track who accepted or rejected each blood request"
+  },
+  {
+    "file": "frontend\\src\\modules\\role-access\\pages\\RecipientDonorResponsesPage.tsx",
+    "key": "recipient.responses.title",
+    "fallback": "Donor Responses"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientListPage.tsx",
+    "key": "recipients.actions.add",
+    "fallback": "Add Recipient"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientViewPage.tsx",
+    "key": "recipients.actions.backToList",
+    "fallback": "Back to list"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\RecipientForm.tsx",
+    "key": "recipients.actions.cancel",
+    "fallback": "Cancel"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientViewPage.tsx",
+    "key": "recipients.actions.delete",
+    "fallback": "Delete"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientViewPage.tsx",
+    "key": "recipients.actions.edit",
+    "fallback": "Edit"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientCreatePage.tsx",
+    "key": "recipients.actions.save",
+    "fallback": "Save Recipient"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientEditPage.tsx",
+    "key": "recipients.actions.update",
+    "fallback": "Update Recipient"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\RecipientTable.tsx",
+    "key": "recipients.actions.view",
+    "fallback": "View"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientCreatePage.tsx",
+    "key": "recipients.create.subtitle",
+    "fallback": "Add a new recipient record"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientCreatePage.tsx",
+    "key": "recipients.create.title",
+    "fallback": "Create Recipient"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\DeleteRecipientDialog.tsx",
+    "key": "recipients.delete.description",
+    "fallback": "Are you sure you want to delete this recipient? This action cannot be undone."
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\DeleteRecipientDialog.tsx",
+    "key": "recipients.delete.title",
+    "fallback": "Delete Recipient"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\DeleteRecipientDialog.tsx",
+    "key": "recipients.delete.warning",
+    "fallback": "This will soft-delete the recipient record."
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientEditPage.tsx",
+    "key": "recipients.edit.subtitle",
+    "fallback": "Update recipient information"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientEditPage.tsx",
+    "key": "recipients.edit.title",
+    "fallback": "Edit Recipient"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\EmergencyLevelBadge.tsx",
+    "key": "recipients.emergency.critical",
+    "fallback": "Critical"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\EmergencyLevelBadge.tsx",
+    "key": "recipients.emergency.normal",
+    "fallback": "Normal"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\EmergencyLevelBadge.tsx",
+    "key": "recipients.emergency.urgent",
+    "fallback": "Urgent"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientViewPage.tsx",
+    "key": "recipients.errors.loadFailed",
+    "fallback": "Failed to load recipient details"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientViewPage.tsx",
+    "key": "recipients.errors.noPermission",
+    "fallback": "You do not have permission to access recipients."
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientViewPage.tsx",
+    "key": "recipients.errors.notFound",
+    "fallback": "Recipient not found"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\RecipientFilters.tsx",
+    "key": "recipients.filters.allBloodGroups",
+    "fallback": "All Blood Groups"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\RecipientFilters.tsx",
+    "key": "recipients.filters.allEmergency",
+    "fallback": "All Emergency Levels"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\RecipientFilters.tsx",
+    "key": "recipients.filters.cityPlaceholder",
+    "fallback": "City"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\RecipientFilters.tsx",
+    "key": "recipients.filters.reset",
+    "fallback": "Reset"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientViewPage.tsx",
+    "key": "recipients.form.city",
+    "fallback": "City"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientViewPage.tsx",
+    "key": "recipients.form.createdAt",
+    "fallback": "Created At"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientViewPage.tsx",
+    "key": "recipients.form.email",
+    "fallback": "Email"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\RecipientForm.tsx",
+    "key": "recipients.form.emailPlaceholder",
+    "fallback": "Enter email"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\RecipientForm.tsx",
+    "key": "recipients.form.emergencyLevel",
+    "fallback": "Emergency Level"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\RecipientForm.tsx",
+    "key": "recipients.form.fullName",
+    "fallback": "Full Name"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\RecipientForm.tsx",
+    "key": "recipients.form.fullNamePlaceholder",
+    "fallback": "Enter full name"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientViewPage.tsx",
+    "key": "recipients.form.hospitalAddress",
+    "fallback": "Hospital Address"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientViewPage.tsx",
+    "key": "recipients.form.hospitalContact",
+    "fallback": "Hospital Contact"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientViewPage.tsx",
+    "key": "recipients.form.hospitalEmail",
+    "fallback": "Hospital Email"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientViewPage.tsx",
+    "key": "recipients.form.hospitalName",
+    "fallback": "Hospital Name"
+  },
+  {
+    "file": "frontend\\src\\modules\\hospitals\\components\\HospitalSearchSelect.tsx",
+    "key": "recipients.form.hospitalSearchPlaceholder",
+    "fallback": "Search hospital"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientViewPage.tsx",
+    "key": "recipients.form.latitude",
+    "fallback": "Latitude"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientViewPage.tsx",
+    "key": "recipients.form.longitude",
+    "fallback": "Longitude"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\RecipientForm.tsx",
+    "key": "recipients.form.phone",
+    "fallback": "Phone Number"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\RecipientForm.tsx",
+    "key": "recipients.form.phonePlaceholder",
+    "fallback": "Enter phone number"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\RecipientForm.tsx",
+    "key": "recipients.form.requiredBloodGroup",
+    "fallback": "Required Blood Group"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientViewPage.tsx",
+    "key": "recipients.form.updatedAt",
+    "fallback": "Updated At"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\RecipientTable.tsx",
+    "key": "recipients.list.empty",
+    "fallback": "No recipients found"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientViewPage.tsx",
+    "key": "recipients.loading",
+    "fallback": "Loading recipient details..."
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientListPage.tsx",
+    "key": "recipients.subtitle",
+    "fallback": "Manage recipient records with emergency requirements"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\RecipientTable.tsx",
+    "key": "recipients.table.actions",
+    "fallback": "Actions"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\RecipientTable.tsx",
+    "key": "recipients.table.bloodGroup",
+    "fallback": "Required Blood Group"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\RecipientTable.tsx",
+    "key": "recipients.table.city",
+    "fallback": "City"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\RecipientTable.tsx",
+    "key": "recipients.table.emergencyLevel",
+    "fallback": "Emergency Level"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\RecipientTable.tsx",
+    "key": "recipients.table.fullName",
+    "fallback": "Full Name"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\RecipientTable.tsx",
+    "key": "recipients.table.hospital",
+    "fallback": "Hospital Name"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\components\\RecipientTable.tsx",
+    "key": "recipients.table.phone",
+    "fallback": "Phone Number"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientListPage.tsx",
+    "key": "recipients.title",
+    "fallback": "Recipients"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientViewPage.tsx",
+    "key": "recipients.view.subtitle",
+    "fallback": "View recipient profile information"
+  },
+  {
+    "file": "frontend\\src\\modules\\recipients\\pages\\RecipientViewPage.tsx",
+    "key": "recipients.view.title",
+    "fallback": "Recipient Details"
+  },
+  {
+    "file": "frontend\\src\\modules\\reports\\pages\\ReportsWorkspacePage.tsx",
+    "key": "reports.errors.noPermission",
+    "fallback": "You do not have permission to access reports."
+  },
+  {
+    "file": "frontend\\src\\modules\\reports\\pages\\ReportsWorkspacePage.tsx",
+    "key": "reports.subtitle",
+    "fallback": "Unified analytics for requests, donations, hospitals, emergency response, geography, and system health"
+  },
+  {
+    "file": "frontend\\src\\modules\\reports\\pages\\ReportsWorkspacePage.tsx",
+    "key": "reports.title",
+    "fallback": "Analytical Reports"
+  },
+  {
+    "file": "frontend\\src\\components\\Lodear.tsx",
+    "key": "slide1Title"
+  }
+]

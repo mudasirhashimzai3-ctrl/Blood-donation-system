@@ -2,6 +2,8 @@ import apiClient from "@/lib/api";
 
 import type {
   AutoMatchingSettings,
+  BackupRestoreOverview,
+  BackupScheduleSettings,
   ChangePasswordPayload,
   GeneralSettings,
   LocalizationSettings,
@@ -51,6 +53,20 @@ export const settingsService = {
   getAutoMatching: () => apiClient.get<AutoMatchingSettings>("/core/settings/auto-matching/"),
   updateAutoMatching: (payload: Partial<AutoMatchingSettings>) =>
     apiClient.put<AutoMatchingSettings>("/core/settings/auto-matching/", payload),
+
+  getBackupRestore: () =>
+    apiClient.get<BackupRestoreOverview>("/core/settings/backup-restore/"),
+  updateBackupRestore: (payload: Partial<BackupScheduleSettings>) =>
+    apiClient.put<BackupScheduleSettings>("/core/settings/backup-restore/", payload),
+  createManualBackup: () =>
+    apiClient.post("/core/settings/backup-restore/manual-backup/", {}, { timeout: 120_000 }),
+  restoreBackup: (id: number) =>
+    apiClient.post(`/core/settings/backup-restore/backups/${id}/restore/`, {}, { timeout: 120_000 }),
+  downloadBackup: (id: number) =>
+    apiClient.get<Blob>(`/core/settings/backup-restore/backups/${id}/download/`, {
+      responseType: "blob",
+      timeout: 120_000,
+    }),
 
   getUserRolePermissions: () =>
     apiClient.get<RolePermissionMatrixResponse>("/core/settings/user-roles/permissions/"),

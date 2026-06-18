@@ -14,4 +14,13 @@ describe("settingsKeys", () => {
       "security",
     ]);
   });
+
+  it("builds backup restore query key", () => {
+    expect(settingsKeys.backupRestore()).toEqual(["settings", "backupRestore"]);
+    expect(settingsKeys.section("backup_restore")).toEqual([
+      "settings",
+      "sections",
+      "backup_restore",
+    ]);
+  });
 });

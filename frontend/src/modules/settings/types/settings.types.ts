@@ -7,7 +7,8 @@ export type SettingsSection =
   | "donor_eligibility"
   | "auto_matching"
   | "localization"
-  | "security";
+  | "security"
+  | "backup_restore";
 
 export type AdminSettingsTab =
   | "system_settings"
@@ -19,7 +20,8 @@ export type SystemSettingsSection =
   | "notifications"
   | "auto_matching"
   | "localization"
-  | "security";
+  | "security"
+  | "backup_restore";
 
 export type RoleName = "admin" | "recipient" | "donor";
 
@@ -136,4 +138,41 @@ export interface AutoMatchingSettings {
   prioritize_recently_active_donors: boolean;
   max_candidates_to_notify: number;
   retry_interval_minutes: number;
+}
+
+export interface BackupScheduleSettings {
+  daily_enabled: boolean;
+  weekly_enabled: boolean;
+  monthly_enabled: boolean;
+  daily_retention_count: number;
+  weekly_retention_count: number;
+  monthly_retention_count: number;
+}
+
+export type BackupType = "manual" | "daily" | "weekly" | "monthly" | "pre_restore";
+export type BackupStatus = "pending" | "running" | "completed" | "failed" | "restored";
+
+export interface BackupRecord {
+  id: number;
+  backup_type: BackupType;
+  status: BackupStatus;
+  file_size: number;
+  checksum: string;
+  error_message: string;
+  created_by: number | null;
+  created_by_username: string | null;
+  restored_by: number | null;
+  restored_by_username: string | null;
+  started_at: string | null;
+  finished_at: string | null;
+  restored_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BackupRestoreOverview {
+  settings: BackupScheduleSettings;
+  last_backup: BackupRecord | null;
+  history: BackupRecord[];
+  generated_at: string;
 }

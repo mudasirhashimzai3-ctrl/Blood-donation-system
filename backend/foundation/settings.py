@@ -223,6 +223,9 @@ MEDIA_ROOT = BASE_DIR / "media"
 # different name from STATIC_URL.
 MEDIA_URL = '/media/'
 
+# Backup files are created by the admin Backup & Restore settings module.
+BACKUP_ROOT = Path(os.getenv("BACKUP_ROOT", BASE_DIR / "backups"))
+
 
 # Email Settings Configuration
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -285,6 +288,21 @@ else:
         },
     }
 CELERY_BEAT_SCHEDULE = {
+    "backup-system-data-daily": {
+        "task": "core.run_scheduled_backup",
+        "schedule": 86400.0,
+        "args": ("daily",),
+    },
+    "backup-system-data-weekly": {
+        "task": "core.run_scheduled_backup",
+        "schedule": 604800.0,
+        "args": ("weekly",),
+    },
+    "backup-system-data-monthly": {
+        "task": "core.run_scheduled_backup",
+        "schedule": 2592000.0,
+        "args": ("monthly",),
+    },
     "process-donation-reminders-every-5-minutes": {
         "task": "donations.process_due_reminders",
         "schedule": 300.0,

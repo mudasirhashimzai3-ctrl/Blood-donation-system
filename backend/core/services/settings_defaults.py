@@ -10,6 +10,7 @@ SETTINGS_SECTION_KEYS = {
     "auto_matching": "settings.auto_matching",
     "localization": "settings.localization",
     "security": "settings.security",
+    "backup_restore": "settings.backup_restore",
 }
 
 LIVE_SECTIONS = (
@@ -19,6 +20,7 @@ LIVE_SECTIONS = (
     "auto_matching",
     "localization",
     "security",
+    "backup_restore",
 )
 
 SECTION_META = {
@@ -31,6 +33,7 @@ SECTION_META = {
     "auto_matching": {"implemented": True, "title": "Auto Matching Settings"},
     "localization": {"implemented": True, "title": "Language & Timezone Settings"},
     "security": {"implemented": True, "title": "Security Settings"},
+    "backup_restore": {"implemented": True, "title": "Backup & Restore"},
 }
 
 SECRET_FIELDS_BY_SECTION = {
@@ -114,6 +117,14 @@ SECTION_DEFAULTS = {
         "lockout_minutes": 30,
         "session_timeout_minutes": 30,
         "force_logout_on_password_change": True,
+    },
+    "backup_restore": {
+        "daily_enabled": True,
+        "weekly_enabled": True,
+        "monthly_enabled": True,
+        "daily_retention_count": 30,
+        "weekly_retention_count": 12,
+        "monthly_retention_count": 12,
     },
 }
 
