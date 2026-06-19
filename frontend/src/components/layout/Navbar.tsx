@@ -30,6 +30,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../hooks/useTheme";
 import { useLanguagePreference } from "../../hooks/useLanguagePreference";
+import { getDirectionForLanguage } from "../../utils/language";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 function Navbar() {
@@ -47,6 +48,7 @@ function Navbar() {
   const { t } = useTranslation();
   const { theme, toggleTheme } = useTheme();
   const { currentLanguage, setLanguagePreference } = useLanguagePreference();
+  const isRtlLanguage = getDirectionForLanguage(currentLanguage) === "rtl";
 
   // Replace your NAVIGATION_ITEMS constant with this:
   const NAVIGATION_ITEMS = [
@@ -368,7 +370,7 @@ function Navbar() {
         }`}
       >
         <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center ">
+          <div className={`flex items-center justify-between ${isRtlLanguage ? "flex-row-reverse" : ""}`}>
             {/* Logo */}
             <a
               href="#"
@@ -475,7 +477,7 @@ function Navbar() {
                 </button>
 
                 {languageDropdownOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-900 rounded-lg shadow-xl ring-1 ring-black/5 py-1 z-50">
+                  <div className={`absolute ${isRtlLanguage ? "left-0" : "right-0"} top-full mt-2 w-48 bg-white dark:bg-gray-900 rounded-lg shadow-xl ring-1 ring-black/5 py-1 z-50`}>
                     {languages.map((lang) => (
                       <button
                         key={lang.code}

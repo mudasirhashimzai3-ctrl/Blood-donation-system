@@ -21,6 +21,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { useSidebarState } from "./sidebar/useSidebarState";
 import { useLanguagePreference } from "@/hooks/useLanguagePreference";
 import { extractAxiosError } from "@/utils/extractError";
+import { getDirectionForLanguage } from "@/utils/language";
 import {
   getProfileRouteByRole,
   getSettingsRouteByRole,
@@ -40,6 +41,8 @@ export default function MISHeader() {
   useNotificationsSocket(canViewNotifications);
   const { theme, toggleTheme } = useTheme();
   const { currentLanguage, setLanguagePreference } = useLanguagePreference();
+  const isRtlLanguage = getDirectionForLanguage(currentLanguage) === "rtl";
+  const dropdownAlignClass = isRtlLanguage ? "left-0" : "right-0";
 
   const languages = useMemo(
     () => [
@@ -82,10 +85,11 @@ export default function MISHeader() {
           <Menu className="h-5 w-5" />
         </button>
 
-        <div className="ml-auto flex items-center gap-1 sm:gap-2">
+        <div className={`${isRtlLanguage ? "mr-auto" : "ml-auto"} flex items-center gap-1 sm:gap-2`}>
           {canViewNotifications ? (
             <NotificationBellDropdown
               isOpen={showNotifications}
+              align={isRtlLanguage ? "left" : "right"}
               onToggle={() => {
                 setShowNotifications((current) => !current);
                 setShowProfileMenu(false);
@@ -119,7 +123,7 @@ export default function MISHeader() {
             </button>
 
             {languageDropdownOpen ? (
-              <div className="absolute right-0 top-full z-40 mt-2 w-44 rounded-xl border border-border bg-card p-1.5 shadow-[0_22px_38px_-26px_rgba(15,23,42,0.8)]">
+              <div className={`absolute ${dropdownAlignClass} top-full z-40 mt-2 w-44 rounded-xl border border-border bg-card p-1.5 shadow-[0_22px_38px_-26px_rgba(15,23,42,0.8)]`}>
                 {languages.map((lang) => {
                   const isActiveLanguage = currentLanguage === lang.code;
 
@@ -186,7 +190,7 @@ export default function MISHeader() {
             </button>
 
             {showProfileMenu ? (
-              <div className="absolute right-0 top-full z-40 mt-2 w-60 rounded-xl border border-border bg-card py-2 shadow-[0_22px_38px_-26px_rgba(15,23,42,0.8)]">
+              <div className={`absolute ${dropdownAlignClass} top-full z-40 mt-2 w-60 rounded-xl border border-border bg-card py-2 shadow-[0_22px_38px_-26px_rgba(15,23,42,0.8)]`}>
                 <div className="border-b border-border px-4 py-3">
                   <p className="truncate text-sm font-semibold text-text-primary">
                     {displayName}

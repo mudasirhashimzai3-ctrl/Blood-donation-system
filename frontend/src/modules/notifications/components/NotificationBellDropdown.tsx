@@ -10,12 +10,14 @@ interface NotificationBellDropdownProps {
   isOpen: boolean;
   onToggle: () => void;
   onClose: () => void;
+  align?: "left" | "right";
 }
 
 export default function NotificationBellDropdown({
   isOpen,
   onToggle,
   onClose,
+  align = "right",
 }: NotificationBellDropdownProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -36,7 +38,11 @@ export default function NotificationBellDropdown({
       </button>
 
       {isOpen ? (
-        <div className="absolute right-0 top-full z-50 mt-2 w-96 rounded-xl border border-border bg-card shadow-lg">
+        <div
+          className={`absolute top-full z-50 mt-2 w-96 rounded-xl border border-border bg-card shadow-lg ${
+            align === "left" ? "left-0" : "right-0"
+          }`}
+        >
           <div className="flex items-center justify-between border-b border-border p-4">
             <h3 className="font-semibold text-text-primary">
               {t("notifications.title", "Notifications")}
