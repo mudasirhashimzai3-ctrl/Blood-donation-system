@@ -40,7 +40,19 @@
     "locationNotSupported": "Geolocation is not supported in this browser.",
     "locationFailed": "Failed to register location.",
     "donorLocation": "Donor Location Details",
-    "recipientLocation": "Recipient Location Details"
+    "recipientLocation": "Recipient Location Details",
+    "validation": {
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required"
+    },
+    "errors": {
+      "loadRoleProfile": "Failed to load role profile.",
+      "updateFailed": "Failed to update profile",
+      "passwordChangeFailed": "Failed to change password",
+      "uploadPhotoFailed": "Failed to upload photo",
+      "deletePhotoFailed": "Failed to delete photo",
+      "updateRoleProfileFailed": "Failed to update role profile"
+    }
   },
   "settings": {
     "localization": {
@@ -677,7 +689,10 @@
   "common": {
     "save": "Save Changes",
     "loading": "Loading...",
-    "view": "View"
+    "view": "View",
+    "reset": "Reset",
+    "retry": "Retry",
+    "more": "More"
   },
   "donors": {
     "form": {
@@ -785,10 +800,71 @@
   },
   "reports": {
     "errors": {
-      "noPermission": "You do not have permission to access reports."
+      "noPermission": "You do not have permission to access reports.",
+      "analyticsFailed": "Failed to load analytics",
+      "loadFailedRetry": "The report data could not be loaded. Please retry."
     },
     "title": "Analytical Reports",
-    "subtitle": "Unified analytics for requests, donations, hospitals, emergency response, geography, and system health"
+    "subtitle": "Unified analytics for requests, donations, hospitals, emergency response, geography, and system health",
+    "actions": {
+      "resetFilters": "Reset filters"
+    },
+    "tabs": {
+      "requests": "Requests",
+      "donations": "Donations",
+      "hospitals": "Hospitals",
+      "emergency": "Emergency",
+      "geography": "Geography",
+      "system": "System"
+    },
+    "kpi": {
+      "totalRequests": "Total Requests",
+      "completionRate": "Completion Rate",
+      "avgMatch": "Avg Match",
+      "overduePending": "Overdue Pending",
+      "totalDonations": "Total Donations",
+      "responseRate": "Response Rate",
+      "avgDistance": "Avg Distance",
+      "hospitals": "Hospitals",
+      "avgCompletion": "Avg Completion",
+      "rows": "Rows",
+      "emergencyRequests": "Emergency Requests",
+      "critical": "Critical",
+      "completion": "Completion",
+      "overdue": "Overdue",
+      "maxDistance": "Max Distance",
+      "coverageGaps": "Coverage Gaps",
+      "notifications": "Notifications",
+      "delivered": "Delivered",
+      "failed": "Failed",
+      "backlog": "Backlog"
+    },
+    "charts": {
+      "requestVolumeTrend": "Request Volume Trend",
+      "groupedByInterval": "Grouped by selected interval",
+      "requestStatusDistribution": "Request Status Distribution",
+      "donationTrend": "Donation Trend",
+      "distanceBuckets": "Distance Buckets",
+      "distanceBandCoverage": "Distance Band Coverage",
+      "cityDistribution": "City Distribution",
+      "pendingBacklogTrend": "Pending Backlog Trend",
+      "failedNotificationEvents": "Failed Notification Events"
+    },
+    "table": {
+      "hospital": "Hospital",
+      "city": "City",
+      "requests": "Requests",
+      "completion": "Completion",
+      "avgDistance": "Avg Distance"
+    },
+    "empty": {
+      "requests": "No request analytics found for selected filters.",
+      "donations": "No donation analytics found for selected filters.",
+      "hospitals": "No hospital performance records found.",
+      "emergency": "No emergency analytics found.",
+      "geography": "No geographic analytics found.",
+      "system": "No system analytics found."
+    }
   },
   "notifications": {
     "errors": {
@@ -816,7 +892,9 @@
       "markRead": "Mark read",
       "delete": "Remove",
       "view": "View",
-      "remove": "Remove"
+      "remove": "Remove",
+      "viewAll": "View all notifications",
+      "markAllRead": "Mark all read"
     },
     "filters": {
       "allStatuses": "All statuses",
@@ -838,7 +916,8 @@
       "unread": "Unread"
     },
     "empty": "No notifications found",
-    "loadingRows": "Loading notifications..."
+    "loadingRows": "Loading notifications...",
+    "emptyShort": "No notifications"
   },
   "hospitals": {
     "filters": {

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
@@ -36,14 +36,11 @@ import type { ChangePasswordFormInputs } from "@/schemas/loginPageValidation";
 import { getRoleNameDisplay } from "@/data/roles";
 import { extractAxiosError } from "@/utils/extractError";
 
-// Profile update schema
-const profileUpdateSchema = z.object({
-  first_name: z.string().min(1, "First name is required"),
-  last_name: z.string().min(1, "Last name is required"),
-  phone: z.string().optional(),
-});
-
-type ProfileUpdateFormData = z.infer<typeof profileUpdateSchema>;
+type ProfileUpdateFormData = {
+  first_name: string;
+  last_name: string;
+  phone?: string;
+};
 
 // Tab type
 type TabType = "personal" | "security";
@@ -96,6 +93,16 @@ export default function UserProfile() {
     uploadPhoto,
     deletePhoto,
   } = useUserStore();
+
+  const profileUpdateSchema = useMemo(
+    () =>
+      z.object({
+        first_name: z.string().min(1, t("profile.validation.firstNameRequired", "First name is required")),
+        last_name: z.string().min(1, t("profile.validation.lastNameRequired", "Last name is required")),
+        phone: z.string().optional(),
+      }),
+    [t]
+  );
 
   // Profile form
   const {
@@ -155,7 +162,7 @@ export default function UserProfile() {
         setDonorProfile(null);
         setRecipientProfile(null);
       } catch (error) {
-        setRoleProfileError(extractAxiosError(error, "Failed to load role profile."));
+        setRoleProfileError(extractAxiosError(error, t("profile.errors.loadRoleProfile", "Failed to load role profile.")));
       } finally {
         setRoleProfileLoading(false);
       }
@@ -182,7 +189,7 @@ export default function UserProfile() {
       await updateUserProfile(data);
       toast.success(t("profile.updated", "Profile updated successfully"));
     } catch (error) {
-      toast.error(extractAxiosError(error, "Failed to update profile"));
+      toast.error(extractAxiosError(error, t("profile.errors.updateFailed", "Failed to update profile")));
     }
   };
 
@@ -193,7 +200,7 @@ export default function UserProfile() {
       toast.success(t("auth.passwordChanged", "Password changed successfully"));
       resetPassword();
     } catch (error) {
-      toast.error(extractAxiosError(error, "Failed to change password"));
+      toast.error(extractAxiosError(error, t("profile.errors.passwordChangeFailed", "Failed to change password")));
     }
   };
 
@@ -219,7 +226,7 @@ export default function UserProfile() {
       await uploadPhoto(file);
       toast.success(t("profile.photoUploaded", "Photo uploaded successfully"));
     } catch (error) {
-      toast.error(extractAxiosError(error, "Failed to upload photo"));
+      toast.error(extractAxiosError(error, t("profile.errors.uploadPhotoFailed", "Failed to upload photo")));
     } finally {
       setIsUploadingPhoto(false);
       if (fileInputRef.current) {
@@ -234,7 +241,7 @@ export default function UserProfile() {
       await deletePhoto();
       toast.success(t("profile.photoDeleted", "Photo deleted successfully"));
     } catch (error) {
-      toast.error(extractAxiosError(error, "Failed to delete photo"));
+      toast.error(extractAxiosError(error, t("profile.errors.deletePhotoFailed", "Failed to delete photo")));
     }
   };
 
@@ -287,7 +294,7 @@ export default function UserProfile() {
         toast.success(t("profile.updated", "Profile updated successfully"));
       }
     } catch (error) {
-      const message = extractAxiosError(error, "Failed to update role profile");
+      const message = extractAxiosError(error, t("profile.errors.updateRoleProfileFailed", "Failed to update role profile"));
       setRoleProfileError(message);
       toast.error(message);
     } finally {
@@ -395,7 +402,7 @@ export default function UserProfile() {
               <p className="text-sm text-text-secondary mt-1">@{userProfile.username}</p>
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-3">
                 <Badge variant="primary">
-                  {getRoleNameDisplay(userProfile.role) || userProfile.role}
+                  {t(`models.roles.${userProfile.role}`, getRoleNameDisplay(userProfile.role) || userProfile.role)}
                 </Badge>
                 <span className="flex items-center gap-1 text-sm text-text-secondary">
                   <Mail className="h-4 w-4" />
@@ -488,7 +495,7 @@ export default function UserProfile() {
 
                   <Input
                     label={t("profile.role", "Role")}
-                    value={getRoleNameDisplay(userProfile.role) || userProfile.role}
+                    value={t(`models.roles.${userProfile.role}`, getRoleNameDisplay(userProfile.role) || userProfile.role)}
                     disabled
                     leftIcon={<Shield className="h-4 w-4" />}
                     hint={t("profile.roleReadonly", "Contact admin to change role")}
