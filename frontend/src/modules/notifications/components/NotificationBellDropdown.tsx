@@ -1,4 +1,5 @@
 import { Bell } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import { formatLocalDateTime } from "@/utils/formatLocalDateTime";
@@ -16,6 +17,7 @@ export default function NotificationBellDropdown({
   onToggle,
   onClose,
 }: NotificationBellDropdownProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { notifications, unreadCount, markAsRead, markAllRead, isMutating } = useNotificationBell();
 
@@ -36,12 +38,16 @@ export default function NotificationBellDropdown({
       {isOpen ? (
         <div className="absolute right-0 top-full z-50 mt-2 w-96 rounded-xl border border-border bg-card shadow-lg">
           <div className="flex items-center justify-between border-b border-border p-4">
-            <h3 className="font-semibold text-text-primary">Notifications</h3>
+            <h3 className="font-semibold text-text-primary">
+              {t("notifications.title", "Notifications")}
+            </h3>
             <MarkAllReadButton onClick={markAllRead} loading={isMutating} disabled={unreadCount === 0} />
           </div>
           <div className="max-h-96 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="p-4 text-sm text-text-secondary">No notifications</div>
+              <div className="p-4 text-sm text-text-secondary">
+                {t("notifications.emptyShort", "No notifications")}
+              </div>
             ) : (
               notifications.map((notification) => (
                 <button
@@ -79,7 +85,7 @@ export default function NotificationBellDropdown({
                 navigate("/notifications");
               }}
             >
-              View all notifications
+              {t("notifications.actions.viewAll", "View all notifications")}
             </button>
           </div>
         </div>

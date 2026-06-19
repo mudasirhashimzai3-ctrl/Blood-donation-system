@@ -239,6 +239,14 @@ def _notify_matched_donor_users(*, blood_request: BloodRequest, selected_candida
                 f"A {blood_request.request_type} request for blood group {blood_request.blood_group} "
                 f"is available near {blood_request.hospital.name}."
             ),
+            title_key="notification.matched_donor.title",
+            message_key="notification.matched_donor.message",
+            template_params={
+                "request_id": blood_request.id,
+                "request_type": blood_request.request_type,
+                "blood_group": blood_request.blood_group,
+                "hospital_name": blood_request.hospital.name,
+            },
             sent_via=["in_app"],
             user_ids=user_ids,
             request_id=blood_request.id,

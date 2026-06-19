@@ -36,7 +36,30 @@
     "theme": "Theme",
     "themeLight": "Light",
     "themeDark": "Dark",
-    "themeSystem": "System"
+    "themeSystem": "System",
+    "locationNotSupported": "Geolocation is not supported in this browser.",
+    "locationFailed": "Failed to register location.",
+    "donorLocation": "Donor Location Details",
+    "recipientLocation": "Recipient Location Details"
+  },
+  "settings": {
+    "localization": {
+      "defaultLanguage": "Default Language",
+      "defaultTimezone": "Default Timezone",
+      "supportedLanguages": "Supported Languages",
+      "dateFormat": "Date Format",
+      "firstDayOfWeek": "First Day of Week",
+      "use24HourTime": "Use 24-hour Time Format",
+      "weekdays": {
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday"
+      }
+    }
   },
   "explorePrograms": "Explore Programs",
   "scheduleVisit": "Schedule a Visit",
@@ -561,5 +584,382 @@
   "mis.nav.recipientdashboard": "Recipient Dashboard",
   "mis.nav.createbloodrequest": "Create Blood Request",
   "mis.nav.myrequests": "My Requests",
-  "mis.nav.donorresponses": "Donor Responses"
+  "mis.nav.donorresponses": "Donor Responses",
+  "auth": {
+    "logoutSuccess": "Logged out successfully",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout",
+    "passwordChanged": "Password changed successfully",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "accountLocked": "Account Temporarily Locked",
+    "accountLockedMessage": "Your account has been temporarily locked due to multiple failed login attempts.",
+    "tryAgainIn": "Try again in {minutes} minutes",
+    "forgotPassword": "Forgot Password?",
+    "contactSupport": "If you need immediate access, please contact support.",
+    "passwordStrength": "Password Strength",
+    "passwordRequirements": "Password must contain:",
+    "requirementMinLength": "At least 8 characters",
+    "requirementUppercase": "One uppercase letter (A-Z)",
+    "requirementLowercase": "One lowercase letter (a-z)",
+    "requirementNumber": "One number (0-9)",
+    "requirementSpecial": "One special character (!@#$...)",
+    "sessionTimeout": "Session Timeout",
+    "sessionExpiringSoon": "Your session will expire due to inactivity",
+    "timeRemaining": "Time Remaining",
+    "stayLoggedIn": "Stay Logged In",
+    "emailOrUsername": "Email or Username",
+    "emailOrUsernamePlaceholder": "Enter your email or username",
+    "sendCode": "Send Verification Code",
+    "backToLogin": "Back to Login",
+    "verificationCode": "Verification Code",
+    "codeExpiresIn": "Code expires in 15 minutes",
+    "codeFiveAttempts": "You have 5 attempts to enter the correct code",
+    "verifyCode": "Verify Code",
+    "resendCode": "Resend Code",
+    "changeEmail": "Change Email/Username",
+    "checkYourEmail": "Check Your Email",
+    "emailSentMessage": "If an account exists for {identifier}, you will receive a password reset link shortly.",
+    "sendResetLink": "Send Reset Link",
+    "loginSuccess": "Welcome back!",
+    "attemptsRemaining": "{{count}} attempts remaining",
+    "loginError": "Invalid username or password",
+    "login": "Sign In",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "role": "Role",
+    "rolePlaceholder": "Select your role",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "loggingIn": "Signing in...",
+    "loginButton": "Sign In",
+    "needHelp": "Need assistance?",
+    "passwordResetSuccess": "Password Reset Successfully",
+    "passwordResetSuccessMessage": "Your credentials were updated. You can now continue to secure operations.",
+    "goToLogin": "Go to Login",
+    "newPasswordPlaceholder": "Enter new password",
+    "confirmPasswordPlaceholder": "Re-enter new password",
+    "resetPassword": "Reset Password",
+    "backToForgotPassword": "Back to Forgot Password",
+    "invalidToken": "Invalid Reset Link",
+    "invalidTokenMessage": "This password reset link is invalid or has expired. Please request a new one.",
+    "requestNewLink": "Request New Link",
+    "locationNotSupported": "Geolocation is not supported in this browser.",
+    "locationFailed": "Unable to register your location right now.",
+    "signupTitle": "Create Your Account",
+    "signupSubtitle": "Sign up as a donor or recipient to access the blood donation system.",
+    "firstName": "First Name",
+    "firstNamePlaceholder": "Enter first name",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "Enter last name",
+    "emailOptional": "Email (Optional)",
+    "emailPlaceholderOptional": "Enter your email (optional)",
+    "phone": "Phone",
+    "phonePlaceholder": "Enter your phone number",
+    "bloodGroup": "Blood Group",
+    "donorLatitude": "Latitude",
+    "donorLatitudePlaceholder": "Enter latitude",
+    "donorLongitude": "Longitude",
+    "donorLongitudePlaceholder": "Enter longitude",
+    "registerLocation": "Register Location",
+    "signupButton": "Create Account",
+    "verifyingEmail": "Verifying your email",
+    "redirectingIn": "Redirecting to login in {seconds} seconds...",
+    "verificationFailed": "Verification Failed",
+    "resendVerification": "Resend Verification Email"
+  },
+  "language": {
+    "updateFailed": "Failed to update language"
+  },
+  "common": {
+    "save": "Save Changes",
+    "loading": "Loading...",
+    "view": "View"
+  },
+  "donors": {
+    "form": {
+      "permanentAddressCity": "Permanent Address City",
+      "localAddressCity": "Local Address City",
+      "registerLocation": "Register My Location",
+      "locationNotSupported": "Geolocation is not supported in this browser.",
+      "locationPermissionDenied": "Location access was denied.",
+      "locationUnavailable": "Unable to detect your location right now.",
+      "locationTimeout": "Location request timed out. Please try again.",
+      "locationGenericError": "Failed to register location.",
+      "sections": {
+        "basicInfo": "Basic Information",
+        "basicInfoHint": "Name and contact details",
+        "profileInfo": "Profile Information",
+        "profileInfoHint": "Age and donation history",
+        "location": "Location Details",
+        "locationHint": "Register location and provide address information"
+      },
+      "permanentAddressCityPlaceholder": "Enter city",
+      "localAddressCityPlaceholder": "Enter city"
+    },
+    "filters": {
+      "cityPlaceholder": "City"
+    },
+    "status": {
+      "inactive": "Inactive"
+    }
+  },
+  "bloodRequests": {
+    "form": {
+      "province": "Province",
+      "provincePlaceholder": "Select province",
+      "selectProvinceFirst": "Select province first",
+      "section": {
+        "location": "Location & Hospital",
+        "request": "Request Details",
+        "advanced": "Advanced Settings",
+        "attachments": "Attachments"
+      }
+    },
+    "filters": {
+      "search": "Search",
+      "bloodGroup": "Blood Group",
+      "requestType": "Urgency",
+      "status": "Status"
+    },
+    "actions": {
+      "addHospital": "Add Hospital"
+    }
+  },
+  "donor": {
+    "dashboard": {
+      "title": "Donor Dashboard",
+      "subtitle": "Track nearby requests and respond to donations",
+      "nearby": "Nearby Requests",
+      "history": "Donation History",
+      "quickActions": "Quick Actions",
+      "notifications": "Notifications",
+      "viewNearby": "View Nearby Requests",
+      "openActions": "Accept / Reject Donation",
+      "nearbyPreview": "Nearby Requests Preview",
+      "loadError": "Failed to load donor dashboard",
+      "emptyNearby": "No nearby requests right now."
+    },
+    "nearby": {
+      "title": "Nearby Requests",
+      "subtitle": "Requests matched near your location",
+      "error": "Failed to load nearby requests",
+      "empty": "No nearby requests found"
+    }
+  },
+  "personalSettings": {
+    "title": "Settings",
+    "subtitle": "Manage your personal app settings",
+    "language": "Language",
+    "languageSaved": "Language updated",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "profile": "Open Profile"
+  },
+  "recipient": {
+    "dashboard": {
+      "title": "Recipient Dashboard",
+      "subtitle": "Create requests and track donor responses",
+      "active": "My Requests",
+      "unread": "Unread Notifications",
+      "createRequest": "Create Blood Request",
+      "responses": "Donor Responses",
+      "requestsPreview": "Recent Requests",
+      "error": "Failed to load recipient dashboard",
+      "empty": "No requests found",
+      "donorSearch": "Donor Search",
+      "donorSearchSubtitle": "Find active eligible donors by blood group and distance.",
+      "noSearchRequests": "Create an active blood request before searching for donors."
+    },
+    "responses": {
+      "title": "Donor Responses",
+      "subtitle": "Track who accepted or rejected each blood request",
+      "error": "Failed to load donor responses",
+      "empty": "No donor responses available yet",
+      "noEntries": "No responses yet"
+    }
+  },
+  "reports": {
+    "errors": {
+      "noPermission": "You do not have permission to access reports."
+    },
+    "title": "Analytical Reports",
+    "subtitle": "Unified analytics for requests, donations, hospitals, emergency response, geography, and system health"
+  },
+  "notifications": {
+    "errors": {
+      "noPermission": "You do not have permission to access notifications.",
+      "loadFailed": "Failed to load notifications",
+      "notFound": "Notification not found"
+    },
+    "title": "Notifications",
+    "subtitle": "Track in-app, email and SMS notification delivery",
+    "loading": "Loading notification details...",
+    "view": {
+      "title": "Notification Details",
+      "subtitle": "Inspect delivery status and context payload"
+    },
+    "fields": {
+      "readStatus": "Read Status",
+      "sentAt": "Sent At",
+      "readAt": "Read At",
+      "createdAt": "Created At",
+      "metadata": "Metadata"
+    },
+    "actions": {
+      "backToList": "Back to list",
+      "markUnread": "Mark unread",
+      "markRead": "Mark read",
+      "delete": "Remove",
+      "view": "View",
+      "remove": "Remove"
+    },
+    "filters": {
+      "allStatuses": "All statuses",
+      "allTypes": "All types",
+      "allChannels": "All channels",
+      "reset": "Reset"
+    },
+    "table": {
+      "title": "Title",
+      "type": "Type",
+      "channel": "Channel",
+      "status": "Status",
+      "read": "Read",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "read": {
+      "read": "Read",
+      "unread": "Unread"
+    },
+    "empty": "No notifications found",
+    "loadingRows": "Loading notifications..."
+  },
+  "hospitals": {
+    "filters": {
+      "provincePlaceholder": "Province",
+      "selectProvinceFirst": "Select province first"
+    },
+    "form": {
+      "province": "Province"
+    },
+    "table": {
+      "province": "Province"
+    }
+  },
+  "donations": {
+    "actions": {
+      "title": "Actions",
+      "primaryToggle": "Set as primary",
+      "notes": "Notes",
+      "acceptRequest": "Accept Request",
+      "declineRequest": "Decline",
+      "updateStatus": "Update Status",
+      "refreshEstimate": "Refresh Estimate",
+      "sendReminder": "Send Reminder",
+      "markCompleted": "Mark as Completed",
+      "view": "View",
+      "sendReminderDescription": "Select reminder channels and dispatch now.",
+      "send": "Send",
+      "backToList": "Back to list"
+    },
+    "filters": {
+      "searchPlaceholder": "Search by hospital",
+      "allStatuses": "All Statuses",
+      "orderNewest": "Newest",
+      "orderOldest": "Oldest",
+      "orderDistance": "Nearest Distance",
+      "orderEta": "Lowest ETA",
+      "reset": "Reset"
+    },
+    "list": {
+      "empty": "No donations found"
+    },
+    "table": {
+      "donor": "Donor",
+      "recipient": "Recipient",
+      "status": "Status",
+      "distance": "Distance",
+      "eta": "ETA",
+      "notifiedAt": "Notified",
+      "actions": "Actions"
+    },
+    "timeline": {
+      "notifiedAt": "Notified At",
+      "respondedAt": "Responded At",
+      "lastReminderAt": "Last Reminder",
+      "createdAt": "Created",
+      "updatedAt": "Updated",
+      "title": "Donation Timeline"
+    },
+    "errors": {
+      "atLeastOneChannel": "Select at least one channel",
+      "noPermission": "You do not have permission to access donations.",
+      "loadFailed": "Failed to load donations",
+      "notFound": "Donation not found"
+    },
+    "title": "Donations",
+    "subtitle": "Track donor assignment and response lifecycle",
+    "loading": "Loading donation details...",
+    "view": {
+      "title": "Donation Details",
+      "subtitle": "Review lifecycle, response and reminder details"
+    },
+    "fields": {
+      "recipientUnknown": "Recipient",
+      "distance": "Distance",
+      "eta": "ETA",
+      "responseTime": "Response Time",
+      "requestDeadline": "Request Deadline",
+      "remindersSent": "Reminders Sent"
+    },
+    "labels": {
+      "primary": "Primary"
+    },
+    "dynamic": {
+      "nearbyCount": "Nearby Donors (Dynamic)",
+      "bestEta": "Estimated Time (Dynamic)",
+      "closestDistance": "Distance (Dynamic)"
+    }
+  },
+  "models": {
+    "roles": {
+      "admin": "Administrator",
+      "donor": "Donor",
+      "recipient": "Recipient"
+    },
+    "channels": {
+      "in_app": "In App",
+      "email": "Email",
+      "sms": "SMS"
+    },
+    "notificationTypes": {
+      "request_update": "Request Update",
+      "donation_update": "Donation Update",
+      "auth": "Authentication",
+      "system": "System",
+      "reminder": "Reminder"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "blocked": "Blocked",
+      "pending": "Pending",
+      "matched": "Matched",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "expired": "Expired",
+      "queued": "Queued",
+      "sent": "Sent",
+      "delivered": "Delivered",
+      "failed": "Failed"
+    }
+  }
 }

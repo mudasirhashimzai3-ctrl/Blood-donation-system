@@ -4,8 +4,9 @@ import { initializeStores } from "../utils/storeInitializer";
 import { Spinner } from "../components/Loader";
 import { useTheme } from "../hooks/useTheme";
 import { useDirection } from "../hooks/useDirection";
-import i18n from "../utils/i18n";
 import { useUserProfileStore } from "../stores/useUserStore";
+import { normalizeLanguageCode } from "../utils/language";
+import i18n from "../utils/i18n";
 
 interface Props {
   children: ReactNode;
@@ -15,7 +16,18 @@ function AppInitializer({ children }: Props) {
   useTheme();
   useDirection();
   const lang = useUserProfileStore((s) => s.userProfile?.preferences.language);
-  i18n.init({ lng: lang });
+
+  useEffect(() => {
+    if (!lang) {
+      return;
+    }
+
+    const normalizedLanguage = normalizeLanguageCode(lang);
+    if (normalizeLanguageCode(i18n.language) !== normalizedLanguage) {
+      void i18n.changeLanguage(normalizedLanguage);
+    }
+  }, [lang]);
+
   useEffect(() => {
     const start = async () => {
       const initial_data = (await apiClient.get("/core/initialize")).data;

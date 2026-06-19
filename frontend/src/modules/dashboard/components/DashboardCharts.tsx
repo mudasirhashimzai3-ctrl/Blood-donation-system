@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@components/ui";
 import type { DashboardSummary } from "../types/dashboard.types";
 
@@ -20,6 +21,7 @@ function BarRow({ label, count, max }: { label: string; count: number; max: numb
 }
 
 export default function DashboardCharts({ summary }: DashboardChartsProps) {
+  const { t } = useTranslation();
   const bloodGroups = summary?.blood_group_distribution ?? [];
   const statuses = summary?.request_status_breakdown ?? [];
   const maxBloodGroup = Math.max(0, ...bloodGroups.map((item) => item.count));
@@ -30,8 +32,12 @@ export default function DashboardCharts({ summary }: DashboardChartsProps) {
       <Card>
         <CardContent className="space-y-4">
           <div>
-            <h2 className="text-base font-semibold text-text-primary">Donors by Blood Group</h2>
-            <p className="text-sm text-text-secondary">Current donor distribution across blood groups.</p>
+            <h2 className="text-base font-semibold text-text-primary">
+              {t("dashboard.charts.donorsByBloodGroup", "Donors by Blood Group")}
+            </h2>
+            <p className="text-sm text-text-secondary">
+              {t("dashboard.charts.donorDistribution", "Current donor distribution across blood groups.")}
+            </p>
           </div>
           <div className="space-y-3">
             {bloodGroups.map((item) => (
@@ -44,8 +50,12 @@ export default function DashboardCharts({ summary }: DashboardChartsProps) {
       <Card>
         <CardContent className="space-y-4">
           <div>
-            <h2 className="text-base font-semibold text-text-primary">Blood Request Status</h2>
-            <p className="text-sm text-text-secondary">Operational request counts by status.</p>
+            <h2 className="text-base font-semibold text-text-primary">
+              {t("dashboard.charts.bloodRequestStatus", "Blood Request Status")}
+            </h2>
+            <p className="text-sm text-text-secondary">
+              {t("dashboard.charts.requestCounts", "Operational request counts by status.")}
+            </p>
           </div>
           <div className="space-y-3">
             {statuses.map((item) => (

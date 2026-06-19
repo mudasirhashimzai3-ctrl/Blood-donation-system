@@ -1,9 +1,10 @@
 import { useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useUserStore } from "@/modules/auth/stores/useUserStore";
-import i18n from "@/utils/i18n";
 import { normalizeLanguageCode } from "@/utils/language";
 
 export const useLanguagePreference = () => {
+  const { i18n } = useTranslation();
   const userProfile = useUserStore((state) => state.userProfile);
   const updateUserProfile = useUserStore((state) => state.updateUserProfile);
 
@@ -37,7 +38,7 @@ export const useLanguagePreference = () => {
 
       return targetLanguage;
     },
-    [updateUserProfile, userProfile]
+    [i18n, updateUserProfile, userProfile]
   );
 
   return {

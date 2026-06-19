@@ -7,6 +7,7 @@ from django.db import IntegrityError
 from accounts.models import expand_role_names
 from notifications.models import Notification
 from notifications.services.dispatch import dispatch_notification
+from notifications.services.localization import render_for_user
 
 User = get_user_model()
 
@@ -69,6 +70,9 @@ def create_notifications(
     title: str,
     message: str,
     sent_via: list[str],
+    title_key: str | None = None,
+    message_key: str | None = None,
+    template_params: dict | None = None,
     user_ids=None,
     role_names=None,
     request_id=None,
@@ -92,6 +96,14 @@ def create_notifications(
 
     created_rows = []
     for user in targets:
+        rendered = render_for_user(
+            user,
+            title=title,
+            message=message,
+            title_key=title_key,
+            message_key=message_key,
+            params=template_params,
+        )
         for channel in channels:
             payload = {
                 "user": user,
@@ -100,12 +112,12 @@ def create_notifications(
                 "donation_id": donation_id,
                 "event_key": event_key,
                 "type": type,
-                "title": title,
-                "message": message,
+                "title": rendered["title"],
+                "message": rendered["message"],
                 "sent_via": channel,
                 "status": "queued",
                 "priority": priority,
-                "metadata": metadata or {},
+                "metadata": {**(metadata or {}), "language": rendered["language"]},
                 "dedupe_key": dedupe_key,
             }
             try:

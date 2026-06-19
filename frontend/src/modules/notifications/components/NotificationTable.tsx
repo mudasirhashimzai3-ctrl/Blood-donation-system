@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Eye, EyeOff, Trash2 } from "lucide-react";
 
 import { Card, CardContent, Pagination, PaginationInfo } from "@components/ui";
@@ -29,15 +30,20 @@ export default function NotificationTable({
   onToggleRead,
   onDelete,
 }: NotificationTableProps) {
+  const { t } = useTranslation();
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   return (
     <Card>
       <CardContent className="mt-0 p-0">
         {isLoading ? (
-          <div className="p-8 text-sm text-text-secondary">Loading notifications...</div>
+          <div className="p-8 text-sm text-text-secondary">
+            {t("notifications.loadingRows", "Loading notifications...")}
+          </div>
         ) : notifications.length === 0 ? (
-          <div className="p-8 text-sm text-text-secondary">No notifications found</div>
+          <div className="p-8 text-sm text-text-secondary">
+            {t("notifications.empty", "No notifications found")}
+          </div>
         ) : (
           <>
             <div className="overflow-x-auto">
@@ -45,25 +51,25 @@ export default function NotificationTable({
                 <thead>
                   <tr className="border-b border-border bg-surface">
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-text-secondary">
-                      Title
+                      {t("notifications.table.title", "Title")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-text-secondary">
-                      Type
+                      {t("notifications.table.type", "Type")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-text-secondary">
-                      Channel
+                      {t("notifications.table.channel", "Channel")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-text-secondary">
-                      Status
+                      {t("notifications.table.status", "Status")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-text-secondary">
-                      Read
+                      {t("notifications.table.read", "Read")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-text-secondary">
-                      Created
+                      {t("notifications.table.created", "Created")}
                     </th>
                     <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-text-secondary">
-                      Actions
+                      {t("notifications.table.actions", "Actions")}
                     </th>
                   </tr>
                 </thead>
@@ -77,12 +83,16 @@ export default function NotificationTable({
                       <td className="px-4 py-3 text-sm">
                         <NotificationTypeBadge type={notification.type} />
                       </td>
-                      <td className="px-4 py-3 text-sm text-text-primary">{notification.sent_via}</td>
+                      <td className="px-4 py-3 text-sm text-text-primary">
+                        {t(`models.channels.${notification.sent_via}`, notification.sent_via)}
+                      </td>
                       <td className="px-4 py-3 text-sm">
                         <NotificationStatusBadge status={notification.status} />
                       </td>
                       <td className="px-4 py-3 text-sm text-text-primary">
-                        {notification.is_read ? "Read" : "Unread"}
+                        {notification.is_read
+                          ? t("notifications.read.read", "Read")
+                          : t("notifications.read.unread", "Unread")}
                       </td>
                       <td className="px-4 py-3 text-sm text-text-primary">
                         {formatLocalDateTime(notification.created_at)}
@@ -93,7 +103,7 @@ export default function NotificationTable({
                             type="button"
                             className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-info/10 hover:text-info"
                             onClick={() => onView(notification.id)}
-                            title="View"
+                            title={t("notifications.actions.view", "View")}
                           >
                             <Eye className="h-4 w-4" />
                           </button>
@@ -101,7 +111,11 @@ export default function NotificationTable({
                             type="button"
                             className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-primary/10 hover:text-primary"
                             onClick={() => onToggleRead(notification.id, !notification.is_read)}
-                            title={notification.is_read ? "Mark unread" : "Mark read"}
+                            title={
+                              notification.is_read
+                                ? t("notifications.actions.markUnread", "Mark unread")
+                                : t("notifications.actions.markRead", "Mark read")
+                            }
                           >
                             <EyeOff className="h-4 w-4" />
                           </button>
@@ -109,7 +123,7 @@ export default function NotificationTable({
                             type="button"
                             className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-danger/10 hover:text-danger"
                             onClick={() => onDelete(notification.id)}
-                            title="Remove"
+                            title={t("notifications.actions.remove", "Remove")}
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>

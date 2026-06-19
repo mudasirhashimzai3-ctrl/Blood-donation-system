@@ -1,4 +1,5 @@
 import { Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { BLOOD_GROUP_OPTIONS, type BloodGroup } from "@/modules/blood-requests/types/bloodRequest.types";
 import { Button, Select } from "@components/ui";
@@ -31,42 +32,51 @@ export default function DonorSearchFilters({
   onRadiusChange,
   onReset,
 }: DonorSearchFiltersProps) {
+  const { t } = useTranslation();
   return (
     <div className={showBloodRequestFilter ? "grid gap-4 lg:grid-cols-[1.6fr_1fr_1fr_auto]" : "grid gap-4 lg:grid-cols-[1fr_1fr_auto]"}>
       {showBloodRequestFilter ? (
         <Select
-          label="Blood Request"
+          label={t("dashboard.donorSearch.filters.bloodRequest", "Blood Request")}
           value={bloodRequestId ? String(bloodRequestId) : ""}
           onChange={(event) => onBloodRequestChange(event.target.value ? Number(event.target.value) : null)}
           options={requests.map((request) => ({
             value: String(request.id),
-            label: `Number : ${request.id} - ${request.hospital_name} - ${request.blood_group}`,
+            label: t("dashboard.donorSearch.filters.requestOption", {
+              defaultValue: "Number : {{id}} - {{hospital}} - {{bloodGroup}}",
+              id: request.id,
+              hospital: request.hospital_name,
+              bloodGroup: request.blood_group,
+            }),
           }))}
-          placeholder="Select active request"
+          placeholder={t("dashboard.donorSearch.filters.selectActiveRequest", "Select active request")}
           leftIcon={<Search className="h-4 w-4" />}
         />
       ) : null}
 
       <Select
-        label="Blood Group"
+        label={t("dashboard.donorSearch.filters.bloodGroup", "Blood Group")}
         value={bloodGroup}
         onChange={(event) => onBloodGroupChange(event.target.value as BloodGroup | "")}
         options={BLOOD_GROUP_OPTIONS.map((group) => ({ value: group, label: group }))}
       />
 
       <Select
-        label="Distance Range"
+        label={t("dashboard.donorSearch.filters.distanceRange", "Distance Range")}
         value={String(radiusKm)}
         onChange={(event) => onRadiusChange(Number(event.target.value) as DonorSearchRadius)}
         options={DONOR_SEARCH_RADIUS_OPTIONS.map((distance) => ({
           value: String(distance),
-          label: `${distance} KM`,
+          label: t("dashboard.donorSearch.filters.distanceKm", {
+            defaultValue: "{{distance}} KM",
+            distance,
+          }),
         }))}
       />
 
       <div className="flex items-end">
         <Button type="button" variant="outline" onClick={onReset} className="w-full">
-          Reset
+          {t("common.reset", "Reset")}
         </Button>
       </div>
     </div>

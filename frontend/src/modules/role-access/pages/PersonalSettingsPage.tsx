@@ -1,5 +1,5 @@
 import { LogOut, Moon, Settings, Sun } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -18,6 +18,10 @@ export default function PersonalSettingsPage() {
   const { currentLanguage, setLanguagePreference } = useLanguagePreference();
   const { logout, updateUserProfile, loading, userProfile } = useUserStore();
   const [language, setLanguage] = useState<string>(currentLanguage);
+
+  useEffect(() => {
+    setLanguage(currentLanguage);
+  }, [currentLanguage]);
 
   const role = userProfile?.role;
   const profilePath = role === "recipient" ? "/recipient/profile" : "/donor/profile";
@@ -40,9 +44,9 @@ export default function PersonalSettingsPage() {
               value={language}
               onChange={(event) => setLanguage(event.target.value)}
             >
-              <option value="en">English</option>
-              <option value="da">Dari</option>
-              <option value="pa">Pashto</option>
+              <option value="en">{t("language.english", "English")}</option>
+              <option value="da">{t("language.dari", "Dari")}</option>
+              <option value="pa">{t("language.pashto", "Pashto")}</option>
             </select>
             <Button
               loading={loading}

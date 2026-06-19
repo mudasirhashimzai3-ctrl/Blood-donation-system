@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import { PageHeader } from "@/components";
@@ -8,6 +9,7 @@ import DonorSearchPanel from "../components/DonorSearchPanel";
 import { useDashboardActiveRequests, useDashboardSummary } from "../queries/useDashboardQueries";
 
 export default function AdminDashboardPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const summaryQuery = useDashboardSummary();
   const requestsQuery = useDashboardActiveRequests();
@@ -17,11 +19,11 @@ export default function AdminDashboardPage() {
     <div className="space-y-6">
      
       <PageHeader
-        title="Admin Dashboard"
-        subtitle="Monitor blood donation activity and find eligible nearby donors"
+        title={t("dashboard.title", "Admin Dashboard")}
+        subtitle={t("dashboard.subtitle", "Monitor blood donation activity and find eligible nearby donors")}
         actions={[
           {
-            label: "Notification Radius",
+            label: t("dashboard.actions.notificationRadius", "Notification Radius"),
             onClick: () => navigate("/settings?tab=system_settings&section=auto_matching"),
           },
         ]}
@@ -31,7 +33,9 @@ export default function AdminDashboardPage() {
 
       {summaryQuery.error ? (
         <Card>
-          <CardContent className="text-sm text-error">Failed to load dashboard statistics.</CardContent>
+          <CardContent className="text-sm text-error">
+            {t("dashboard.errors.statsFailed", "Failed to load dashboard statistics.")}
+          </CardContent>
         </Card>
       ) : null}
 
@@ -40,9 +44,15 @@ export default function AdminDashboardPage() {
       <DonorSearchPanel
         requests={activeRequests}
         requestsLoading={requestsQuery.isLoading}
-        title="Advanced Donor Search"
-        subtitle="Active donors are sorted by distance from the selected blood request."
-        emptyRequestsMessage="No pending blood requests are available for donor search."
+        title={t("dashboard.donorSearch.title", "Advanced Donor Search")}
+        subtitle={t(
+          "dashboard.donorSearch.subtitle",
+          "Active donors are sorted by distance from the selected blood request."
+        )}
+        emptyRequestsMessage={t(
+          "dashboard.donorSearch.emptyRequests",
+          "No pending blood requests are available for donor search."
+        )}
         showSettingsButton
         onSettingsClick={() => navigate("/settings?tab=system_settings&section=auto_matching")}
       />

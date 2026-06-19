@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Badge } from "@components/ui";
 import type { NotificationType } from "../types/notification.types";
 
@@ -14,5 +15,10 @@ interface NotificationTypeBadgeProps {
 }
 
 export default function NotificationTypeBadge({ type }: NotificationTypeBadgeProps) {
-  return <Badge variant={typeVariant[type]}>{type}</Badge>;
+  const { t } = useTranslation();
+  return (
+    <Badge variant={typeVariant[type]}>
+      {t(`models.notificationTypes.${type}`, type)}
+    </Badge>
+  );
 }

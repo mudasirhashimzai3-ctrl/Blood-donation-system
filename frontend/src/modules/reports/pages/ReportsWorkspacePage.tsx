@@ -17,13 +17,13 @@ import {
 } from "../queries/useReportQueries";
 import type { ReportTab } from "../types/report.types";
 
-const tabConfig: Array<{ id: ReportTab; label: string }> = [
-  { id: "requests", label: "Requests" },
-  { id: "donations", label: "Donations" },
-  { id: "hospitals", label: "Hospitals" },
-  { id: "emergency", label: "Emergency" },
-  { id: "geography", label: "Geography" },
-  { id: "system", label: "System" },
+const tabConfig: Array<{ id: ReportTab; labelKey: string; fallback: string }> = [
+  { id: "requests", labelKey: "reports.tabs.requests", fallback: "Requests" },
+  { id: "donations", labelKey: "reports.tabs.donations", fallback: "Donations" },
+  { id: "hospitals", labelKey: "reports.tabs.hospitals", fallback: "Hospitals" },
+  { id: "emergency", labelKey: "reports.tabs.emergency", fallback: "Emergency" },
+  { id: "geography", labelKey: "reports.tabs.geography", fallback: "Geography" },
+  { id: "system", labelKey: "reports.tabs.system", fallback: "System" },
 ];
 
 export default function ReportsWorkspacePage() {
@@ -101,7 +101,7 @@ export default function ReportsWorkspacePage() {
             <TabsList className="scrollbar-hide flex w-full overflow-x-auto">
               {tabConfig.map((tab) => (
                 <TabsTrigger key={tab.id} value={tab.id} className="whitespace-nowrap">
-                  {tab.label}
+                  {t(tab.labelKey, tab.fallback)}
                 </TabsTrigger>
               ))}
             </TabsList>

@@ -77,7 +77,8 @@ export default function NotificationViewPage() {
             <div>
               <h2 className="text-xl font-semibold text-text-primary">{notification.title}</h2>
               <p className="text-sm text-text-secondary">
-                {notification.sent_via} - {formatLocalDateTime(notification.created_at)}
+                {t(`models.channels.${notification.sent_via}`, notification.sent_via)} -{" "}
+                {formatLocalDateTime(notification.created_at)}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -96,7 +97,9 @@ export default function NotificationViewPage() {
                 {t("notifications.fields.readStatus", "Read Status")}
               </p>
               <p className="text-sm text-text-primary">
-                {notification.is_read ? "Read" : "Unread"}
+                {notification.is_read
+                  ? t("notifications.read.read", "Read")
+                  : t("notifications.read.unread", "Unread")}
               </p>
             </div>
             <div>

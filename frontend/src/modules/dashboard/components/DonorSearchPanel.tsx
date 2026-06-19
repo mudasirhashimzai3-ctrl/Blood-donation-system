@@ -1,5 +1,6 @@
 import { Settings } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button, Card, CardContent } from "@components/ui";
 import DonorCandidateTable from "./DonorCandidateTable";
@@ -29,6 +30,7 @@ export default function DonorSearchPanel({
   showBloodRequestFilter = true,
   onSettingsClick,
 }: DonorSearchPanelProps) {
+  const { t } = useTranslation();
   const search = useDashboardDonorSearch(requests);
   const [donors, setDonors] = useState<DonorCandidate[]>([]);
   const querySignature = useMemo(
@@ -89,13 +91,15 @@ export default function DonorSearchPanel({
                 onClick={onSettingsClick}
                 leftIcon={<Settings className="h-4 w-4" />}
               >
-                Configure Radius
+                {t("dashboard.donorSearch.configureRadius", "Configure Radius")}
               </Button>
             ) : null}
           </div>
 
           {requestsLoading ? (
-            <p className="text-sm text-text-secondary">Loading active blood requests...</p>
+            <p className="text-sm text-text-secondary">
+              {t("dashboard.donorSearch.loadingRequests", "Loading active blood requests...")}
+            </p>
           ) : null}
 
           {!requestsLoading && requests.length === 0 ? (
@@ -122,7 +126,9 @@ export default function DonorSearchPanel({
         <>
           {candidatesQuery.error ? (
             <Card>
-              <CardContent className="text-sm text-error">Failed to load donor candidates.</CardContent>
+              <CardContent className="text-sm text-error">
+                {t("dashboard.donorSearch.loadFailed", "Failed to load donor candidates.")}
+              </CardContent>
             </Card>
           ) : null}
 

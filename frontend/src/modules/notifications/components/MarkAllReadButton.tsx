@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Button } from "@components/ui";
 
 interface MarkAllReadButtonProps {
@@ -11,6 +12,7 @@ export default function MarkAllReadButton({
   loading = false,
   disabled = false,
 }: MarkAllReadButtonProps) {
+  const { t } = useTranslation();
   return (
     <Button
       variant="outline"
@@ -21,7 +23,7 @@ export default function MarkAllReadButton({
         await onClick();
       }}
     >
-      Mark all read
+      {t("notifications.actions.markAllRead", "Mark all read")}
     </Button>
   );
 }

@@ -29,6 +29,7 @@ import {
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../hooks/useTheme";
+import { useLanguagePreference } from "../../hooks/useLanguagePreference";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 function Navbar() {
@@ -43,8 +44,9 @@ function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { theme, toggleTheme } = useTheme();
+  const { currentLanguage, setLanguagePreference } = useLanguagePreference();
 
   // Replace your NAVIGATION_ITEMS constant with this:
   const NAVIGATION_ITEMS = [
@@ -308,10 +310,15 @@ function Navbar() {
   ];
 
   const languages = [
-    { code: "en", name: t("language.english"), flag: "🇬🇧" },
-    { code: "da", name: t("language.dari"), flag: "🇦🇫" },
-    { code: "pa", name: t("language.pashto"), flag: "🇦🇫" },
+    { code: "en", name: t("language.english", "English"), shortName: "EN" },
+    { code: "da", name: t("language.dari", "Dari"), shortName: "DA" },
+    { code: "pa", name: t("language.pashto", "Pashto"), shortName: "PA" },
   ];
+
+  const handleLanguageChange = async (language: string) => {
+    await setLanguagePreference(language);
+    setLanguageDropdownOpen(false);
+  };
 
   // Check if any child is active for a parent item
   const isParentActive = (item: (typeof NAVIGATION_ITEMS)[0]) => {
@@ -458,7 +465,7 @@ function Navbar() {
                 >
                   <Globe size={20} />
                   <span className="text-xs font-medium uppercase">
-                    {i18n.language}
+                    {currentLanguage}
                   </span>
                   <ChevronDown
                     className={`w-3 h-3 transition-transform ${
@@ -472,17 +479,16 @@ function Navbar() {
                     {languages.map((lang) => (
                       <button
                         key={lang.code}
-                        onClick={() => {
-                          i18n.changeLanguage(lang.code);
-                          setLanguageDropdownOpen(false);
-                        }}
+                        onClick={() => void handleLanguageChange(lang.code)}
                         className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
-                          i18n.language === lang.code
+                          currentLanguage === lang.code
                             ? "bg-[#0B7A4B]/10 dark:bg-[#66BB4A]/20 text-[#0B7A4B] dark:text-[#66BB4A]"
                             : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                         }`}
                       >
-                        <span className="text-sm">{lang.flag}</span>
+                        <span className="text-xs font-semibold uppercase">
+                          {lang.shortName}
+                        </span>
                         <span className="font-medium">{lang.name}</span>
                       </button>
                     ))}
@@ -662,14 +668,14 @@ function Navbar() {
                 {languages.map((lang) => (
                   <button
                     key={lang.code}
-                    onClick={() => i18n.changeLanguage(lang.code)}
+                    onClick={() => void handleLanguageChange(lang.code)}
                     className={`flex flex-col items-center gap-1 py-2 rounded-lg transition-all ${
-                      i18n.language === lang.code
+                      currentLanguage === lang.code
                         ? "bg-[#0B7A4B]/10 dark:bg-[#66BB4A]/20 text-[#0B7A4B] dark:text-[#66BB4A]"
                         : "bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                     }`}
                   >
-                    <span className="text-xl">{lang.flag}</span>
+                    <span className="text-xs font-semibold uppercase">{lang.shortName}</span>
                     <span className="text-xs font-medium">{lang.name}</span>
                   </button>
                 ))}

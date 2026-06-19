@@ -13,6 +13,7 @@ import {
   YAxis,
 } from "recharts";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Card, CardContent } from "@/components/ui";
 import type {
@@ -69,14 +70,15 @@ function TrendChart({ data }: { data: Array<{ bucket: string | null; total: numb
 
 function renderState(
   state: { isLoading: boolean; error: unknown; refetch: () => void },
-  children: ReactNode
+  children: ReactNode,
+  errorMessage: string
 ) {
   if (state.isLoading) {
     return <ReportSkeleton />;
   }
   if (state.error) {
     return (
-      <ReportErrorState message="The report data could not be loaded. Please retry." onRetry={state.refetch} />
+      <ReportErrorState message={errorMessage} onRetry={state.refetch} />
     );
   }
   return <>{children}</>;
@@ -92,6 +94,9 @@ export default function ReportsTabPanels({
   system,
   onResetFilters,
 }: ReportsTabPanelsProps) {
+  const { t } = useTranslation();
+  const errorMessage = t("reports.errors.loadFailedRetry", "The report data could not be loaded. Please retry.");
+
   if (activeTab === "requests") {
     return renderState(
       request,
@@ -99,24 +104,28 @@ export default function ReportsTabPanels({
         <div className="space-y-4">
           <ReportsKpiGrid
             items={[
-              { label: "Total Requests", value: request.data.summary.total_requests },
-              { label: "Completion Rate", value: `${request.data.summary.completion_rate}%` },
-              { label: "Avg Match", value: `${request.data.summary.avg_match_time_minutes ?? "-"}m` },
-              { label: "Overdue Pending", value: request.data.summary.overdue_pending_count },
+              { label: t("reports.kpi.totalRequests", "Total Requests"), value: request.data.summary.total_requests },
+              { label: t("reports.kpi.completionRate", "Completion Rate"), value: `${request.data.summary.completion_rate}%` },
+              { label: t("reports.kpi.avgMatch", "Avg Match"), value: `${request.data.summary.avg_match_time_minutes ?? "-"}m` },
+              { label: t("reports.kpi.overduePending", "Overdue Pending"), value: request.data.summary.overdue_pending_count },
             ]}
           />
           <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-            <ReportChartCard title="Request Volume Trend" subtitle="Grouped by selected interval">
+            <ReportChartCard
+              title={t("reports.charts.requestVolumeTrend", "Request Volume Trend")}
+              subtitle={t("reports.charts.groupedByInterval", "Grouped by selected interval")}
+            >
               <TrendChart data={request.data.trends} />
             </ReportChartCard>
-            <ReportChartCard title="Request Status Distribution">
+            <ReportChartCard title={t("reports.charts.requestStatusDistribution", "Request Status Distribution")}>
               <StatusCountsChart counts={request.data.summary.status_counts} />
             </ReportChartCard>
           </div>
         </div>
       ) : (
-        <ReportEmptyState message="No request analytics found for selected filters." onReset={onResetFilters} />
-      )
+        <ReportEmptyState message={t("reports.empty.requests", "No request analytics found for selected filters.")} onReset={onResetFilters} />
+      ),
+      errorMessage
     );
   }
 
@@ -127,17 +136,17 @@ export default function ReportsTabPanels({
         <div className="space-y-4">
           <ReportsKpiGrid
             items={[
-              { label: "Total Donations", value: donation.data.summary.total_donations },
-              { label: "Response Rate", value: `${donation.data.summary.response_rate}%` },
-              { label: "Completion Rate", value: `${donation.data.summary.completion_rate}%` },
-              { label: "Avg Distance", value: `${donation.data.summary.avg_distance_km ?? "-"} km` },
+              { label: t("reports.kpi.totalDonations", "Total Donations"), value: donation.data.summary.total_donations },
+              { label: t("reports.kpi.responseRate", "Response Rate"), value: `${donation.data.summary.response_rate}%` },
+              { label: t("reports.kpi.completionRate", "Completion Rate"), value: `${donation.data.summary.completion_rate}%` },
+              { label: t("reports.kpi.avgDistance", "Avg Distance"), value: `${donation.data.summary.avg_distance_km ?? "-"} km` },
             ]}
           />
           <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-            <ReportChartCard title="Donation Trend">
+            <ReportChartCard title={t("reports.charts.donationTrend", "Donation Trend")}>
               <TrendChart data={donation.data.trends} />
             </ReportChartCard>
-            <ReportChartCard title="Distance Buckets">
+            <ReportChartCard title={t("reports.charts.distanceBuckets", "Distance Buckets")}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={donation.data.distributions.distance_buckets}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -151,8 +160,9 @@ export default function ReportsTabPanels({
           </div>
         </div>
       ) : (
-        <ReportEmptyState message="No donation analytics found for selected filters." onReset={onResetFilters} />
-      )
+        <ReportEmptyState message={t("reports.empty.donations", "No donation analytics found for selected filters.")} onReset={onResetFilters} />
+      ),
+      errorMessage
     );
   }
 
@@ -163,11 +173,11 @@ export default function ReportsTabPanels({
         <div className="space-y-4">
           <ReportsKpiGrid
             items={[
-              { label: "Hospitals", value: hospital.data.summary.hospitals_count },
-              { label: "Total Requests", value: hospital.data.summary.total_requests },
-              { label: "Avg Completion", value: `${hospital.data.summary.avg_completion_rate ?? 0}%` },
+              { label: t("reports.kpi.hospitals", "Hospitals"), value: hospital.data.summary.hospitals_count },
+              { label: t("reports.kpi.totalRequests", "Total Requests"), value: hospital.data.summary.total_requests },
+              { label: t("reports.kpi.avgCompletion", "Avg Completion"), value: `${hospital.data.summary.avg_completion_rate ?? 0}%` },
               {
-                label: "Rows",
+                label: t("reports.kpi.rows", "Rows"),
                 value: hospital.data.pagination?.count ?? hospital.data.rows.length,
               },
             ]}
@@ -177,11 +187,11 @@ export default function ReportsTabPanels({
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="border-b border-border text-left text-text-secondary">
-                    <th className="px-3 py-2">Hospital</th>
-                    <th className="px-3 py-2">City</th>
-                    <th className="px-3 py-2">Requests</th>
-                    <th className="px-3 py-2">Completion</th>
-                    <th className="px-3 py-2">Avg Distance</th>
+                    <th className="px-3 py-2">{t("reports.table.hospital", "Hospital")}</th>
+                    <th className="px-3 py-2">{t("reports.table.city", "City")}</th>
+                    <th className="px-3 py-2">{t("reports.table.requests", "Requests")}</th>
+                    <th className="px-3 py-2">{t("reports.table.completion", "Completion")}</th>
+                    <th className="px-3 py-2">{t("reports.table.avgDistance", "Avg Distance")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -200,8 +210,9 @@ export default function ReportsTabPanels({
           </Card>
         </div>
       ) : (
-        <ReportEmptyState message="No hospital performance records found." onReset={onResetFilters} />
-      )
+        <ReportEmptyState message={t("reports.empty.hospitals", "No hospital performance records found.")} onReset={onResetFilters} />
+      ),
+      errorMessage
     );
   }
 
@@ -212,16 +223,17 @@ export default function ReportsTabPanels({
         <div className="space-y-4">
            <ReportsKpiGrid
              items={[
-               { label: "Emergency Requests", value: emergency.data.summary.total_emergency_requests },
-               { label: "Critical", value: emergency.data.summary.critical_requests },
-               { label: "Completion", value: `${emergency.data.summary.completion_rate}%` },
-               { label: "Overdue", value: emergency.data.summary.overdue_pending_count },
+               { label: t("reports.kpi.emergencyRequests", "Emergency Requests"), value: emergency.data.summary.total_emergency_requests },
+               { label: t("reports.kpi.critical", "Critical"), value: emergency.data.summary.critical_requests },
+               { label: t("reports.kpi.completion", "Completion"), value: `${emergency.data.summary.completion_rate}%` },
+               { label: t("reports.kpi.overdue", "Overdue"), value: emergency.data.summary.overdue_pending_count },
              ]}
            />
         </div>
       ) : (
-        <ReportEmptyState message="No emergency analytics found." onReset={onResetFilters} />
-      )
+        <ReportEmptyState message={t("reports.empty.emergency", "No emergency analytics found.")} onReset={onResetFilters} />
+      ),
+      errorMessage
     );
   }
 
@@ -232,14 +244,14 @@ export default function ReportsTabPanels({
         <div className="space-y-4">
           <ReportsKpiGrid
             items={[
-              { label: "Total Donations", value: geography.data.summary.total_donations },
-              { label: "Avg Distance", value: `${geography.data.summary.avg_distance_km ?? "-"} km` },
-              { label: "Max Distance", value: `${geography.data.summary.max_distance_km ?? "-"} km` },
-              { label: "Coverage Gaps", value: geography.data.summary.coverage_gap_count },
+              { label: t("reports.kpi.totalDonations", "Total Donations"), value: geography.data.summary.total_donations },
+              { label: t("reports.kpi.avgDistance", "Avg Distance"), value: `${geography.data.summary.avg_distance_km ?? "-"} km` },
+              { label: t("reports.kpi.maxDistance", "Max Distance"), value: `${geography.data.summary.max_distance_km ?? "-"} km` },
+              { label: t("reports.kpi.coverageGaps", "Coverage Gaps"), value: geography.data.summary.coverage_gap_count },
             ]}
           />
           <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-            <ReportChartCard title="Distance Band Coverage">
+            <ReportChartCard title={t("reports.charts.distanceBandCoverage", "Distance Band Coverage")}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={geography.data.distance_bands}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -250,7 +262,7 @@ export default function ReportsTabPanels({
                 </BarChart>
               </ResponsiveContainer>
             </ReportChartCard>
-            <ReportChartCard title="City Distribution">
+            <ReportChartCard title={t("reports.charts.cityDistribution", "City Distribution")}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={geography.data.city_distribution}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -264,8 +276,9 @@ export default function ReportsTabPanels({
           </div>
         </div>
       ) : (
-        <ReportEmptyState message="No geographic analytics found." onReset={onResetFilters} />
-      )
+        <ReportEmptyState message={t("reports.empty.geography", "No geographic analytics found.")} onReset={onResetFilters} />
+      ),
+      errorMessage
     );
   }
 
@@ -275,14 +288,14 @@ export default function ReportsTabPanels({
       <div className="space-y-4">
         <ReportsKpiGrid
           items={[
-            { label: "Notifications", value: system.data.summary.total_notifications },
-            { label: "Delivered", value: `${system.data.summary.delivered_rate}%` },
-            { label: "Failed", value: `${system.data.summary.failed_rate}%` },
-            { label: "Backlog", value: system.data.summary.pending_response_backlog },
+            { label: t("reports.kpi.notifications", "Notifications"), value: system.data.summary.total_notifications },
+            { label: t("reports.kpi.delivered", "Delivered"), value: `${system.data.summary.delivered_rate}%` },
+            { label: t("reports.kpi.failed", "Failed"), value: `${system.data.summary.failed_rate}%` },
+            { label: t("reports.kpi.backlog", "Backlog"), value: system.data.summary.pending_response_backlog },
           ]}
         />
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-          <ReportChartCard title="Pending Backlog Trend">
+          <ReportChartCard title={t("reports.charts.pendingBacklogTrend", "Pending Backlog Trend")}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={system.data.pending_backlog_trend}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -294,7 +307,7 @@ export default function ReportsTabPanels({
               </LineChart>
             </ResponsiveContainer>
           </ReportChartCard>
-          <ReportChartCard title="Failed Notification Events">
+          <ReportChartCard title={t("reports.charts.failedNotificationEvents", "Failed Notification Events")}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={system.data.failed_events}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -308,7 +321,8 @@ export default function ReportsTabPanels({
         </div>
       </div>
     ) : (
-      <ReportEmptyState message="No system analytics found." onReset={onResetFilters} />
-    )
+      <ReportEmptyState message={t("reports.empty.system", "No system analytics found.")} onReset={onResetFilters} />
+    ),
+    errorMessage
   );
 }

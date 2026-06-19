@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Badge } from "@components/ui";
 import type { NotificationStatus } from "../types/notification.types";
 
@@ -13,5 +14,6 @@ interface NotificationStatusBadgeProps {
 }
 
 export default function NotificationStatusBadge({ status }: NotificationStatusBadgeProps) {
-  return <Badge variant={statusVariant[status]}>{status}</Badge>;
+  const { t } = useTranslation();
+  return <Badge variant={statusVariant[status]}>{t(`models.status.${status}`, status)}</Badge>;
 }

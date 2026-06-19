@@ -62,6 +62,9 @@ def notify_request_fulfilled_to_other_donors(*, blood_request, winning_donor_id:
             f"Blood request #{blood_request.id} has already been assigned to another donor. "
             "No further action is needed."
         ),
+        title_key="notification.request_fulfilled.title",
+        message_key="notification.request_fulfilled.message",
+        template_params={"request_id": blood_request.id},
         sent_via=["in_app"],
         user_ids=other_user_ids,
         request_id=blood_request.id,

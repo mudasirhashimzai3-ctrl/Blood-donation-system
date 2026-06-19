@@ -1,5 +1,6 @@
 import type { UseFormReturn } from "react-hook-form";
 import { Controller } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 import { Checkbox, Input, Select, Switch } from "@components/ui";
 import type { LocalizationSettingsFormValues } from "../schemas/localizationSettings.schema";
@@ -36,6 +37,7 @@ export default function LocalizationSettingsForm({
   loading = false,
   readOnly = false,
 }: LocalizationSettingsFormProps) {
+  const { t } = useTranslation();
   const {
     register,
     control,
@@ -61,14 +63,17 @@ export default function LocalizationSettingsForm({
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2">
         <Select
-          label="Default Language"
+          label={t("settings.localization.defaultLanguage", "Default Language")}
           disabled={readOnly}
           error={errors.default_language?.message}
-          options={languageOptions.map((item) => ({ value: item.value, label: item.label }))}
+          options={languageOptions.map((item) => ({
+            value: item.value,
+            label: t(`language.${item.value === "en" ? "english" : item.value === "da" ? "dari" : "pashto"}`, item.label),
+          }))}
           {...register("default_language")}
         />
         <Input
-          label="Default Timezone"
+          label={t("settings.localization.defaultTimezone", "Default Timezone")}
           disabled={readOnly}
           error={errors.default_timezone?.message}
           {...register("default_timezone")}
@@ -76,13 +81,15 @@ export default function LocalizationSettingsForm({
       </div>
 
       <div className="rounded-lg border border-border p-4">
-        <p className="mb-2 text-sm font-medium text-text-primary">Supported Languages</p>
+        <p className="mb-2 text-sm font-medium text-text-primary">
+          {t("settings.localization.supportedLanguages", "Supported Languages")}
+        </p>
         <div className="grid gap-2 md:grid-cols-3">
           {languageOptions.map((language) => (
             <Checkbox
               key={language.value}
               disabled={readOnly}
-              label={language.label}
+              label={t(`language.${language.value === "en" ? "english" : language.value === "da" ? "dari" : "pashto"}`, language.label)}
               checked={selectedLanguages.includes(language.value)}
               onChange={(event) => toggleLanguage(language.value, event.target.checked)}
             />
@@ -95,16 +102,19 @@ export default function LocalizationSettingsForm({
 
       <div className="grid gap-4 md:grid-cols-2">
         <Input
-          label="Date Format"
+          label={t("settings.localization.dateFormat", "Date Format")}
           disabled={readOnly}
           error={errors.date_format?.message}
           {...register("date_format")}
         />
         <Select
-          label="First Day of Week"
+          label={t("settings.localization.firstDayOfWeek", "First Day of Week")}
           disabled={readOnly}
           error={errors.first_day_of_week?.message}
-          options={weekOptions}
+          options={weekOptions.map((item) => ({
+            value: item.value,
+            label: t(`settings.localization.weekdays.${item.value}`, item.label),
+          }))}
           {...register("first_day_of_week")}
         />
       </div>
@@ -116,7 +126,7 @@ export default function LocalizationSettingsForm({
           <Switch
             checked={Boolean(field.value)}
             onChange={(event) => field.onChange(event.target.checked)}
-            label="Use 24-hour Time Format"
+            label={t("settings.localization.use24HourTime", "Use 24-hour Time Format")}
             disabled={readOnly}
           />
         )}
