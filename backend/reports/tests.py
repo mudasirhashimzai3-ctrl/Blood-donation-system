@@ -157,3 +157,37 @@ class ReportsApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("notification_trend", response.data)
         self.assertIn("pending_backlog_trend", response.data)
+
+    def test_admin_can_download_management_summary_pdf(self):
+        self.client.force_authenticate(user=self.admin)
+        response = self.client.get(f"{self.base_url}management-summary/pdf/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response["Content-Type"], "application/pdf")
+        self.assertIn("blood-donation-management-report", response["Content-Disposition"])
+        self.assertTrue(response.content.startswith(b"%PDF"))
+
+    def test_unauthenticated_user_cannot_download_management_summary_pdf(self):
+        response = self.client.get(f"{self.base_url}management-summary/pdf/")
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_non_admin_cannot_download_management_summary_pdf(self):
+        self.client.force_authenticate(user=self.viewer)
+        response = self.client.get(f"{self.base_url}management-summary/pdf/")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_management_summary_pdf_handles_empty_data(self):
+        Notification.objects.all().delete()
+        Donation.objects.all().delete()
+        BloodRequest.objects.all().delete()
+        Donor.objects.all().delete()
+        Recipient.objects.all().delete()
+        Hospital.objects.all().delete()
+
+        self.client.force_authenticate(user=self.admin)
+        response = self.client.get(f"{self.base_url}management-summary/pdf/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.content.startswith(b"%PDF"))

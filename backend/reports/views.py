@@ -1,3 +1,7 @@
+from accounts.models import normalize_role_name
+from django.http import HttpResponse
+from django.utils import timezone
+from rest_framework.exceptions import PermissionDenied
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -15,6 +19,7 @@ from reports.services import (
     build_system_performance,
 )
 from reports.services.cache import get_cached_or_build
+from reports.services.pdf_report import build_management_summary_pdf
 
 
 REPORT_BUILDERS = {
@@ -176,5 +181,25 @@ class SystemPerformanceView(BaseReportAPIView):
         }
         return Response(payload, status=status.HTTP_200_OK)
 
+
+class ManagementSummaryPdfView(PermissionMixin, APIView):
+    permission_classes = [IsAuthenticated]
+    permission_module = "reports"
+    permission_action = "view"
+
+    def get(self, request):
+        role_name = normalize_role_name(getattr(request.user, "role_name", None))
+        if not request.user.is_superuser and role_name != "admin":
+            raise PermissionDenied("Only admin users can generate management reports.")
+
+        serializer = ReportFiltersSerializer(data={})
+        serializer.is_valid(raise_exception=True)
+        filters = serializer.validated_data
+        pdf_bytes = build_management_summary_pdf(filters, request.user)
+        filename = f"blood-donation-management-report-{timezone.localdate().isoformat()}.pdf"
+
+        response = HttpResponse(pdf_bytes, content_type="application/pdf")
+        response["Content-Disposition"] = f'attachment; filename="{filename}"'
+        return response
 
 

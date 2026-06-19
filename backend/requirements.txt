@@ -16,3 +16,4 @@ uvicorn
 whitenoise
 Pillow
 twilio
+reportlab

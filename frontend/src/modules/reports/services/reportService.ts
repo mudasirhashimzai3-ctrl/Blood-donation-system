@@ -28,4 +28,10 @@ export const reportService = {
 
   getSystemPerformance: (params?: ReportsFilterParams) =>
     apiClient.get<SystemPerformanceResponse>("/reports/system-performance/", { params }),
+
+  downloadManagementReportPdf: () =>
+    apiClient.get<Blob>("/reports/management-summary/pdf/", {
+      responseType: "blob",
+      timeout: 120_000,
+    }),
 };

@@ -5,6 +5,7 @@ from reports.views import (
     EmergencyAnalysisView,
     GeographicDistanceView,
     HospitalPerformanceView,
+    ManagementSummaryPdfView,
     RequestAnalyticsView,
     SystemPerformanceView,
 )
@@ -18,4 +19,5 @@ urlpatterns = [
     path("emergency-analysis/", EmergencyAnalysisView.as_view(), name="emergency-analysis"),
     path("geographic-distance/", GeographicDistanceView.as_view(), name="geographic-distance"),
     path("system-performance/", SystemPerformanceView.as_view(), name="system-performance"),
+    path("management-summary/pdf/", ManagementSummaryPdfView.as_view(), name="management-summary-pdf"),
 ]

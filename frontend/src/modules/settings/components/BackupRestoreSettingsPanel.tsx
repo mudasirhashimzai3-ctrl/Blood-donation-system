@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Download, RotateCcw, Save, ShieldCheck } from "lucide-react";
+import { Download, FileText, RotateCcw, Save, ShieldCheck } from "lucide-react";
 import { useForm, useWatch } from "react-hook-form";
 
 import { Badge, Button, Card, CardContent, CardHeader, Input, Modal, ModalFooter, Switch } from "@components/ui";
+import { useDownloadManagementReportPdf } from "@/modules/reports";
 import {
   useBackupRestoreOverview,
   useCreateManualBackup,
@@ -73,6 +74,7 @@ export default function BackupRestoreSettingsPanel({ canEdit }: { canEdit: boole
   const manualBackupMutation = useCreateManualBackup();
   const restoreMutation = useRestoreBackup();
   const downloadMutation = useDownloadBackup();
+  const reportDownloadMutation = useDownloadManagementReportPdf();
 
   const form = useForm<BackupRestoreSettingsFormValues>({
     resolver: zodResolver(backupRestoreSettingsSchema),
@@ -166,14 +168,25 @@ export default function BackupRestoreSettingsPanel({ canEdit }: { canEdit: boole
               <p className="text-sm text-text-secondary">No backup has been created yet.</p>
             )}
 
-            <Button
-              type="button"
-              onClick={() => manualBackupMutation.mutate()}
-              loading={manualBackupMutation.isPending}
-              disabled={!canEdit}
-            >
-              Manual Backup
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                onClick={() => manualBackupMutation.mutate()}
+                loading={manualBackupMutation.isPending}
+                disabled={!canEdit}
+              >
+                Manual Backup
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => reportDownloadMutation.mutate()}
+                loading={reportDownloadMutation.isPending}
+                leftIcon={<FileText className="h-4 w-4" />}
+              >
+                Generate Report
+              </Button>
+            </div>
           </CardContent>
         </Card>
 

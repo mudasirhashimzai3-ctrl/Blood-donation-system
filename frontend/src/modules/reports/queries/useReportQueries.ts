@@ -1,5 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 
+import { extractAxiosError } from "@/utils/extractError";
 import { reportService } from "../services/reportService";
 import type { ReportsFilterParams } from "../types/report.types";
 import { reportKeys } from "./reportKeys";
@@ -44,4 +46,26 @@ export const useSystemPerformance = (params: ReportsFilterParams, options?: { en
     queryKey: reportKeys.systemPerformance(params),
     queryFn: () => reportService.getSystemPerformance(params).then((res) => res.data),
     enabled: options?.enabled ?? true,
+  });
+
+export const useDownloadManagementReportPdf = () =>
+  useMutation({
+    mutationFn: async () => {
+      const response = await reportService.downloadManagementReportPdf();
+      const blobUrl = URL.createObjectURL(response.data);
+      const filename = `blood-donation-management-report-${new Date().toISOString().slice(0, 10)}.pdf`;
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(blobUrl);
+    },
+    onSuccess: () => {
+      toast.success("Report downloaded");
+    },
+    onError: (error) => {
+      toast.error(extractAxiosError(error, "Failed to download report"));
+    },
   });
