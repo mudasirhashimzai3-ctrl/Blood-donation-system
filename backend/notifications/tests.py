@@ -1,13 +1,21 @@
 import json
 from unittest.mock import patch
 
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.testing import WebsocketCommunicator
+from django.db import transaction
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
+from rest_framework_simplejwt.tokens import AccessToken
 
 from accounts.models import RolePermission, User
 from core.models import Permission
 from core.models import Settings
+from notifications.auth import JwtAuthMiddleware
+from notifications.routing import websocket_urlpatterns
 from notifications.models import Notification
 from notifications.services.dispatch import dispatch_notification
 from notifications.services.factory import create_notifications
@@ -199,6 +207,22 @@ class NotificationApiTests(APITestCase):
         expected_async = len(rows)
         self.assertEqual(mock_dispatch.call_count, expected_async)
 
+    @patch("notifications.services.factory._dispatch_async")
+    def test_create_notifications_dispatches_after_transaction_commit(self, mock_dispatch):
+        with transaction.atomic():
+            rows = create_notifications(
+                event_key="system_alert",
+                type="system",
+                title="Committed Alert",
+                message="Dispatch after commit",
+                sent_via=["in_app"],
+                user_ids=[self.admin.id],
+            )
+            self.assertEqual(len(rows), 1)
+            self.assertEqual(mock_dispatch.call_count, 0)
+
+        self.assertEqual(mock_dispatch.call_count, 1)
+
     @patch("notifications.services.dispatch.publish_unread_count")
     @patch("notifications.services.dispatch.publish_created")
     def test_dispatch_in_app_publishes_created_and_unread_events(self, mock_publish_created, mock_publish_unread):
@@ -218,3 +242,59 @@ class NotificationApiTests(APITestCase):
         self.assertTrue(result["success"])
         self.assertEqual(mock_publish_created.call_count, 1)
         self.assertEqual(mock_publish_unread.call_count, 1)
+
+    def test_websocket_rejects_missing_token(self):
+        application = ProtocolTypeRouter(
+            {
+                "websocket": JwtAuthMiddleware(URLRouter(websocket_urlpatterns)),
+            }
+        )
+
+        communicator = WebsocketCommunicator(application, "/ws/notifications/")
+        connected, _ = async_to_sync(communicator.connect)()
+
+        self.assertFalse(connected)
+
+    def test_websocket_delivers_notification_events_to_authenticated_user(self):
+        application = ProtocolTypeRouter(
+            {
+                "websocket": JwtAuthMiddleware(URLRouter(websocket_urlpatterns)),
+            }
+        )
+        token = str(AccessToken.for_user(self.viewer))
+        communicator = WebsocketCommunicator(application, f"/ws/notifications/?token={token}")
+        connected, _ = async_to_sync(communicator.connect)()
+        self.assertTrue(connected)
+
+        notification = Notification.objects.create(
+            user=self.viewer,
+            user_type="viewer",
+            event_key="blood_request_created",
+            type="request_update",
+            title="Realtime donor request",
+            message="A compatible blood request is available.",
+            sent_via="in_app",
+            status="delivered",
+            priority="high",
+            metadata={"request_type": "urgent", "blood_group": "O+"},
+        )
+        async_to_sync(get_channel_layer().group_send)(
+            f"user_notifications_{self.viewer.id}",
+            {
+                "type": "notify.message",
+                "event": "notification.created",
+                "data": {
+                    "id": notification.id,
+                    "event_key": notification.event_key,
+                    "type": notification.type,
+                    "metadata": notification.metadata,
+                },
+            },
+        )
+
+        payload = async_to_sync(communicator.receive_json_from)(timeout=2)
+        self.assertEqual(payload["event"], "notification.created")
+        self.assertEqual(payload["data"]["event_key"], "blood_request_created")
+        self.assertEqual(payload["data"]["metadata"]["blood_group"], "O+")
+
+        async_to_sync(communicator.disconnect)()

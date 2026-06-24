@@ -42,9 +42,17 @@ export default function HospitalForm({
           {...register("name")}
         />
         <Input
+          type="tel"
+          inputMode="numeric"
+          maxLength={10}
+          pattern="[0-9]{10}"
           label={t("hospitals.form.phone", "Phone")}
-          placeholder={t("hospitals.form.phonePlaceholder", "Enter phone number")}
+          placeholder={t("hospitals.form.phonePlaceholder", "0700000000")}
           error={errors.phone?.message}
+          onInput={(event) => {
+            const input = event.currentTarget;
+            input.value = input.value.replace(/\D/g, "").slice(0, 10);
+          }}
           {...register("phone")}
         />
       </div>

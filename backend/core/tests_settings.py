@@ -59,6 +59,7 @@ class SettingsApiTests(APITestCase):
         payload = {
             "organization_name": "Blood Center",
             "support_email": "support@example.com",
+            "support_phone": "0700000300",
             "maintenance_mode": True,
         }
         update_response = self.client.put(f"{self.base_url}general/", payload, format="json")
@@ -67,7 +68,24 @@ class SettingsApiTests(APITestCase):
         read_response = self.client.get(f"{self.base_url}general/")
         self.assertEqual(read_response.status_code, status.HTTP_200_OK)
         self.assertEqual(read_response.data["organization_name"], "Blood Center")
+        self.assertEqual(read_response.data["support_phone"], "0700000300")
         self.assertTrue(read_response.data["maintenance_mode"])
+
+    def test_general_settings_reject_invalid_support_phone(self):
+        self.client.force_authenticate(self.admin)
+
+        response = self.client.put(
+            f"{self.base_url}general/",
+            {
+                "organization_name": "Blood Center",
+                "support_email": "support@example.com",
+                "support_phone": "07000003A0",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("support_phone", response.data)
 
     def test_notification_secrets_are_masked(self):
         self.client.force_authenticate(self.admin)

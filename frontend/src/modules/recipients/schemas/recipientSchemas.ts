@@ -12,7 +12,7 @@ export const recipientFormSchema = z.object({
     .refine((value) => !value || z.string().email().safeParse(value).success, {
       message: "Email is invalid",
     }),
-  phone: z.string().trim().min(6, "Phone must be at least 6 characters"),
+  phone: z.string().trim().regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
   required_blood_group: z.enum(BLOOD_GROUP_OPTIONS),
   hospital: z.coerce.number().int().positive("Hospital is required"),
   emergency_level: z.enum(EMERGENCY_LEVEL_OPTIONS),

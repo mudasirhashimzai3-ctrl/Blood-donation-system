@@ -50,6 +50,7 @@ def _serialize(notification):
         "status": notification.status,
         "priority": notification.priority,
         "is_read": notification.is_read,
+        "metadata": notification.metadata or {},
         "read_at": notification.read_at.isoformat() if notification.read_at else None,
         "sent_at": notification.sent_at.isoformat() if notification.sent_at else None,
         "created_at": notification.created_at.isoformat() if notification.created_at else None,

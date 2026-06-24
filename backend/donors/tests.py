@@ -11,6 +11,8 @@ from rest_framework.test import APITestCase
 
 from accounts.models import RolePermission, User
 from core.models import Permission
+from core.services.settings_service import update_section
+from donations.models import Donation
 from blood_requests.models import BloodRequest
 from hospitals.models import Hospital
 from recipients.models import Recipient
@@ -340,6 +342,31 @@ class DonorApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["last_name"], "Updated")
 
+    def test_me_patch_rejects_invalid_phone(self):
+        donor_user = User.objects.create_user(
+            username="self_donor_bad_phone",
+            password="StrongPass123!",
+            role_name="donor",
+            phone="0700001020",
+        )
+        Donor.objects.create(
+            user=donor_user,
+            first_name="Self",
+            last_name="Donor",
+            phone="0700001020",
+            blood_group="A+",
+            status="active",
+        )
+
+        self.client.force_authenticate(user=donor_user)
+        response = self.client.patch(
+            f"{self.base_url}me/",
+            {"phone": "07000A1020"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("phone", response.data)
+
     def test_me_endpoint_rejects_non_donor_role(self):
         self.client.force_authenticate(user=self.admin_user)
         response = self.client.get(f"{self.base_url}me/")
@@ -595,6 +622,312 @@ class DonorApiTests(APITestCase):
         self.client.force_authenticate(user=self.viewer_user)
         response = self.client.get(f"{self.base_url}candidates/", {"blood_request_id": 1})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_mobile_dashboard_returns_actionable_donation_requests(self):
+        update_section(
+            "auto_matching",
+            {"max_distance_km": 10, "max_candidates_to_notify": 50},
+            user=self.admin_user,
+        )
+        donor_user = User.objects.create_user(
+            username="mobile-dashboard-donor",
+            password="StrongPass123!",
+            role_name="donor",
+            phone="0700650001",
+        )
+        donor = Donor.objects.create(
+            user=donor_user,
+            first_name="Mobile",
+            last_name="Donor",
+            phone="0700650001",
+            blood_group="O+",
+            status="active",
+            latitude=Decimal("34.555500"),
+            longitude=Decimal("69.207700"),
+            last_donation_date=timezone.localdate() - timedelta(days=220),
+        )
+        incompatible_user = User.objects.create_user(
+            username="mobile-dashboard-incompatible",
+            password="StrongPass123!",
+            role_name="donor",
+            phone="0700650002",
+        )
+        incompatible_donor = Donor.objects.create(
+            user=incompatible_user,
+            first_name="Wrong",
+            last_name="Group",
+            phone="0700650002",
+            blood_group="B+",
+            status="active",
+            latitude=Decimal("34.555500"),
+            longitude=Decimal("69.207700"),
+            last_donation_date=timezone.localdate() - timedelta(days=220),
+        )
+        hospital = Hospital.objects.create(
+            name="Dashboard Hospital",
+            phone="0700650003",
+            province="Kabul",
+            city="Kabul",
+            latitude=Decimal("34.555300"),
+            longitude=Decimal("69.207500"),
+        )
+        recipient = Recipient.objects.create(
+            full_name="Dashboard Recipient",
+            phone="0700650004",
+            required_blood_group="O+",
+            hospital=hospital,
+        )
+        blood_request = BloodRequest.objects.create(
+            recipient=recipient,
+            hospital=hospital,
+            blood_group="O+",
+            units_needed=1,
+            request_type="urgent",
+            location_lat=Decimal("34.555300"),
+            location_lon=Decimal("69.207500"),
+            response_deadline=timezone.now() + timedelta(hours=2),
+            status="pending",
+        )
+        donation = Donation.objects.create(
+            request=blood_request,
+            donor=donor,
+            status="pending",
+            distance_km=Decimal("0.03"),
+            estimated_arrival_time=5,
+            notified_at=timezone.now(),
+        )
+        Donation.objects.create(
+            request=blood_request,
+            donor=incompatible_donor,
+            status="pending",
+            distance_km=Decimal("0.03"),
+            estimated_arrival_time=5,
+            notified_at=timezone.now(),
+        )
+
+        self.client.force_authenticate(user=donor_user)
+        response = self.client.get(f"{self.base_url}mobile-dashboard/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("nearby_requests", response.data)
+        rows = response.data["donation_requests"]
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["id"], donation.id)
+        self.assertEqual(rows[0]["request"], blood_request.id)
+        self.assertEqual(rows[0]["hospital_name"], hospital.name)
+        self.assertEqual(rows[0]["request_blood_group"], "O+")
+        self.assertEqual(rows[0]["request_type"], "urgent")
+
+    def test_recipient_can_fetch_available_donors_from_hospital_location(self):
+        recipient_user = User.objects.create_user(
+            username="available-recipient",
+            password="StrongPass123!",
+            role_name="recipient",
+            phone="0700700001",
+        )
+        hospital = Hospital.objects.create(
+            name="Available Hospital",
+            phone="0700700002",
+            province="Kabul",
+            city="Kabul",
+            latitude=Decimal("34.555300"),
+            longitude=Decimal("69.207500"),
+        )
+        Recipient.objects.create(
+            user=recipient_user,
+            full_name="Available Recipient",
+            phone="0700700001",
+            required_blood_group="A+",
+            hospital=hospital,
+        )
+        exact = Donor.objects.create(
+            first_name="Exact",
+            last_name="Match",
+            phone="0700700011",
+            blood_group="A+",
+            latitude=Decimal("34.555500"),
+            longitude=Decimal("69.207700"),
+        )
+        compatible = Donor.objects.create(
+            first_name="Compatible",
+            last_name="Match",
+            phone="0700700012",
+            blood_group="O-",
+            latitude=Decimal("34.556000"),
+            longitude=Decimal("69.208000"),
+        )
+        Donor.objects.create(
+            first_name="Wrong",
+            last_name="Group",
+            phone="0700700013",
+            blood_group="B+",
+            latitude=Decimal("34.555500"),
+            longitude=Decimal("69.207700"),
+        )
+        recent = Donor.objects.create(
+            first_name="Recent",
+            last_name="Donation",
+            phone="0700700014",
+            blood_group="A+",
+            latitude=Decimal("34.555500"),
+            longitude=Decimal("69.207700"),
+            last_donation_date=timezone.localdate() - timedelta(days=30),
+        )
+
+        self.client.force_authenticate(user=recipient_user)
+        response = self.client.get(f"{self.base_url}available/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        rows = response.data["results"]
+        ids = [item["id"] for item in rows]
+        self.assertEqual(ids, [exact.id, compatible.id])
+        by_id = {item["id"]: item for item in rows}
+        self.assertEqual(by_id[exact.id]["full_name"], "Exact Match")
+        self.assertEqual(by_id[exact.id]["blood_group"], "A+")
+        self.assertEqual(by_id[exact.id]["match_status"], "exact")
+        self.assertEqual(by_id[exact.id]["eligibility_status"], "eligible")
+        self.assertTrue(by_id[exact.id]["is_eligible"])
+        self.assertEqual(by_id[exact.id]["phone"], "0700700011")
+        self.assertEqual(by_id[compatible.id]["match_status"], "compatible")
+        recent.refresh_from_db()
+        self.assertEqual(recent.status, "inactive")
+
+    def test_available_donors_supports_blood_group_and_radius_filters(self):
+        recipient_user = User.objects.create_user(
+            username="available-filter-recipient",
+            password="StrongPass123!",
+            role_name="recipient",
+            phone="0700710001",
+        )
+        hospital = Hospital.objects.create(
+            name="Available Filter Hospital",
+            phone="0700710002",
+            province="Kabul",
+            city="Kabul",
+            latitude=Decimal("34.555300"),
+            longitude=Decimal("69.207500"),
+        )
+        Recipient.objects.create(
+            user=recipient_user,
+            full_name="Available Filter Recipient",
+            phone="0700710001",
+            required_blood_group="O+",
+            hospital=hospital,
+        )
+        nearby_a_positive = Donor.objects.create(
+            first_name="Nearby",
+            last_name="Apositive",
+            phone="0700710011",
+            blood_group="A+",
+            latitude=Decimal("34.555500"),
+            longitude=Decimal("69.207700"),
+        )
+        Donor.objects.create(
+            first_name="Far",
+            last_name="Apositive",
+            phone="0700710012",
+            blood_group="A+",
+            latitude=Decimal("34.700000"),
+            longitude=Decimal("69.350000"),
+        )
+        compatible_o_positive = Donor.objects.create(
+            first_name="Default",
+            last_name="Opositive",
+            phone="0700710013",
+            blood_group="O+",
+            latitude=Decimal("34.555500"),
+            longitude=Decimal("69.207700"),
+        )
+
+        self.client.force_authenticate(user=recipient_user)
+        response = self.client.get(
+            f"{self.base_url}available/",
+            {"blood_group": "A+", "radius_km": 10},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            [item["id"] for item in response.data["results"]],
+            [nearby_a_positive.id, compatible_o_positive.id],
+        )
+        by_id = {item["id"]: item for item in response.data["results"]}
+        self.assertEqual(by_id[nearby_a_positive.id]["match_status"], "exact")
+        self.assertEqual(by_id[compatible_o_positive.id]["match_status"], "compatible")
+
+    def test_available_donors_rejects_non_recipient_roles(self):
+        self.client.force_authenticate(user=self.admin_user)
+        response = self.client.get(f"{self.base_url}available/")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_available_donors_requires_blood_group_and_hospital_coordinates(self):
+        recipient_user = User.objects.create_user(
+            username="available-invalid-recipient",
+            password="StrongPass123!",
+            role_name="recipient",
+            phone="0700720001",
+        )
+        hospital = Hospital.objects.create(
+            name="Available Invalid Hospital",
+            phone="0700720002",
+            province="Kabul",
+            city="Kabul",
+        )
+        Recipient.objects.create(
+            user=recipient_user,
+            full_name="Available Invalid Recipient",
+            phone="0700720001",
+            hospital=hospital,
+        )
+
+        self.client.force_authenticate(user=recipient_user)
+        missing_blood_group = self.client.get(f"{self.base_url}available/")
+        self.assertEqual(missing_blood_group.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("blood_group", missing_blood_group.data)
+
+        missing_coordinates = self.client.get(
+            f"{self.base_url}available/",
+            {"blood_group": "O+"},
+        )
+        self.assertEqual(missing_coordinates.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("hospital", missing_coordinates.data)
+
+    def test_available_donors_rejects_invalid_filters(self):
+        recipient_user = User.objects.create_user(
+            username="available-bad-filter-recipient",
+            password="StrongPass123!",
+            role_name="recipient",
+            phone="0700730001",
+        )
+        hospital = Hospital.objects.create(
+            name="Available Bad Filter Hospital",
+            phone="0700730002",
+            province="Kabul",
+            city="Kabul",
+            latitude=Decimal("34.555300"),
+            longitude=Decimal("69.207500"),
+        )
+        Recipient.objects.create(
+            user=recipient_user,
+            full_name="Available Bad Filter Recipient",
+            phone="0700730001",
+            required_blood_group="O+",
+            hospital=hospital,
+        )
+
+        self.client.force_authenticate(user=recipient_user)
+        invalid_blood_group = self.client.get(
+            f"{self.base_url}available/",
+            {"blood_group": "Z+"},
+        )
+        self.assertEqual(invalid_blood_group.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("blood_group", invalid_blood_group.data)
+
+        invalid_radius = self.client.get(
+            f"{self.base_url}available/",
+            {"radius_km": 15},
+        )
+        self.assertEqual(invalid_radius.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("radius_km", invalid_radius.data)
 
     def test_daily_refresh_reactivates_eligible_inactive_donors(self):
         donor = Donor.objects.create(

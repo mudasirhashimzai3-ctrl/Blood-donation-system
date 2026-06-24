@@ -11,6 +11,7 @@ import 'package:blood_donation_app/core/widgets/layouts/app_scaffold.dart';
 import 'package:blood_donation_app/modules/auth/domain/entities/user_entity.dart';
 import 'package:blood_donation_app/modules/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -49,23 +50,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _onRegister() {
     if (!_formKey.currentState!.validate()) return;
     context.read<AuthBloc>().add(
-      AuthRegisterRequested(
-        firstName: _firstNameController.text.trim(),
-        lastName: _lastNameController.text.trim(),
-        username: _usernameController.text.trim(),
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-        confirmPassword: _confirmController.text,
-        phone: _phoneController.text.trim(),
-        role: _selectedRole,
-        donorBloodGroup: _selectedRole == UserRole.donor
-            ? _selectedBloodType
-            : null,
-        recipientRequiredBloodGroup: _selectedRole == UserRole.recipient
-            ? _selectedBloodType
-            : null,
-      ),
-    );
+          AuthRegisterRequested(
+            firstName: _firstNameController.text.trim(),
+            lastName: _lastNameController.text.trim(),
+            username: _usernameController.text.trim(),
+            email: _emailController.text.trim(),
+            password: _passwordController.text,
+            confirmPassword: _confirmController.text,
+            phone: _phoneController.text.trim(),
+            role: _selectedRole,
+            donorBloodGroup:
+                _selectedRole == UserRole.donor ? _selectedBloodType : null,
+            recipientRequiredBloodGroup:
+                _selectedRole == UserRole.recipient ? _selectedBloodType : null,
+          ),
+        );
   }
 
   @override
@@ -95,7 +94,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Join and save lives', style: AppTextStyles.displayMedium),
+                const Text('Join and save lives',
+                    style: AppTextStyles.displayMedium),
                 const SizedBox(height: AppDimensions.xs),
                 Text(
                   'Create your account to get started',
@@ -173,8 +173,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 AppTextField(
                   controller: _phoneController,
                   label: 'Phone Number',
-                  hint: '+93700000000',
-                  keyboardType: TextInputType.phone,
+                  hint: '0700000000',
+                  keyboardType: TextInputType.number,
+                  maxLength: 10,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(10),
+                  ],
                   prefixIcon: const Icon(Icons.phone_outlined),
                   textInputAction: TextInputAction.next,
                   validator: AppValidators.phone,

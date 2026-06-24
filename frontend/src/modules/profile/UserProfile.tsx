@@ -99,7 +99,11 @@ export default function UserProfile() {
       z.object({
         first_name: z.string().min(1, t("profile.validation.firstNameRequired", "First name is required")),
         last_name: z.string().min(1, t("profile.validation.lastNameRequired", "Last name is required")),
-        phone: z.string().optional(),
+        phone: z
+          .string()
+          .trim()
+          .regex(/^\d{10}$/, t("profile.validation.phoneDigits", "Phone number must be exactly 10 digits"))
+          .optional(),
       }),
     [t]
   );
@@ -478,10 +482,18 @@ export default function UserProfile() {
                   />
 
                   <Input
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={10}
+                    pattern="[0-9]{10}"
                     label={t("profile.phone", "Phone Number")}
-                    placeholder={t("profile.phonePlaceholder", "+93 70 000 0000")}
+                    placeholder={t("profile.phonePlaceholder", "0700000000")}
                     leftIcon={<Phone className="h-4 w-4" />}
                     error={profileErrors.phone?.message}
+                    onInput={(event) => {
+                      const input = event.currentTarget;
+                      input.value = input.value.replace(/\D/g, "").slice(0, 10);
+                    }}
                     {...registerProfile("phone")}
                   />
 

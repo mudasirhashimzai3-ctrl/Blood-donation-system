@@ -4,18 +4,24 @@ from datetime import timedelta
 from decimal import Decimal
 from unittest.mock import patch
 
+from asgiref.sync import async_to_sync
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.testing import WebsocketCommunicator
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
+from rest_framework_simplejwt.tokens import AccessToken
 
 from accounts.models import RolePermission, User, UserPermission
 from core.models import Permission
 from core.services.settings_service import update_section
 from donors.models import Donor
 from hospitals.models import Hospital
+from notifications.auth import JwtAuthMiddleware
 from notifications.models import Notification
+from notifications.routing import websocket_urlpatterns
 from recipients.models import Recipient
 
 from donations.models import Donation
@@ -438,6 +444,41 @@ class BloodRequestApiTests(APITestCase):
         self.assertGreaterEqual(admin_rows.count(), 1)
         self.assertTrue(all(item.status == "delivered" for item in donor_rows))
         self.assertTrue(all(item.status == "delivered" for item in admin_rows))
+
+    def test_recipient_create_delivers_realtime_event_to_connected_donor(self):
+        donor = self._create_donor(phone="0700555522")
+        application = ProtocolTypeRouter(
+            {
+                "websocket": JwtAuthMiddleware(URLRouter(websocket_urlpatterns)),
+            }
+        )
+        token = str(AccessToken.for_user(donor.user))
+        communicator = WebsocketCommunicator(application, f"/ws/notifications/?token={token}")
+        connected, _ = async_to_sync(communicator.connect)()
+        self.assertTrue(connected)
+
+        self.client.force_authenticate(user=self.recipient_user)
+        response = self.client.post(
+            self.base_url,
+            {
+                "hospital": self.hospital.id,
+                "blood_group": donor.blood_group,
+                "units_needed": 1,
+                "request_type": "urgent",
+                "auto_match_enabled": True,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        payload = async_to_sync(communicator.receive_json_from)(timeout=3)
+        self.assertEqual(payload["event"], "notification.created")
+        self.assertEqual(payload["data"]["event_key"], "blood_request_created")
+        self.assertEqual(payload["data"]["request_id"], response.data["id"])
+        self.assertEqual(payload["data"]["metadata"]["blood_group"], donor.blood_group)
+        self.assertEqual(payload["data"]["metadata"]["request_type"], "urgent")
+
+        async_to_sync(communicator.disconnect)()
 
     def test_auto_match_notifications_respect_configured_radius(self):
         update_section(

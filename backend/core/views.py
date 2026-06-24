@@ -1,6 +1,7 @@
 from datetime import datetime, time
 
 from accounts.models import normalize_role_name
+from accounts.serializers import validate_ten_digit_phone
 from django.db.models import Count
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
@@ -54,6 +55,11 @@ class LegacyShopSettingsSerializer(serializers.Serializer):
     phone_number = serializers.CharField(required=False, allow_blank=True)
     contact_email = serializers.EmailField(required=False, allow_blank=True)
     address = serializers.CharField(required=False, allow_blank=True)
+
+    def validate_phone_number(self, value):
+        if value in (None, ""):
+            return value
+        return validate_ten_digit_phone(value)
 
 
 class LegacyEmailSettingsSerializer(serializers.Serializer):

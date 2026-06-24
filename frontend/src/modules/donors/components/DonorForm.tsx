@@ -117,9 +117,17 @@ export default function DonorForm({
             {...register("last_name")}
           />
           <Input
+            type="tel"
+            inputMode="numeric"
+            maxLength={10}
+            pattern="[0-9]{10}"
             label={t("donors.form.phone", "Phone")}
-            placeholder={t("donors.form.phonePlaceholder", "Enter phone number")}
+            placeholder={t("donors.form.phonePlaceholder", "0700000000")}
             error={errors.phone?.message}
+            onInput={(event) => {
+              const input = event.currentTarget;
+              input.value = input.value.replace(/\D/g, "").slice(0, 10);
+            }}
             {...register("phone")}
           />
           <Input
@@ -150,11 +158,17 @@ export default function DonorForm({
         <div className="grid gap-4 md:grid-cols-2">
           <Input
             type="number"
+            inputMode="numeric"
             min={1}
             max={150}
+            step={1}
             label={t("donors.form.age", "Age")}
             placeholder={t("donors.form.agePlaceholder", "Enter age")}
             error={errors.age?.message}
+            onInput={(event) => {
+              const input = event.currentTarget;
+              input.value = input.value.replace(/\D/g, "").slice(0, 3);
+            }}
             {...register("age")}
           />
           <div className="md:col-span-2">

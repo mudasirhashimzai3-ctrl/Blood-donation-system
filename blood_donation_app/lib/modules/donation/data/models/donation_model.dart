@@ -1,20 +1,25 @@
 import 'package:blood_donation_app/modules/donation/domain/entities/donation_entity.dart';
 
 class DonationModel extends DonationEntity {
-
   factory DonationModel.fromJson(Map<String, dynamic> json) {
+    DateTime parseDate(dynamic value) {
+      return DateTime.tryParse(value?.toString() ?? '') ?? DateTime.now();
+    }
+
+    final status = json['status']?.toString() ?? 'scheduled';
+
     return DonationModel(
       id: json['id'].toString(),
       donorId: json['donor']?.toString() ?? '',
       bloodBankId: json['request']?.toString() ?? '',
-      bloodBankName: (json['hospital_name'] ?? 'Hospital') as String,
-      bloodType: (json['request_blood_group'] ?? 'O+') as String,
-      status: _statusFromString(json['status'] as String? ?? 'scheduled'),
-      scheduledDate: DateTime.parse((json['created_at']) as String),
-      completedDate: json['updated_at'] != null && json['status'] == 'completed'
-          ? DateTime.parse(json['updated_at'] as String)
+      bloodBankName: json['hospital_name']?.toString() ?? 'Hospital',
+      bloodType: json['request_blood_group']?.toString() ?? 'O+',
+      status: _statusFromString(status),
+      scheduledDate: parseDate(json['created_at']),
+      completedDate: json['updated_at'] != null && status == 'completed'
+          ? parseDate(json['updated_at'])
           : null,
-      notes: json['notes'] as String?,
+      notes: json['notes']?.toString(),
     );
   }
   const DonationModel({
@@ -32,31 +37,37 @@ class DonationModel extends DonationEntity {
 
   static DonationStatus _statusFromString(String s) {
     switch (s) {
+      case 'pending':
+        return DonationStatus.pending;
+      case 'accepted':
+        return DonationStatus.accepted;
+      case 'en_route':
+        return DonationStatus.enRoute;
+      case 'arrived':
+        return DonationStatus.arrived;
       case 'completed':
         return DonationStatus.completed;
       case 'cancelled':
         return DonationStatus.cancelled;
-      case 'accepted':
-      case 'pending':
-      case 'en_route':
-      case 'arrived':
       case 'declined':
+        return DonationStatus.declined;
       case 'expired':
+        return DonationStatus.expired;
       default:
         return DonationStatus.scheduled;
     }
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'donor_id': donorId,
-    'blood_bank_id': bloodBankId,
-    'blood_bank_name': bloodBankName,
-    'blood_type': bloodType,
-    'status': status.name,
-    'scheduled_date': scheduledDate.toIso8601String(),
-    'completed_date': completedDate?.toIso8601String(),
-    'notes': notes,
-    'amount_ml': amountMl,
-  };
+        'id': id,
+        'donor_id': donorId,
+        'blood_bank_id': bloodBankId,
+        'blood_bank_name': bloodBankName,
+        'blood_type': bloodType,
+        'status': status.name,
+        'scheduled_date': scheduledDate.toIso8601String(),
+        'completed_date': completedDate?.toIso8601String(),
+        'notes': notes,
+        'amount_ml': amountMl,
+      };
 }

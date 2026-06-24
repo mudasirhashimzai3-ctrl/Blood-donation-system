@@ -337,6 +337,29 @@ class AuthSignupTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("donor_latitude", response.data)
 
+    def test_signup_rejects_non_numeric_or_short_phone(self):
+        for username, phone in (
+            ("bad-phone-alpha", "07000A0001"),
+            ("bad-phone-short", "070000001"),
+        ):
+            response = self.client.post(
+                self.signup_url,
+                {
+                    "first_name": "Bad",
+                    "last_name": "Phone",
+                    "username": username,
+                    "email": f"{username}@example.com",
+                    "phone": phone,
+                    "donor_blood_group": "A+",
+                    "password": "StrongPass123!",
+                    "confirm_password": "StrongPass123!",
+                    "role": "donor",
+                },
+                format="json",
+            )
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertIn("phone", response.data)
+
     def test_recipient_signup_creates_recipient_role(self):
         hospital = Hospital.objects.create(
             name="City Hospital",

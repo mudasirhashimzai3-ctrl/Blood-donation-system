@@ -27,4 +27,31 @@ void main() {
     expect(received.first['event'], 'notification.created');
     expect(received.last['event'], 'notification.unread_count');
   });
+
+  test('realtime notifications service identifies mobile data refresh events',
+      () {
+    final service = RealtimeNotificationsService.instance;
+
+    expect(
+      service.shouldRefreshMobileData({
+        'event': 'notification.created',
+        'data': {'event_key': 'blood_request_created'},
+      }),
+      isTrue,
+    );
+    expect(
+      service.shouldRefreshMobileData({
+        'event': 'notification.updated',
+        'data': {'type': 'donation_update'},
+      }),
+      isTrue,
+    );
+    expect(
+      service.shouldRefreshMobileData({
+        'event': 'notification.unread_count',
+        'data': {'count': 2},
+      }),
+      isFalse,
+    );
+  });
 }

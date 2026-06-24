@@ -1,6 +1,7 @@
 from django.utils import timezone
 from rest_framework import serializers
 
+from accounts.serializers import validate_ten_digit_phone
 from .models import Donor
 from .services.eligibility import get_donor_eligibility, sync_donor_status
 
@@ -116,7 +117,7 @@ class DonorDetailSerializer(serializers.ModelSerializer):
         return self._eligibility(obj)["eligibility_reason"]
 
     def validate_phone(self, value):
-        normalized_phone = value.strip()
+        normalized_phone = validate_ten_digit_phone(value)
         queryset = Donor.all_objects.filter(phone=normalized_phone, deleted_at__isnull=True)
         if self.instance:
             queryset = queryset.exclude(pk=self.instance.pk)
@@ -235,3 +236,26 @@ class DonorCandidateSerializer(serializers.Serializer):
 
     def get_eligibility_reason(self, obj):
         return self._eligibility(obj)["eligibility_reason"]
+
+
+class AvailableDonorSerializer(serializers.Serializer):
+    id = serializers.IntegerField(source="donor.id")
+    full_name = serializers.SerializerMethodField()
+    blood_group = serializers.CharField(source="donor.blood_group")
+    match_status = serializers.CharField(source="match_type")
+    distance_km = serializers.DecimalField(max_digits=6, decimal_places=2)
+    eligibility_status = serializers.SerializerMethodField()
+    is_eligible = serializers.SerializerMethodField()
+    phone = serializers.CharField(source="donor.phone")
+
+    def _eligibility(self, obj):
+        return get_donor_eligibility(obj["donor"].last_donation_date)
+
+    def get_full_name(self, obj):
+        return str(obj["donor"])
+
+    def get_eligibility_status(self, obj):
+        return self._eligibility(obj)["eligibility_status"]
+
+    def get_is_eligible(self, obj):
+        return self._eligibility(obj)["is_eligible"]

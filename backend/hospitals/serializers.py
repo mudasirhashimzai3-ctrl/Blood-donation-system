@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from accounts.serializers import validate_ten_digit_phone
 from .models import Hospital
 
 
@@ -48,7 +49,7 @@ class HospitalDetailSerializer(serializers.ModelSerializer):
     def validate_phone(self, value):
         if not value:
             return None
-        return value.strip()
+        return validate_ten_digit_phone(value)
 
     def validate_email(self, value):
         if not value:

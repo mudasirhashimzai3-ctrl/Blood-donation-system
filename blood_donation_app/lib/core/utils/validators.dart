@@ -33,8 +33,10 @@ class AppValidators {
     if (value == null || value.trim().isEmpty) {
       return 'Phone number is required';
     }
-    final regex = RegExp(r'^\+?[0-9]{7,15}$');
-    if (!regex.hasMatch(value.trim())) return 'Enter a valid phone number';
+    final regex = RegExp(r'^\d{10}$');
+    if (!regex.hasMatch(value.trim())) {
+      return 'Phone number must be exactly 10 digits';
+    }
     return null;
   }
 

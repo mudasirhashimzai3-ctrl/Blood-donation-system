@@ -77,7 +77,10 @@ export const signupSchema = z
       .min(3, "Username must be at least 3 characters")
       .max(50, "Username must be at most 50 characters"),
     email: z.union([z.string().email("Invalid email address"), z.literal("")]),
-    phone: z.string().min(1, "Phone is required"),
+    phone: z
+      .string()
+      .trim()
+      .regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
     role: z.enum(["donor", "recipient"], {
       required_error: "Role is required",
       invalid_type_error: "Role is required",

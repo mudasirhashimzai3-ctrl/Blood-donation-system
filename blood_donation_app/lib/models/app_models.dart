@@ -1,7 +1,6 @@
 enum AppRole { donor, recipient, admin, unknown }
 
 class AppUser {
-
   factory AppUser.fromJson(Map<String, dynamic> json) {
     final rawRole = ((json['role'] ?? json['role_name']) ?? '').toString();
     return AppUser(
@@ -83,7 +82,6 @@ class AppUser {
 }
 
 class BloodRequestItem {
-
   factory BloodRequestItem.fromJson(Map<String, dynamic> json) {
     DateTime? parseDate(dynamic value) {
       if (value == null) return null;
@@ -132,7 +130,6 @@ class BloodRequestItem {
 }
 
 class HospitalItem {
-
   factory HospitalItem.fromJson(Map<String, dynamic> json) {
     return HospitalItem(
       id: (json['id'] as num?)?.toInt() ?? 0,
@@ -157,19 +154,87 @@ class HospitalItem {
   final String? address;
 }
 
-class DonationItem {
+class AvailableDonorItem {
+  factory AvailableDonorItem.fromJson(Map<String, dynamic> json) {
+    double parseDistance(dynamic value) {
+      if (value is num) return value.toDouble();
+      return double.tryParse(value?.toString() ?? '') ?? 0;
+    }
 
+    return AvailableDonorItem(
+      id: json['id'].toString(),
+      fullName: (json['full_name'] ?? '').toString(),
+      bloodGroup: (json['blood_group'] ?? '').toString(),
+      matchStatus: (json['match_status'] ?? '').toString(),
+      distanceKm: parseDistance(json['distance_km']),
+      eligibilityStatus: (json['eligibility_status'] ?? '').toString(),
+      isEligible: json['is_eligible'] == true,
+      phone: (json['phone'] ?? '').toString(),
+    );
+  }
+
+  const AvailableDonorItem({
+    required this.id,
+    required this.fullName,
+    required this.bloodGroup,
+    required this.matchStatus,
+    required this.distanceKm,
+    required this.eligibilityStatus,
+    required this.isEligible,
+    required this.phone,
+  });
+
+  final String id;
+  final String fullName;
+  final String bloodGroup;
+  final String matchStatus;
+  final double distanceKm;
+  final String eligibilityStatus;
+  final bool isEligible;
+  final String phone;
+}
+
+class DonationItem {
   factory DonationItem.fromJson(Map<String, dynamic> json) {
+    double parseDistance(dynamic value) {
+      if (value is num) return value.toDouble();
+      return double.tryParse(value?.toString() ?? '') ?? 0;
+    }
+
+    int? parseMinutes(dynamic value) {
+      if (value is num) return value.toInt();
+      return int.tryParse(value?.toString() ?? '');
+    }
+
+    String? firstText(List<dynamic> values) {
+      for (final value in values) {
+        final text = value?.toString().trim();
+        if (text != null && text.isNotEmpty) return text;
+      }
+      return null;
+    }
+
     return DonationItem(
       id: json['id'].toString(),
       requestId: (json['request'] ?? '').toString(),
       status: (json['status'] ?? '').toString(),
-      distanceKm: (json['distance_km'] as num?)?.toDouble() ?? 0,
-      estimatedArrivalMinutes:
-          (json['estimated_arrival_time'] as num?)?.toInt(),
+      distanceKm: parseDistance(
+        json['distance_km'] ?? json['distance_dynamic'],
+      ),
+      estimatedArrivalMinutes: parseMinutes(
+        json['estimated_arrival_time'] ?? json['estimated_time_dynamic'],
+      ),
       donorName: json['donor_name']?.toString(),
       hospitalName: json['hospital_name']?.toString(),
+      recipientName: json['recipient_name']?.toString(),
+      recipientCondition: json['recipient_condition']?.toString(),
       requestBloodGroup: json['request_blood_group']?.toString(),
+      requestType: json['request_type']?.toString(),
+      condition: firstText([
+        json['recipient_condition'],
+        json['condition'],
+        json['request_type'],
+      ]),
       respondedAt: json['responded_at'] == null
           ? null
           : DateTime.tryParse(json['responded_at'].toString()),
@@ -184,7 +249,11 @@ class DonationItem {
     required this.estimatedArrivalMinutes,
     this.donorName,
     this.hospitalName,
+    this.recipientName,
+    this.recipientCondition,
     this.requestBloodGroup,
+    this.requestType,
+    this.condition,
     this.respondedAt,
     this.isPrimary = false,
   });
@@ -196,7 +265,11 @@ class DonationItem {
   final int? estimatedArrivalMinutes;
   final String? donorName;
   final String? hospitalName;
+  final String? recipientName;
+  final String? recipientCondition;
   final String? requestBloodGroup;
+  final String? requestType;
+  final String? condition;
   final DateTime? respondedAt;
   final bool isPrimary;
 
@@ -204,7 +277,6 @@ class DonationItem {
 }
 
 class NotificationItem {
-
   factory NotificationItem.fromJson(Map<String, dynamic> json) {
     return NotificationItem(
       id: json['id'].toString(),

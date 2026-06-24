@@ -16,6 +16,16 @@ from .models import (
 # serializers.py
 
 
+PHONE_NUMBER_ERROR = "Phone number must be exactly 10 digits."
+
+
+def validate_ten_digit_phone(value):
+    phone = (value or "").strip()
+    if len(phone) != 10 or not phone.isdigit():
+        raise serializers.ValidationError(PHONE_NUMBER_ERROR)
+    return phone
+
+
 class LoginSerializer(serializers.Serializer):
     """Login serializer"""
     username = serializers.CharField()
@@ -121,10 +131,7 @@ class SignupSerializer(serializers.Serializer):
         return value
 
     def validate_phone(self, value):
-        phone = (value or "").strip()
-        if len(phone) != 10 or not phone.isdigit():
-            raise serializers.ValidationError("Phone number must be exactly 10 digits.")
-        return phone
+        return validate_ten_digit_phone(value)
 
     def validate(self, attrs):
         from donors.models import Donor
@@ -342,6 +349,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         url = obj.avatar.url
         return request.build_absolute_uri(url) if request else url
+
+    def validate_phone(self, value):
+        if value in (None, ""):
+            return value
+        return validate_ten_digit_phone(value)
     
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -425,6 +437,11 @@ class CreateUserSerializer(serializers.ModelSerializer):
         if normalized_role not in {"donor", "recipient"}:
             raise serializers.ValidationError("Invalid Role Name")
         return normalized_role
+
+    def validate_phone(self, value):
+        if value in (None, ""):
+            return value
+        return validate_ten_digit_phone(value)
 
     def create(self, validated_data):
         import secrets

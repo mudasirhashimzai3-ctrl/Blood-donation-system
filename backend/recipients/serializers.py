@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from accounts.serializers import validate_ten_digit_phone
 from .models import Recipient
 
 
@@ -75,7 +76,7 @@ class RecipientDetailSerializer(serializers.ModelSerializer):
         return normalized
 
     def validate_phone(self, value):
-        normalized_phone = value.strip()
+        normalized_phone = validate_ten_digit_phone(value)
         queryset = Recipient.all_objects.filter(phone=normalized_phone, deleted_at__isnull=True)
         if self.instance:
             queryset = queryset.exclude(pk=self.instance.pk)

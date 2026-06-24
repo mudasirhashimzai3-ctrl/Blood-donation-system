@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:blood_donation_app/core/constants/app_constants.dart';
 import 'package:blood_donation_app/core/di/injection.dart';
 import 'package:blood_donation_app/models/app_models.dart';
@@ -9,6 +11,7 @@ import 'package:blood_donation_app/shared/widgets/mobile_dashboard_widgets.dart'
 import 'package:blood_donation_app/shared/widgets/request_card.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class RecipientShellScreen extends StatefulWidget {
   const RecipientShellScreen({super.key});
@@ -19,16 +22,23 @@ class RecipientShellScreen extends StatefulWidget {
 
 class _RecipientShellScreenState extends State<RecipientShellScreen> {
   int _index = 0;
+  int _realtimeRevision = 0;
   final _realtime = RealtimeNotificationsService.instance;
+  StreamSubscription<Map<String, dynamic>>? _eventsSubscription;
 
   @override
   void initState() {
     super.initState();
     _realtime.connect();
+    _eventsSubscription = _realtime.events.listen((payload) {
+      if (!_realtime.shouldRefreshMobileData(payload) || !mounted) return;
+      setState(() => _realtimeRevision++);
+    });
   }
 
   @override
   void dispose() {
+    _eventsSubscription?.cancel();
     _realtime.disconnect();
     super.dispose();
   }
@@ -37,11 +47,12 @@ class _RecipientShellScreenState extends State<RecipientShellScreen> {
   Widget build(BuildContext context) {
     final pages = [
       _RecipientHomeScreen(
+        realtimeRevision: _realtimeRevision,
         onNavigate: (value) => setState(() => _index = value),
       ),
       const _CreateRequestScreen(),
-      const _MyRequestsScreen(),
-      const _ResponsesScreen(),
+      _MyRequestsScreen(realtimeRevision: _realtimeRevision),
+      _AvailableDonorsScreen(realtimeRevision: _realtimeRevision),
       const _RecipientProfileScreen(),
     ];
 
@@ -81,9 +92,13 @@ class _RecipientShellScreenState extends State<RecipientShellScreen> {
 }
 
 class _RecipientHomeScreen extends StatefulWidget {
-  const _RecipientHomeScreen({required this.onNavigate});
+  const _RecipientHomeScreen({
+    required this.onNavigate,
+    required this.realtimeRevision,
+  });
 
   final ValueChanged<int> onNavigate;
+  final int realtimeRevision;
 
   @override
   State<_RecipientHomeScreen> createState() => _RecipientHomeScreenState();
@@ -96,6 +111,14 @@ class _RecipientHomeScreenState extends State<_RecipientHomeScreen> {
   void initState() {
     super.initState();
     _future = RecipientService(getIt()).getDashboard();
+  }
+
+  @override
+  void didUpdateWidget(covariant _RecipientHomeScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.realtimeRevision != oldWidget.realtimeRevision) {
+      _refresh();
+    }
   }
 
   Future<void> _refresh() async {
@@ -464,7 +487,9 @@ class _CreateRequestScreenState extends State<_CreateRequestScreen> {
 }
 
 class _MyRequestsScreen extends StatefulWidget {
-  const _MyRequestsScreen();
+  const _MyRequestsScreen({required this.realtimeRevision});
+
+  final int realtimeRevision;
 
   @override
   State<_MyRequestsScreen> createState() => _MyRequestsScreenState();
@@ -477,6 +502,14 @@ class _MyRequestsScreenState extends State<_MyRequestsScreen> {
   void initState() {
     super.initState();
     _future = RecipientService(getIt()).getMyRequests();
+  }
+
+  @override
+  void didUpdateWidget(covariant _MyRequestsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.realtimeRevision != oldWidget.realtimeRevision) {
+      _refresh();
+    }
   }
 
   Future<void> _refresh() async {
@@ -552,37 +585,102 @@ class _MyRequestsScreenState extends State<_MyRequestsScreen> {
   }
 }
 
-class _ResponsesScreen extends StatefulWidget {
-  const _ResponsesScreen();
+class _AvailableDonorsScreen extends StatefulWidget {
+  const _AvailableDonorsScreen({required this.realtimeRevision});
+
+  final int realtimeRevision;
 
   @override
-  State<_ResponsesScreen> createState() => _ResponsesScreenState();
+  State<_AvailableDonorsScreen> createState() => _AvailableDonorsScreenState();
 }
 
-class _ResponsesScreenState extends State<_ResponsesScreen> {
-  late Future<List<Map<String, dynamic>>> _future;
+class _AvailableDonorsScreenState extends State<_AvailableDonorsScreen> {
+  static const List<int> _distanceOptions = [10, 20, 50, 100];
+
+  late Future<List<AvailableDonorItem>> _future;
+  String _bloodGroup = AppConstants.bloodTypes.first;
+  int _radiusKm = _distanceOptions.first;
 
   @override
   void initState() {
     super.initState();
-    _future = RecipientService(getIt()).getDonorResponses();
+    _future = _loadInitialDonors();
+  }
+
+  @override
+  void didUpdateWidget(covariant _AvailableDonorsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.realtimeRevision != oldWidget.realtimeRevision) {
+      _refresh();
+    }
+  }
+
+  Future<List<AvailableDonorItem>> _loadInitialDonors() async {
+    final service = RecipientService(getIt());
+    try {
+      final profile = await service.getProfile();
+      final preferred = profile['required_blood_group']?.toString().trim();
+      if (preferred != null && AppConstants.bloodTypes.contains(preferred)) {
+        _bloodGroup = preferred;
+      }
+    } catch (_) {}
+    return service.getAvailableDonors(
+      bloodGroup: _bloodGroup,
+      radiusKm: _radiusKm,
+    );
   }
 
   Future<void> _refresh() async {
-    setState(() => _future = RecipientService(getIt()).getDonorResponses());
+    setState(() {
+      _future = RecipientService(getIt()).getAvailableDonors(
+        bloodGroup: _bloodGroup,
+        radiusKm: _radiusKm,
+      );
+    });
     await _future;
+  }
+
+  void _setBloodGroup(String? value) {
+    if (value == null || value == _bloodGroup) return;
+    setState(() {
+      _bloodGroup = value;
+      _future = RecipientService(getIt()).getAvailableDonors(
+        bloodGroup: _bloodGroup,
+        radiusKm: _radiusKm,
+      );
+    });
+  }
+
+  void _setRadius(int? value) {
+    if (value == null || value == _radiusKm) return;
+    setState(() {
+      _radiusKm = value;
+      _future = RecipientService(getIt()).getAvailableDonors(
+        bloodGroup: _bloodGroup,
+        radiusKm: _radiusKm,
+      );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return MobileDashboardScaffold(
-      title: 'Donor Responses',
-      subtitle: 'Review donor replies for each request.',
+      title: 'Available Donors',
+      subtitle: 'Find compatible eligible donors near your hospital.',
       icon: Icons.groups_rounded,
-      child: FutureBuilder<List<Map<String, dynamic>>>(
+      child: FutureBuilder<List<AvailableDonorItem>>(
         future: _future,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const _LoadingView();
+          if (snapshot.connectionState == ConnectionState.waiting &&
+              !snapshot.hasData) {
+            return const _LoadingView();
+          }
+          if (snapshot.hasError) {
+            return _DonorErrorView(
+              message: toUserMessage(snapshot.error ?? 'Unable to load donors'),
+              onRetry: _refresh,
+            );
+          }
           final items = snapshot.data ?? const [];
           return RefreshIndicator(
             color: AppStyle.redPrimary,
@@ -592,37 +690,48 @@ class _ResponsesScreenState extends State<_ResponsesScreen> {
               children: [
                 HeroSummaryCard(
                   title:
-                      '${items.length} response group${items.length == 1 ? '' : 's'}',
-                  subtitle: 'Donor replies are grouped by blood request.',
+                      '${items.length} donor${items.length == 1 ? '' : 's'} found',
+                  subtitle: 'Showing compatible eligible donors by distance.',
                   icon: Icons.diversity_1_rounded,
                   stats: [
                     StatItem(
-                      value: '${items.length}',
-                      label: 'Requests',
-                      icon: Icons.assignment_rounded,
+                      value: _bloodGroup,
+                      label: 'Blood',
+                      icon: Icons.water_drop_rounded,
                     ),
                     StatItem(
-                      value: '${_totalResponses(items)}',
-                      label: 'Donors',
-                      icon: Icons.people_rounded,
+                      value: '$_radiusKm km',
+                      label: 'Range',
+                      icon: Icons.near_me_rounded,
                     ),
-                    const StatItem(
-                      value: 'Live',
-                      label: 'Updates',
-                      icon: Icons.sensors_rounded,
+                    StatItem(
+                      value: '${items.length}',
+                      label: 'Matches',
+                      icon: Icons.verified_rounded,
                     ),
                   ],
                 ),
-                const SectionTitle(title: 'Responses'),
+                const SectionTitle(title: 'Filters'),
+                _DonorFiltersCard(
+                  bloodGroup: _bloodGroup,
+                  radiusKm: _radiusKm,
+                  distanceOptions: _distanceOptions,
+                  onBloodGroupChanged: _setBloodGroup,
+                  onRadiusChanged: _setRadius,
+                ),
+                const SectionTitle(
+                  title: 'Donor List',
+                  subtitle: 'Compatible donors sorted by nearest distance',
+                ),
                 if (items.isEmpty)
                   const EmptyDashboardCard(
                     icon: Icons.group_off_rounded,
-                    title: 'No responses yet',
+                    title: 'No available donors',
                     message:
-                        'Donor responses will appear after matching starts.',
+                        'No compatible nearby eligible donors were found for these filters.',
                   )
                 else
-                  ...items.map((item) => _ResponseGroupCard(item: item)),
+                  ...items.map((item) => _AvailableDonorCard(item: item)),
               ],
             ),
           );
@@ -694,7 +803,12 @@ class _RecipientProfileScreenState extends State<_RecipientProfileScreen> {
                     TextField(
                       controller: phoneController,
                       decoration: const InputDecoration(labelText: 'Phone'),
-                      keyboardType: TextInputType.phone,
+                      keyboardType: TextInputType.number,
+                      maxLength: 10,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(10),
+                      ],
                     ),
                     TextField(
                       controller: emailController,
@@ -761,11 +875,22 @@ class _RecipientProfileScreenState extends State<_RecipientProfileScreen> {
                   onPressed: saving
                       ? null
                       : () async {
+                          final phone = phoneController.text.trim();
+                          if (!RegExp(r'^\d{10}$').hasMatch(phone)) {
+                            ScaffoldMessenger.of(this.context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Phone number must be exactly 10 digits.',
+                                ),
+                              ),
+                            );
+                            return;
+                          }
                           setDialogState(() => saving = true);
                           try {
                             await RecipientService(getIt()).updateProfile(
                               fullName: fullNameController.text,
-                              phone: phoneController.text,
+                              phone: phone,
                               email: emailController.text,
                               requiredBloodGroup: selectedBloodGroup,
                               emergencyLevel: selectedLevel,
@@ -980,16 +1105,82 @@ class _RequestGroup extends StatelessWidget {
   }
 }
 
-class _ResponseGroupCard extends StatelessWidget {
-  const _ResponseGroupCard({required this.item});
+class _DonorFiltersCard extends StatelessWidget {
+  const _DonorFiltersCard({
+    required this.bloodGroup,
+    required this.radiusKm,
+    required this.distanceOptions,
+    required this.onBloodGroupChanged,
+    required this.onRadiusChanged,
+  });
 
-  final Map<String, dynamic> item;
+  final String bloodGroup;
+  final int radiusKm;
+  final List<int> distanceOptions;
+  final ValueChanged<String?> onBloodGroupChanged;
+  final ValueChanged<int?> onRadiusChanged;
 
   @override
   Widget build(BuildContext context) {
-    final request = item['request'] as Map<String, dynamic>? ?? {};
-    final responses = (item['responses'] as List?) ?? const [];
-    final bloodGroup = (request['blood_group'] ?? '-').toString();
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: dashboardCardDecoration(),
+      child: Row(
+        children: [
+          Expanded(
+            child: DropdownButtonFormField<String>(
+              initialValue: bloodGroup,
+              isExpanded: true,
+              items: AppConstants.bloodTypes
+                  .map((value) => DropdownMenuItem(
+                        value: value,
+                        child: Text(value),
+                      ))
+                  .toList(),
+              onChanged: onBloodGroupChanged,
+              decoration: const InputDecoration(
+                labelText: 'Blood Group',
+                prefixIcon: Icon(Icons.water_drop_rounded),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: DropdownButtonFormField<int>(
+              initialValue: radiusKm,
+              isExpanded: true,
+              items: distanceOptions
+                  .map(
+                    (value) => DropdownMenuItem(
+                      value: value,
+                      child: Text('Within $value km'),
+                    ),
+                  )
+                  .toList(),
+              onChanged: onRadiusChanged,
+              decoration: const InputDecoration(
+                labelText: 'Distance',
+                prefixIcon: Icon(Icons.near_me_rounded),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AvailableDonorCard extends StatelessWidget {
+  const _AvailableDonorCard({required this.item});
+
+  final AvailableDonorItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    final matchLabel = _titleCase(item.matchStatus);
+    final eligibilityLabel = _titleCase(item.eligibilityStatus);
+    final distance = item.distanceKm.toStringAsFixed(1);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -1004,12 +1195,12 @@ class _ResponseGroupCard extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  gradient: AppStyle.headerGradient,
+                  color: AppStyle.redPrimary.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(17),
                 ),
                 child: const Icon(
-                  Icons.bloodtype_rounded,
-                  color: Colors.white,
+                  Icons.person_rounded,
+                  color: AppStyle.redPrimary,
                 ),
               ),
               const SizedBox(width: 13),
@@ -1018,7 +1209,9 @@ class _ResponseGroupCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Request #${request['id'] ?? '-'}',
+                      item.fullName.isEmpty ? 'Available donor' : item.fullName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: AppStyle.textPrimary,
                         fontSize: 16,
@@ -1027,7 +1220,7 @@ class _ResponseGroupCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '$bloodGroup blood request',
+                      '${item.bloodGroup} blood group',
                       style: const TextStyle(
                         color: AppStyle.textMuted,
                         fontSize: 12,
@@ -1038,65 +1231,71 @@ class _ResponseGroupCard extends StatelessWidget {
                 ),
               ),
               StatusPill(
-                label:
-                    '${responses.length} donor${responses.length == 1 ? '' : 's'}',
-                color: const Color(0xFF4B5A78),
-                icon: Icons.groups_rounded,
+                label: matchLabel,
+                color: item.matchStatus == 'exact'
+                    ? const Color(0xFF16835D)
+                    : const Color(0xFF4B5A78),
+                icon: Icons.check_circle_rounded,
               ),
             ],
           ),
           const SizedBox(height: 14),
-          if (responses.isEmpty)
-            const Text(
-              'No donor responses for this request yet.',
-              style: TextStyle(
-                color: AppStyle.textMuted,
-                fontWeight: FontWeight.w600,
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              StatusPill(
+                label: '$distance km',
+                color: const Color(0xFFB65B00),
+                icon: Icons.near_me_rounded,
               ),
-            )
-          else
-            ...responses.take(3).map((entry) {
-              final row = Map<String, dynamic>.from(entry as Map);
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 17,
-                      backgroundColor:
-                          AppStyle.redPrimary.withValues(alpha: 0.10),
-                      child: const Icon(
-                        Icons.person_rounded,
-                        color: AppStyle.redPrimary,
-                        size: 19,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        (row['donor_name'] ?? 'Donor').toString(),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: AppStyle.textPrimary,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                    StatusPill(
-                      label: _titleCase(
-                        (row['response_status'] ?? '-').toString(),
-                      ),
-                      color: _statusColor(
-                        (row['response_status'] ?? '').toString(),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
+              StatusPill(
+                label: eligibilityLabel,
+                color: item.isEligible
+                    ? const Color(0xFF16835D)
+                    : AppStyle.redPrimary,
+                icon: Icons.health_and_safety_rounded,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          InfoRow(
+            icon: Icons.phone_rounded,
+            label: 'Phone',
+            value: item.phone.isEmpty ? '-' : item.phone,
+          ),
         ],
       ),
+    );
+  }
+}
+
+class _DonorErrorView extends StatelessWidget {
+  const _DonorErrorView({
+    required this.message,
+    required this.onRetry,
+  });
+
+  final String message;
+  final Future<void> Function() onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(18, 0, 18, 22),
+      children: [
+        EmptyDashboardCard(
+          icon: Icons.error_outline_rounded,
+          title: 'Unable to load donors',
+          message: message,
+        ),
+        const SizedBox(height: 12),
+        FilledButton.icon(
+          onPressed: onRetry,
+          icon: const Icon(Icons.refresh_rounded),
+          label: const Text('Try Again'),
+        ),
+      ],
     );
   }
 }
@@ -1112,29 +1311,8 @@ class _LoadingView extends StatelessWidget {
   }
 }
 
-int _totalResponses(List<Map<String, dynamic>> items) {
-  return items.fold<int>(0, (total, item) {
-    return total + (((item['responses'] as List?) ?? const []).length);
-  });
-}
-
 String _titleCase(String value) {
   final cleaned = value.trim();
   if (cleaned.isEmpty) return '-';
   return cleaned[0].toUpperCase() + cleaned.substring(1).toLowerCase();
-}
-
-Color _statusColor(String status) {
-  switch (status.toLowerCase()) {
-    case 'accepted':
-    case 'matched':
-    case 'completed':
-      return const Color(0xFF16835D);
-    case 'declined':
-    case 'rejected':
-    case 'cancelled':
-      return AppStyle.redPrimary;
-    default:
-      return const Color(0xFFB65B00);
-  }
 }

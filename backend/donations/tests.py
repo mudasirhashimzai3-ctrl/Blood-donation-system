@@ -9,6 +9,7 @@ from rest_framework.test import APITestCase
 from accounts.models import RolePermission, User
 from blood_requests.models import BloodRequest, BloodRequestNotification
 from core.models import Permission
+from core.services.settings_service import update_section
 from donations.models import Donation
 from donations.tasks import process_due_reminders
 from donors.models import Donor
@@ -106,7 +107,7 @@ class DonationApiTests(APITestCase):
             status="active",
             latitude=Decimal("34.556000"),
             longitude=Decimal("69.207700"),
-            last_donation_date=timezone.localdate() - timedelta(days=90),
+            last_donation_date=timezone.localdate() - timedelta(days=220),
         )
 
         donor_b_user = User.objects.create_user(
@@ -124,7 +125,7 @@ class DonationApiTests(APITestCase):
             status="active",
             latitude=Decimal("34.557000"),
             longitude=Decimal("69.207800"),
-            last_donation_date=timezone.localdate() - timedelta(days=120),
+            last_donation_date=timezone.localdate() - timedelta(days=220),
         )
 
     def _create_donation(self, donor, **kwargs):
@@ -138,6 +139,27 @@ class DonationApiTests(APITestCase):
         }
         payload.update(kwargs)
         return Donation.objects.create(**payload)
+
+    def _create_donor(self, **kwargs):
+        user = User.objects.create_user(
+            username=f"donation-extra-donor-{User.objects.count() + 1}",
+            password="StrongPass123!",
+            role_name="donor",
+            phone=f"0799{User.objects.count() + 1000}",
+        )
+        payload = {
+            "user": user,
+            "first_name": "Extra",
+            "last_name": "Donor",
+            "phone": user.phone,
+            "blood_group": "O+",
+            "status": "active",
+            "latitude": Decimal("34.556000"),
+            "longitude": Decimal("69.207700"),
+            "last_donation_date": timezone.localdate() - timedelta(days=220),
+        }
+        payload.update(kwargs)
+        return Donor.objects.create(**payload)
 
     def _create_candidate_notification(self, donor, **kwargs):
         payload = {
@@ -172,6 +194,115 @@ class DonationApiTests(APITestCase):
             format="json",
         )
         self.assertEqual(invalid.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_pending_list_includes_mobile_card_fields(self):
+        donation = self._create_donation(self.donor_a)
+
+        self.client.force_authenticate(user=self.donor_a.user)
+        response = self.client.get(self.base_url, {"status": "pending"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        row = response.data["results"][0]
+        self.assertEqual(row["id"], donation.id)
+        self.assertEqual(row["hospital_name"], self.hospital.name)
+        self.assertEqual(row["recipient_name"], self.recipient.full_name)
+        self.assertEqual(row["recipient_condition"], self.recipient.emergency_level)
+        self.assertEqual(row["condition"], self.recipient.emergency_level)
+        self.assertEqual(row["request_blood_group"], self.request_obj.blood_group)
+        self.assertEqual(row["request_type"], self.request_obj.request_type)
+
+    def test_donor_pending_list_only_includes_actionable_requests(self):
+        update_section(
+            "auto_matching",
+            {"max_distance_km": 10, "max_candidates_to_notify": 50},
+            user=self.admin,
+        )
+        compatible = self._create_donation(self.donor_a)
+        incompatible_donor = self._create_donor(
+            blood_group="B+",
+            phone="0799000101",
+        )
+        recent_donor = self._create_donor(
+            phone="0799000102",
+            last_donation_date=timezone.localdate() - timedelta(days=30),
+        )
+        far_donor = self._create_donor(
+            phone="0799000103",
+            latitude=Decimal("34.700000"),
+            longitude=Decimal("69.207500"),
+        )
+        incompatible = self._create_donation(incompatible_donor)
+        recent = self._create_donation(recent_donor)
+        far = self._create_donation(far_donor, distance_km=Decimal("20.00"))
+
+        self.client.force_authenticate(user=self.donor_a.user)
+        compatible_response = self.client.get(self.base_url, {"status": "pending"})
+        self.assertEqual(compatible_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            [item["id"] for item in compatible_response.data["results"]],
+            [compatible.id],
+        )
+
+        for donor in (incompatible_donor, recent_donor, far_donor):
+            self.client.force_authenticate(user=donor.user)
+            response = self.client.get(self.base_url, {"status": "pending"})
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data["results"], [])
+
+        self.client.force_authenticate(user=incompatible_donor.user)
+        history_response = self.client.get(self.base_url)
+        self.assertEqual(history_response.status_code, status.HTTP_200_OK)
+        self.assertEqual([item["id"] for item in history_response.data["results"]], [incompatible.id])
+
+        self.client.force_authenticate(user=recent_donor.user)
+        history_response = self.client.get(self.base_url)
+        self.assertEqual(history_response.status_code, status.HTTP_200_OK)
+        self.assertEqual([item["id"] for item in history_response.data["results"]], [recent.id])
+
+        self.client.force_authenticate(user=far_donor.user)
+        history_response = self.client.get(self.base_url)
+        self.assertEqual(history_response.status_code, status.HTTP_200_OK)
+        self.assertEqual([item["id"] for item in history_response.data["results"]], [far.id])
+
+    def test_donor_cannot_accept_stale_invalid_pending_donation(self):
+        incompatible_donor = self._create_donor(
+            blood_group="B+",
+            phone="0799000104",
+        )
+        donation = self._create_donation(incompatible_donor)
+
+        self.client.force_authenticate(user=incompatible_donor.user)
+        response = self.client.post(
+            f"{self.base_url}{donation.id}/respond/",
+            {"action": "accept"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("not compatible", response.data["detail"])
+        donation.refresh_from_db()
+        self.assertEqual(donation.status, "pending")
+
+    def test_donor_cannot_see_or_accept_pending_donation_for_closed_request(self):
+        donation = self._create_donation(self.donor_a)
+        self.request_obj.is_active = False
+        self.request_obj.save(update_fields=["is_active", "updated_at"])
+
+        self.client.force_authenticate(user=self.donor_a.user)
+        list_response = self.client.get(self.base_url, {"status": "pending"})
+        self.assertEqual(list_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(list_response.data["results"], [])
+
+        response = self.client.post(
+            f"{self.base_url}{donation.id}/respond/",
+            {"action": "accept"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("no longer open", response.data["detail"])
+        donation.refresh_from_db()
+        self.assertEqual(donation.status, "pending")
 
     def test_complete_marks_donor_inactive_until_eligible(self):
         donation = self._create_donation(self.donor_a, status="accepted")

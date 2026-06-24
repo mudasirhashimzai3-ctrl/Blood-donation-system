@@ -7,8 +7,8 @@ class DonationRepositoryImpl implements DonationRepository {
   final DonationRemoteDataSource _remote;
 
   @override
-  Future<List<DonationEntity>> getDonationHistory(String donorId) =>
-      _remote.getDonationHistory(donorId);
+  Future<List<DonationEntity>> getDonationHistory() =>
+      _remote.getDonationHistory();
 
   @override
   Future<DonationEntity> getDonationById(String id) =>

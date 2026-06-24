@@ -191,10 +191,20 @@ class DonorService {
   Future<Map<String, dynamic>> getDashboard() async {
     final response =
         await _apiClient.get<Map<String, dynamic>>('/donors/mobile-dashboard/');
-    final data = response.data ?? <String, dynamic>{};
+    return parseDonorDashboardData(response.data ?? <String, dynamic>{});
+  }
+
+  @visibleForTesting
+  static Map<String, dynamic> parseDonorDashboardData(
+    Map<String, dynamic> data,
+  ) {
     final nearby = ((data['nearby_requests'] as List?) ?? const [])
         .map((e) => BloodRequestItem.fromJson(e as Map<String, dynamic>))
         .toList(growable: false);
+    final donationRequests =
+        ((data['donation_requests'] as List?) ?? const [])
+            .map((e) => DonationItem.fromJson(e as Map<String, dynamic>))
+            .toList(growable: false);
     final emergency = ((data['emergency_requests'] as List?) ?? const [])
         .map((e) => BloodRequestItem.fromJson(e as Map<String, dynamic>))
         .toList(growable: false);
@@ -206,6 +216,7 @@ class DonorService {
         role: AppRole.donor,
       ),
       'nearbyRequests': nearby,
+      'donationRequests': donationRequests,
       'emergencyRequests': emergency,
       'historyCount': (data['history_count'] as num?)?.toInt() ?? 0,
       'unreadNotifications':
@@ -328,6 +339,27 @@ class RecipientService {
     return raw
         .whereType<Map>()
         .map(Map<String, dynamic>.from)
+        .toList(growable: false);
+  }
+
+  Future<List<AvailableDonorItem>> getAvailableDonors({
+    String? bloodGroup,
+    int radiusKm = 10,
+  }) async {
+    final response = await _apiClient.get<Map<String, dynamic>>(
+      '/donors/available/',
+      queryParameters: <String, dynamic>{
+        'radius_km': radiusKm,
+        'page_size': 100,
+        if (bloodGroup != null && bloodGroup.trim().isNotEmpty)
+          'blood_group': bloodGroup.trim(),
+      },
+    );
+    final items = (response.data?['results'] as List?) ?? const [];
+    return items
+        .whereType<Map>()
+        .map((entry) =>
+            AvailableDonorItem.fromJson(Map<String, dynamic>.from(entry)))
         .toList(growable: false);
   }
 
@@ -462,6 +494,33 @@ class RealtimeNotificationsService {
   NotificationsSocketService? _socketService;
 
   Stream<Map<String, dynamic>> get events => _eventsController.stream;
+
+  bool shouldRefreshMobileData(Map<String, dynamic> payload) {
+    final event = payload['event']?.toString() ?? '';
+    if (event == 'notification.deleted') return true;
+    if (event != 'notification.created' && event != 'notification.updated') {
+      return false;
+    }
+
+    final data = payload['data'];
+    if (data is! Map) return true;
+
+    final eventKey = data['event_key']?.toString() ?? '';
+    final type = data['type']?.toString() ?? '';
+    const eventKeys = {
+      'blood_request_created',
+      'blood_request_verified',
+      'blood_request_assigned',
+      'blood_request_completed',
+      'blood_request_cancelled',
+      'donation_status_updated',
+      'donation_primary_changed',
+      'donation_reminder',
+    };
+    const types = {'request_update', 'donation_update', 'reminder'};
+
+    return eventKeys.contains(eventKey) || types.contains(type);
+  }
 
   @visibleForTesting
   void handleSocketEvent(Map<String, dynamic> payload) {

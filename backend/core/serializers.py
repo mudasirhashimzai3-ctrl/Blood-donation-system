@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from accounts.serializers import validate_ten_digit_phone
 from .models import (
     Settings
 )
@@ -10,6 +11,11 @@ class ShopSettingsSerializer(serializers.Serializer):
     phone_number = serializers.CharField(required=False, allow_blank=True)
     contact_email = serializers.EmailField(required=False, allow_blank=True)
     address = serializers.CharField(required=False, allow_blank=True)
+
+    def validate_phone_number(self, value):
+        if value in (None, ""):
+            return value
+        return validate_ten_digit_phone(value)
 
     def update(self, instance, validated_data):
         for key, value in validated_data.items():

@@ -11,7 +11,13 @@ export const userProfileSchema = z.object({
       /^[a-zA-Z0-9_]+$/,
       "Username can only contain letters, numbers, and underscores"
     ),
-  phone: z.string().optional(), // Or add a more specific regex if needed
+  phone: z
+    .string()
+    .trim()
+    .refine((value) => !value || /^\d{10}$/.test(value), {
+      message: "Phone number must be exactly 10 digits",
+    })
+    .optional(),
 });
 
 // This creates a TypeScript type from your schema

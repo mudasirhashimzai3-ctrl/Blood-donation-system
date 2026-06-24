@@ -16,7 +16,12 @@ const numericCoordinate = (label: string, min: number, max: number) =>
 
 export const hospitalFormSchema = z.object({
   name: z.string().trim().min(2, "Hospital name must be at least 2 characters"),
-  phone: z.string().trim().optional().or(z.literal("")),
+  phone: z
+    .string()
+    .trim()
+    .refine((value) => !value || /^\d{10}$/.test(value), {
+      message: "Phone number must be exactly 10 digits",
+    }),
   email: z
     .string()
     .trim()

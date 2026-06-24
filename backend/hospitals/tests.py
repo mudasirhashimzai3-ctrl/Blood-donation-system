@@ -99,6 +99,17 @@ class HospitalApiTests(APITestCase):
         self.assertIn("latitude", response.data)
         self.assertIn("longitude", response.data)
 
+    def test_rejects_invalid_phone(self):
+        for phone in ("070010001", "07001000A1"):
+            response = self.client.post(
+                self.base_url,
+                self._payload(name=f"Invalid Phone {phone}", phone=phone),
+                format="json",
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertIn("phone", response.data)
+
     def test_viewer_cannot_mutate(self):
         self.client.force_authenticate(user=self.viewer_user)
 

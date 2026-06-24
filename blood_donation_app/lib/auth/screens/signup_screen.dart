@@ -11,6 +11,7 @@ import 'package:blood_donation_app/shared/ui/app_style.dart';
 import 'package:blood_donation_app/shared/ui/error_message.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 
 class AppSignupScreen extends StatefulWidget {
@@ -352,7 +353,12 @@ class _AppSignupScreenState extends State<AppSignupScreen> {
                   TextField(
                     controller: _phone,
                     decoration: AppStyle.fieldDecoration('Phone'),
-                    keyboardType: TextInputType.phone,
+                    keyboardType: TextInputType.number,
+                    maxLength: 10,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(10),
+                    ],
                   ),
                   const SizedBox(height: 10),
                   if (_role == AppRole.donor) ...[
@@ -381,6 +387,10 @@ class _AppSignupScreenState extends State<AppSignupScreen> {
                     TextField(
                       controller: _age,
                       keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(3),
+                      ],
                       decoration: AppStyle.fieldDecoration('Age'),
                     ),
                     const SizedBox(height: 10),

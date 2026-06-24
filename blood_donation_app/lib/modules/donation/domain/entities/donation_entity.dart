@@ -1,9 +1,19 @@
 import 'package:equatable/equatable.dart';
 
-enum DonationStatus { scheduled, completed, cancelled, pendingReview }
+enum DonationStatus {
+  scheduled,
+  pending,
+  accepted,
+  enRoute,
+  arrived,
+  completed,
+  cancelled,
+  declined,
+  expired,
+  pendingReview,
+}
 
 class DonationEntity extends Equatable {
-
   const DonationEntity({
     required this.id,
     required this.donorId,
@@ -31,15 +41,15 @@ class DonationEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
-    donorId,
-    bloodBankId,
-    bloodBankName,
-    bloodType,
-    status,
-    scheduledDate,
-    completedDate,
-    notes,
-    amountMl,
-  ];
+        id,
+        donorId,
+        bloodBankId,
+        bloodBankName,
+        bloodType,
+        status,
+        scheduledDate,
+        completedDate,
+        notes,
+        amountMl,
+      ];
 }

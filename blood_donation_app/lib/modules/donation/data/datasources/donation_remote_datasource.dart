@@ -2,7 +2,7 @@ import 'package:blood_donation_app/core/network/api_client.dart';
 import 'package:blood_donation_app/modules/donation/data/models/donation_model.dart';
 
 abstract class DonationRemoteDataSource {
-  Future<List<DonationModel>> getDonationHistory(String donorId);
+  Future<List<DonationModel>> getDonationHistory();
   Future<DonationModel> getDonationById(String id);
   Future<DonationModel> scheduleDonation({
     required String donorId,
@@ -19,10 +19,9 @@ class DonationRemoteDataSourceImpl implements DonationRemoteDataSource {
   final ApiClient _apiClient;
 
   @override
-  Future<List<DonationModel>> getDonationHistory(String donorId) async {
+  Future<List<DonationModel>> getDonationHistory() async {
     final response = await _apiClient.get<Map<String, dynamic>>(
       '/donations/',
-      queryParameters: {'donor': donorId},
     );
     final data = (response.data!['results'] as List?) ?? const [];
     return data

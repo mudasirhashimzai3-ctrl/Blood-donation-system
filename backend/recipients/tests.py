@@ -206,6 +206,32 @@ class RecipientApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["emergency_level"], "urgent")
 
+    def test_me_patch_rejects_invalid_phone(self):
+        recipient_user = User.objects.create_user(
+            username="recipient_bad_phone",
+            password="StrongPass123!",
+            role_name="recipient",
+            phone="0700001200",
+        )
+        hospital = self._create_hospital(name="Bad Phone Hospital", phone="0700100091")
+        Recipient.objects.create(
+            user=recipient_user,
+            full_name="Recipient Phone",
+            phone="0700001200",
+            required_blood_group="O+",
+            hospital=hospital,
+            emergency_level="normal",
+        )
+
+        self.client.force_authenticate(user=recipient_user)
+        response = self.client.patch(
+            f"{self.base_url}me/",
+            {"phone": "070000120"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("phone", response.data)
+
     def test_me_endpoint_rejects_non_recipient_role(self):
         self.client.force_authenticate(user=self.admin_user)
         response = self.client.get(f"{self.base_url}me/")

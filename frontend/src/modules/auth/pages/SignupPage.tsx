@@ -137,10 +137,18 @@ export default function SignupPage() {
         />
 
         <Input
+          type="tel"
+          inputMode="numeric"
+          maxLength={10}
+          pattern="[0-9]{10}"
           label={t("auth.phone", "Phone")}
-          placeholder={t("auth.phonePlaceholder", "Enter your phone number")}
+          placeholder={t("auth.phonePlaceholder", "0700000000")}
           error={errors.phone?.message}
           autoComplete="tel"
+          onInput={(event) => {
+            const input = event.currentTarget;
+            input.value = input.value.replace(/\D/g, "").slice(0, 10);
+          }}
           {...register("phone")}
         />
 

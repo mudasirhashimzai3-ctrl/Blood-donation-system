@@ -2,7 +2,7 @@ import threading
 
 from django.contrib.auth import get_user_model
 from django.conf import settings
-from django.db import IntegrityError
+from django.db import IntegrityError, connection, transaction
 
 from accounts.models import expand_role_names
 from notifications.models import Notification
@@ -43,6 +43,13 @@ def _dispatch_async(notification_id: int):
 
     threading.Thread(target=_runner, daemon=True).start()
     return None
+
+
+def _dispatch_after_commit(notification_id: int):
+    if connection.in_atomic_block:
+        transaction.on_commit(lambda: _dispatch_async(notification_id))
+        return None
+    return _dispatch_async(notification_id)
 
 
 def _resolve_users(*, user_ids=None, role_names=None):
@@ -138,6 +145,6 @@ def create_notifications(
                 continue
 
             created_rows.append(notification)
-            _dispatch_async(notification.id)
+            _dispatch_after_commit(notification.id)
 
     return created_rows

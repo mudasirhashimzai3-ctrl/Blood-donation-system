@@ -12,6 +12,10 @@ from blood_requests.models import BloodRequest, BloodRequestNotification
 from core.pagination import StandardResultsSetPagination
 from core.permissions import PermissionMixin
 from donations.models import Donation
+from donations.services.actionable import (
+    filter_actionable_donations,
+    get_donation_actionability_failure,
+)
 from donations.serializers import (
     DonationDetailSerializer,
     DonationEstimateRefreshSerializer,
@@ -73,7 +77,10 @@ class DonationViewSet(PermissionMixin, viewsets.ModelViewSet):
             donor_profile = getattr(user, "donor", None)
             if not donor_profile:
                 return queryset.none()
-            return queryset.filter(donor=donor_profile)
+            queryset = queryset.filter(donor=donor_profile)
+            if self.request.query_params.get("status") == "pending":
+                queryset = filter_actionable_donations(queryset)
+            return queryset
 
         if role_name == "recipient":
             recipient_profile = getattr(user, "recipient", None)
@@ -275,7 +282,13 @@ class DonationViewSet(PermissionMixin, viewsets.ModelViewSet):
             if locked_donation.status != "pending":
                 raise ValidationError({"detail": "Only pending donations can be accepted."})
 
+            failure, snapshot = get_donation_actionability_failure(locked_donation)
+            if failure:
+                raise ValidationError({"detail": failure})
+
             now = timezone.now()
+            if snapshot is not None:
+                locked_donation.distance_km, locked_donation.estimated_arrival_time = snapshot
             locked_donation.status = "accepted"
             locked_donation.is_primary = True
             locked_donation.responded_at = locked_donation.responded_at or now
@@ -286,6 +299,8 @@ class DonationViewSet(PermissionMixin, viewsets.ModelViewSet):
                 update_fields=[
                     "status",
                     "is_primary",
+                    "distance_km",
+                    "estimated_arrival_time",
                     "responded_at",
                     "response_time",
                     "updated_at",

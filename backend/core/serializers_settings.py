@@ -2,6 +2,7 @@ from zoneinfo import ZoneInfo
 
 from rest_framework import serializers
 
+from accounts.serializers import validate_ten_digit_phone
 from accounts.models import PUBLIC_ROLE_NAMES
 from core.models import BackupRecord, Permission, SettingAuditLog
 from core.services.role_permission_service import MATRIX_ACTIONS
@@ -25,6 +26,11 @@ class GeneralSettingsSerializer(serializers.Serializer):
     address = serializers.CharField(required=False, allow_blank=True)
     logo_url = serializers.CharField(required=False, allow_blank=True)
     maintenance_mode = serializers.BooleanField(required=False)
+
+    def validate_support_phone(self, value):
+        if value in (None, ""):
+            return value
+        return validate_ten_digit_phone(value)
 
 
 class NotificationSettingsSerializer(serializers.Serializer):
@@ -146,6 +152,11 @@ class TestEmailSerializer(serializers.Serializer):
 
 class TestSmsSerializer(serializers.Serializer):
     phone = serializers.CharField(required=False)
+
+    def validate_phone(self, value):
+        if value in (None, ""):
+            return value
+        return validate_ten_digit_phone(value)
 
 
 class SettingAuditLogSerializer(serializers.ModelSerializer):

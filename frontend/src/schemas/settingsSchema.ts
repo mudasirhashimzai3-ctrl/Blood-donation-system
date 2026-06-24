@@ -5,8 +5,8 @@ export const shopSettingsSchema = z.object({
   shop_name: z.string().min(1, "Shop name is required"),
   phone_number: z
     .string()
-    .min(7, "Phone number must be at least 7 digits")
-    .max(20, "Phone number is too long"),
+    .trim()
+    .regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
   contact_email: z.string().email("Invalid email address"),
   address: z.string().min(1, "Address is required"),
 });
@@ -23,4 +23,3 @@ export const emailSettingsSchema = z.object({
   smtp_password: z.string().optional(),
   from_email: z.string().email("Invalid from email address"),
 });
-

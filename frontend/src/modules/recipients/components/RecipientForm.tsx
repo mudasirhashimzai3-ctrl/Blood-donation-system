@@ -54,9 +54,17 @@ export default function RecipientForm({
 
       <div className="grid gap-4 md:grid-cols-2">
         <Input
+          type="tel"
+          inputMode="numeric"
+          maxLength={10}
+          pattern="[0-9]{10}"
           label={t("recipients.form.phone", "Phone Number")}
-          placeholder={t("recipients.form.phonePlaceholder", "Enter phone number")}
+          placeholder={t("recipients.form.phonePlaceholder", "0700000000")}
           error={errors.phone?.message}
+          onInput={(event) => {
+            const input = event.currentTarget;
+            input.value = input.value.replace(/\D/g, "").slice(0, 10);
+          }}
           {...register("phone")}
         />
         <Select

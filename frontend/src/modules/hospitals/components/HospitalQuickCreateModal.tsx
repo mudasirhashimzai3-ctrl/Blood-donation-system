@@ -103,7 +103,20 @@ export default function HospitalQuickCreateModal({
     >
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <Input label={t("hospitals.form.name", "Hospital Name")} error={errors.name?.message} {...register("name")} />
-        <Input label={t("hospitals.form.phone", "Phone")} error={errors.phone?.message} {...register("phone")} />
+        <Input
+          type="tel"
+          inputMode="numeric"
+          maxLength={10}
+          pattern="[0-9]{10}"
+          label={t("hospitals.form.phone", "Phone")}
+          placeholder={t("hospitals.form.phonePlaceholder", "0700000000")}
+          error={errors.phone?.message}
+          onInput={(event) => {
+            const input = event.currentTarget;
+            input.value = input.value.replace(/\D/g, "").slice(0, 10);
+          }}
+          {...register("phone")}
+        />
         <Input
           type="email"
           label={t("hospitals.form.email", "Email")}

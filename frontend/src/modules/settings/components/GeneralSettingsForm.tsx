@@ -44,9 +44,17 @@ export default function GeneralSettingsForm({
           {...register("support_email")}
         />
         <Input
+          type="tel"
+          inputMode="numeric"
+          maxLength={10}
+          pattern="[0-9]{10}"
           label="Support Phone"
           disabled={readOnly}
           error={errors.support_phone?.message}
+          onInput={(event) => {
+            const input = event.currentTarget;
+            input.value = input.value.replace(/\D/g, "").slice(0, 10);
+          }}
           {...register("support_phone")}
         />
       </div>
