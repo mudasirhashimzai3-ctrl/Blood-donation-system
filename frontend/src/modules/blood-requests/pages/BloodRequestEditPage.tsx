@@ -22,6 +22,7 @@ export default function BloodRequestEditPage() {
   const { can } = useCan();
   const userRole = useUserStore((state) => state.userProfile?.role);
   const isRecipient = userRole === "recipient";
+  const isAdmin = userRole === "admin";
   const { id } = useParams<{ id: string }>();
   const bloodRequestId = Number(id);
   const form = useBloodRequestForm();
@@ -102,6 +103,7 @@ export default function BloodRequestEditPage() {
             prescriptionImageUrl={bloodRequest.prescription_image_url}
             emergencyProofUrl={bloodRequest.emergency_proof_url}
             recipientMode={isRecipient}
+            adminMode={isAdmin}
           />
         </CardContent>
       </Card>

@@ -30,7 +30,6 @@ import {
   DonorDashboardPage,
   DonorDonationActionsPage,
   DonorDonationHistoryPage,
-  DonorNearbyRequestsPage,
   PersonalSettingsPage,
   RecipientCreateRequestPage,
   RecipientDashboardPage,
@@ -126,7 +125,6 @@ function AppRouterProvider() {
            element: <RoleRoute allowedRoles={["donor"]} />,
            children: [
              { path: "donor/dashboard", element: <DonorDashboardPage /> },
-             { path: "donor/nearby-requests", element: <DonorNearbyRequestsPage /> },
              { path: "donor/donation-actions", element: <DonorDonationActionsPage /> },
              { path: "donor/donation-history", element: <DonorDonationHistoryPage /> },
              { path: "donor/donation-actions/:id", element: <DonationViewPage /> },

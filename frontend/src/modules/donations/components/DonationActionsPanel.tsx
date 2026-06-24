@@ -137,15 +137,17 @@ export default function DonationActionsPanel({
                 >
                   {t("donations.actions.updateStatus", "Update Status")}
                 </Button>
-                <Button
-                  variant="outline"
-                  loading={loadingStates?.estimate}
-                  onClick={async () => {
-                    await onRefreshEstimate();
-                  }}
-                >
-                  {t("donations.actions.refreshEstimate", "Refresh Estimate")}
-                </Button>
+                {userRole !== "admin" ? (
+                  <Button
+                    variant="outline"
+                    loading={loadingStates?.estimate}
+                    onClick={async () => {
+                      await onRefreshEstimate();
+                    }}
+                  >
+                    {t("donations.actions.refreshEstimate", "Refresh Estimate")}
+                  </Button>
+                ) : null}
                 <Button
                   variant="outline"
                   loading={loadingStates?.reminder}

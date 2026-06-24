@@ -253,62 +253,64 @@ export default function BloodRequestForm({
             </div>
           </div>
 
-          <div className="space-y-4 rounded-xl border border-border p-4">
-            <h3 className="text-sm font-semibold text-text-primary">
-              {t("bloodRequests.form.section.attachments", "Attachments")}
-            </h3>
-            <div className="grid gap-4 md:grid-cols-3">
-              <div>
-                <Input
-                  type="file"
-                  label={t("bloodRequests.form.medicalReport", "Medical Report")}
-                  error={errors.medical_report?.message ? String(errors.medical_report.message) : undefined}
-                  onChange={(event) => {
-                    const file = event.target.files?.[0] ?? null;
-                    setValue("medical_report", file, { shouldDirty: true, shouldValidate: true });
-                  }}
-                />
-                {medicalReportUrl ? (
-                  <a className="text-xs text-primary hover:underline" href={medicalReportUrl} target="_blank" rel="noreferrer">
-                    {t("bloodRequests.form.viewExisting", "View existing file")}
-                  </a>
-                ) : null}
-              </div>
-              <div>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  label={t("bloodRequests.form.prescriptionImage", "Prescription Image")}
-                  error={errors.prescription_image?.message ? String(errors.prescription_image.message) : undefined}
-                  onChange={(event) => {
-                    const file = event.target.files?.[0] ?? null;
-                    setValue("prescription_image", file, { shouldDirty: true, shouldValidate: true });
-                  }}
-                />
-                {prescriptionImageUrl ? (
-                  <a className="text-xs text-primary hover:underline" href={prescriptionImageUrl} target="_blank" rel="noreferrer">
-                    {t("bloodRequests.form.viewExisting", "View existing file")}
-                  </a>
-                ) : null}
-              </div>
-              <div>
-                <Input
-                  type="file"
-                  label={t("bloodRequests.form.emergencyProof", "Emergency Proof")}
-                  error={errors.emergency_proof?.message ? String(errors.emergency_proof.message) : undefined}
-                  onChange={(event) => {
-                    const file = event.target.files?.[0] ?? null;
-                    setValue("emergency_proof", file, { shouldDirty: true, shouldValidate: true });
-                  }}
-                />
-                {emergencyProofUrl ? (
-                  <a className="text-xs text-primary hover:underline" href={emergencyProofUrl} target="_blank" rel="noreferrer">
-                    {t("bloodRequests.form.viewExisting", "View existing file")}
-                  </a>
-                ) : null}
+          {!adminMode ? (
+            <div className="space-y-4 rounded-xl border border-border p-4">
+              <h3 className="text-sm font-semibold text-text-primary">
+                {t("bloodRequests.form.section.attachments", "Attachments")}
+              </h3>
+              <div className="grid gap-4 md:grid-cols-3">
+                <div>
+                  <Input
+                    type="file"
+                    label={t("bloodRequests.form.medicalReport", "Medical Report")}
+                    error={errors.medical_report?.message ? String(errors.medical_report.message) : undefined}
+                    onChange={(event) => {
+                      const file = event.target.files?.[0] ?? null;
+                      setValue("medical_report", file, { shouldDirty: true, shouldValidate: true });
+                    }}
+                  />
+                  {medicalReportUrl ? (
+                    <a className="text-xs text-primary hover:underline" href={medicalReportUrl} target="_blank" rel="noreferrer">
+                      {t("bloodRequests.form.viewExisting", "View existing file")}
+                    </a>
+                  ) : null}
+                </div>
+                <div>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    label={t("bloodRequests.form.prescriptionImage", "Prescription Image")}
+                    error={errors.prescription_image?.message ? String(errors.prescription_image.message) : undefined}
+                    onChange={(event) => {
+                      const file = event.target.files?.[0] ?? null;
+                      setValue("prescription_image", file, { shouldDirty: true, shouldValidate: true });
+                    }}
+                  />
+                  {prescriptionImageUrl ? (
+                    <a className="text-xs text-primary hover:underline" href={prescriptionImageUrl} target="_blank" rel="noreferrer">
+                      {t("bloodRequests.form.viewExisting", "View existing file")}
+                    </a>
+                  ) : null}
+                </div>
+                <div>
+                  <Input
+                    type="file"
+                    label={t("bloodRequests.form.emergencyProof", "Emergency Proof")}
+                    error={errors.emergency_proof?.message ? String(errors.emergency_proof.message) : undefined}
+                    onChange={(event) => {
+                      const file = event.target.files?.[0] ?? null;
+                      setValue("emergency_proof", file, { shouldDirty: true, shouldValidate: true });
+                    }}
+                  />
+                  {emergencyProofUrl ? (
+                    <a className="text-xs text-primary hover:underline" href={emergencyProofUrl} target="_blank" rel="noreferrer">
+                      {t("bloodRequests.form.viewExisting", "View existing file")}
+                    </a>
+                  ) : null}
+                </div>
               </div>
             </div>
-          </div>
+          ) : null}
         </>
       ) : null}
 

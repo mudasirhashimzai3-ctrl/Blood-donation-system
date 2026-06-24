@@ -1,5 +1,4 @@
 export { default as DonorDashboardPage } from "./pages/DonorDashboardPage";
-export { default as DonorNearbyRequestsPage } from "./pages/DonorNearbyRequestsPage";
 export { default as DonorDonationActionsPage } from "./pages/DonorDonationActionsPage";
 export { default as DonorDonationHistoryPage } from "./pages/DonorDonationHistoryPage";
 export { default as RecipientDashboardPage } from "./pages/RecipientDashboardPage";

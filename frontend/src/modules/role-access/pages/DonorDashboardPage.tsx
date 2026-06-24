@@ -1,16 +1,15 @@
-import { ArrowRight, Bell, Clock3, MapPin } from "lucide-react";
+import { Bell, Clock3 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import { DashboardCard, PageHeader } from "@/components";
 import { Button, Card, CardContent } from "@/components/ui";
-import { formatLocalDateTime } from "@/utils/formatLocalDateTime";
 import { useDonorDashboard } from "../queries/useRoleAccessQueries";
 
 export default function DonorDashboardPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { data, isLoading, error } = useDonorDashboard();
+  const { data } = useDonorDashboard();
 
   return (
     <div className="space-y-6">
@@ -18,17 +17,11 @@ export default function DonorDashboardPage() {
         title={t("donor.dashboard.title", "Donor Dashboard")}
         subtitle={t(
           "donor.dashboard.subtitle",
-          "Track nearby requests and respond to donations"
+          "Respond to donations and review your history"
         )}
       />
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <DashboardCard
-          title={t("donor.dashboard.nearby", "Nearby Requests")}
-          value={data?.nearby_requests.length ?? 0}
-          icon={MapPin}
-          color="info"
-        />
+      <div className="grid gap-4 md:grid-cols-1">
         <DashboardCard
           title={t("donor.dashboard.history", "Donation History")}
           value={data?.history_count ?? 0}
@@ -53,59 +46,9 @@ export default function DonorDashboardPage() {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Button onClick={() => navigate("/donor/nearby-requests")}>
-              {t("donor.dashboard.viewNearby", "View Nearby Requests")}
-            </Button>
             <Button variant="outline" onClick={() => navigate("/donor/donation-actions")}>
               {t("donor.dashboard.openActions", "Accept / Reject Donation")}
             </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="space-y-4">
-          <h2 className="text-base font-semibold text-text-primary">
-            {t("donor.dashboard.nearbyPreview", "Nearby Requests Preview")}
-          </h2>
-
-          {isLoading ? <p>{t("common.loading", "Loading...")}</p> : null}
-          {error ? (
-            <p className="text-sm text-error">
-              {t("donor.dashboard.loadError", "Failed to load donor dashboard")}
-            </p>
-          ) : null}
-
-          {!isLoading && !error && (data?.nearby_requests.length ?? 0) === 0 ? (
-            <p className="text-sm text-text-secondary">
-              {t("donor.dashboard.emptyNearby", "No nearby requests right now.")}
-            </p>
-          ) : null}
-
-          <div className="space-y-2">
-            {data?.nearby_requests.slice(0, 5).map((item) => (
-              <div
-                key={item.id}
-                className="flex flex-col gap-2 rounded-lg border border-border p-3 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div>
-                  <p className="text-sm font-medium text-text-primary">
-                    {item.hospital_name} - {item.blood_group}
-                  </p>
-                  <p className="text-xs text-text-secondary">
-                    #{item.id} - {item.request_type} - {formatLocalDateTime(item.created_at)}
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  leftIcon={<ArrowRight className="h-4 w-4" />}
-                  onClick={() => navigate(`/blood-requests/${item.id}`)}
-                >
-                  {t("common.view", "View")}
-                </Button>
-              </div>
-            ))}
           </div>
         </CardContent>
       </Card>

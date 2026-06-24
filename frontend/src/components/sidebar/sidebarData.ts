@@ -7,7 +7,6 @@ import {
   HandHeart,
   HeartPulse,
   LayoutDashboard,
-  MapPin,
   Settings,
   User,
   UserCheck,
@@ -45,7 +44,6 @@ const adminSidebarNavigationData: SidebarItemData[] = [
 
 const donorSidebarNavigationData: SidebarItemData[] = [
    { path: "/donor/dashboard", label: "Donor Dashboard", icon: LayoutDashboard },
-   { path: "/donor/nearby-requests", label: "Nearby Requests", icon: MapPin },
    { path: "/donor/donation-actions", label: "Accept / Reject Donation", icon: UserCheck },
    { path: "/donor/donation-history", label: "Donation History", icon: HandHeart },
    { path: "/donor/notifications", label: "Notifications", icon: Bell },

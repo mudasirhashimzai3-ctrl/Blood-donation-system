@@ -18,10 +18,10 @@ function DonorFormHarness() {
 }
 
 describe("DonorForm", () => {
-  it("shows Register My Location and hides status/date of birth inputs", () => {
+  it("hides Register My Location, status, and date of birth inputs", () => {
     render(<DonorFormHarness />);
 
-    expect(screen.getByRole("button", { name: /Register My Location/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Register My Location/i })).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Status/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Date of Birth/i)).not.toBeInTheDocument();
     expect(screen.getByLabelText(/Permanent Address/i)).toBeInTheDocument();

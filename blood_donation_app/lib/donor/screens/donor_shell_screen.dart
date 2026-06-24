@@ -147,8 +147,6 @@ class _DonorHomeContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final profile = Map<String, dynamic>.from((data['profile'] as Map?) ?? {});
-    final nearby =
-        (data['nearbyRequests'] as List?)?.cast<BloodRequestItem>() ?? const [];
     final emergency =
         (data['emergencyRequests'] as List?)?.cast<BloodRequestItem>() ??
             const [];
@@ -166,7 +164,7 @@ class _DonorHomeContent extends StatelessWidget {
           HeroSummaryCard(
             title: name.isEmpty ? 'Ready to save lives' : 'Hi, $name',
             subtitle:
-                'Your profile is active. Nearby hospitals can reach you for compatible requests.',
+                'Your profile is active and ready for compatible hospital requests.',
             icon: Icons.bloodtype_rounded,
             stats: [
               StatItem(
@@ -175,9 +173,9 @@ class _DonorHomeContent extends StatelessWidget {
                 icon: Icons.water_drop_rounded,
               ),
               StatItem(
-                value: '${nearby.length + emergency.length}',
-                label: 'Nearby',
-                icon: Icons.place_rounded,
+                value: '${emergency.length}',
+                label: 'Urgent',
+                icon: Icons.priority_high_rounded,
               ),
               StatItem(
                 value: '$historyCount',
@@ -190,7 +188,7 @@ class _DonorHomeContent extends StatelessWidget {
           QuickActionCard(
             icon: Icons.favorite_rounded,
             title: 'Review donation requests',
-            subtitle: 'Accept or reject pending requests near you.',
+            subtitle: 'Accept or reject pending requests.',
             onTap: () => onNavigate(1),
           ),
           const SectionTitle(
@@ -205,18 +203,6 @@ class _DonorHomeContent extends StatelessWidget {
             )
           else
             ...emergency.take(3).map((item) => RequestCard(item: item)),
-          const SectionTitle(
-            title: 'Nearby Requests',
-            subtitle: 'Hospitals currently looking for donors',
-          ),
-          if (nearby.isEmpty)
-            const EmptyDashboardCard(
-              icon: Icons.location_off_rounded,
-              title: 'No nearby requests',
-              message: 'New compatible requests will appear here.',
-            )
-          else
-            ...nearby.take(4).map((item) => RequestCard(item: item)),
           if (unread > 0) ...[
             const SizedBox(height: 4),
             QuickActionCard(
