@@ -127,7 +127,24 @@ describe("LoginPage UI", () => {
 
   it("navigates immediately after successful login submit", async () => {
     const user = userEvent.setup();
-    storeRef.current.login = vi.fn().mockResolvedValue(undefined);
+    storeRef.current.login = vi.fn().mockResolvedValue({
+      id: "1",
+      firstName: "Test",
+      lastName: "Donor",
+      username: "operator",
+      email: "operator@example.com",
+      phone: "0700000000",
+      role: "donor",
+      avatarUrl: "",
+      location: 1,
+      permissions: [],
+      preferences: {
+        language: "en",
+        timezone: "UTC",
+        currency: "USD",
+        theme: "light",
+      },
+    });
 
     render(
       <MemoryRouter initialEntries={["/auth/login"]}>
@@ -142,7 +159,7 @@ describe("LoginPage UI", () => {
 
     await waitFor(() => {
       expect(storeRef.current.login).toHaveBeenCalledTimes(1);
-      expect(navigateMock).toHaveBeenCalledWith("/", { replace: true });
+      expect(navigateMock).toHaveBeenCalledWith("/donor/dashboard", { replace: true });
     });
   });
 });

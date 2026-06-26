@@ -11,6 +11,7 @@ import {
   type LoginFormInputs,
 } from "@/schemas/loginPageValidation";
 import { useUserStore } from "@/modules/auth/stores/useUserStore";
+import { getHomeRouteByRole } from "@/modules/auth/utils/roleRouting";
 import { AccountLockedMessage } from "@/modules/auth";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -67,9 +68,13 @@ export default function LoginPage() {
     setLockedUntil(null);
 
     try {
-      await login(data);
+      const userProfile = await login(data);
+      const redirectTo =
+        from && from !== "/" && !from.startsWith("/auth")
+          ? from
+          : getHomeRouteByRole(userProfile.role);
       toast.success(t("auth.loginSuccess", "Welcome back!"));
-      navigate(from, { replace: true });
+      navigate(redirectTo, { replace: true });
     } catch (err) {
       if (err instanceof AxiosError) {
         if (

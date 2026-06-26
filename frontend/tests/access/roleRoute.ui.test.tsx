@@ -1,9 +1,12 @@
-import { render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 import RoleRoute from "@/providers/RoleRoute";
 import { useUserStore, type UserProfile } from "@/modules/auth/stores/useUserStore";
+
+const originalFetchUserProfile = useUserStore.getState().fetchUserProfile;
+const originalLogout = useUserStore.getState().logout;
 
 const buildProfile = (role: UserProfile["role"]): UserProfile => ({
   id: "1",
@@ -25,6 +28,11 @@ const buildProfile = (role: UserProfile["role"]): UserProfile => ({
 });
 
 afterEach(() => {
+  sessionStorage.clear();
+  useUserStore.setState({
+    fetchUserProfile: originalFetchUserProfile,
+    logout: originalLogout,
+  });
   useUserStore.getState().reset();
 });
 
@@ -77,5 +85,38 @@ describe("RoleRoute", () => {
     );
 
     expect(screen.getByText("Recipient Home")).toBeInTheDocument();
+  });
+
+  it("hydrates the profile instead of redirecting when a token exists without a role", async () => {
+    sessionStorage.setItem("accessToken", "test-token");
+    const fetchUserProfile = vi.fn().mockImplementation(async () => {
+      useUserStore.setState({
+        userProfile: buildProfile("admin"),
+        loading: false,
+      });
+    });
+
+    useUserStore.setState({
+      userProfile: null,
+      loading: false,
+      fetchUserProfile,
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/dashboard"]}>
+        <Routes>
+          <Route element={<RoleRoute allowedRoles={["admin"]} />}>
+            <Route path="/dashboard" element={<div>Admin Dashboard</div>} />
+          </Route>
+          <Route path="/auth/login" element={<div>Login Page</div>} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(fetchUserProfile).toHaveBeenCalledTimes(1);
+      expect(screen.getByText("Admin Dashboard")).toBeInTheDocument();
+    });
+    expect(screen.queryByText("Login Page")).not.toBeInTheDocument();
   });
 });

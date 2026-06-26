@@ -98,7 +98,7 @@ interface UserState {
   lockedUntil: string | null;
 
   // Auth actions
-  login: (credentials: LoginCredentials) => Promise<void>;
+  login: (credentials: LoginCredentials) => Promise<UserProfile>;
   logout: () => void;
 
   // Profile actions
@@ -146,18 +146,22 @@ export const useUserStore = create<UserState>()(
             "/accounts/auth/login/",
             credentials
           );
+          const userProfile = normalizeUserProfileLanguage(response.data.user);
+
           // Set the access token from response
           setAccessToken(response.data.access);
 
           // Reset login attempts on successful login
           set({
-            userProfile: normalizeUserProfileLanguage(response.data.user),
+            userProfile,
             loading: false,
             failedLoginAttempts: 0,
             accountLocked: false,
             lockedUntil: null,
             lastLogin: new Date().toISOString(),
           });
+
+          return userProfile;
         } catch (error) {
           const axiosError = error as AxiosError<{
             detail?: string;
