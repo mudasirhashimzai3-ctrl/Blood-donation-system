@@ -1,7 +1,6 @@
 import { PageHeader } from "@/components";
 import { Card, CardContent } from "@components/ui";
 
-import PlannedSectionPanel from "../components/PlannedSectionPanel";
 import SettingsSectionNav from "../components/SettingsSectionNav";
 import { useSettingsSectionAccess } from "../hooks/useSettingsSectionAccess";
 
@@ -25,7 +24,6 @@ export default function EmergencyAlertSettingsPage() {
         subtitle="Escalation and broadcast rules for emergency situations"
       />
       <SettingsSectionNav />
-      <PlannedSectionPanel title="Emergency Alert Settings" />
     </div>
   );
 }

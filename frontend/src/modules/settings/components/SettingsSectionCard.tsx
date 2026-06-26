@@ -3,7 +3,7 @@ import { Button, Card, CardContent, CardHeader } from "@components/ui";
 interface SettingsSectionCardProps {
   title: string;
   description: string;
-  status: "Live" | "Planned";
+  status?: "Live";
   onOpen: () => void;
 }
 
@@ -13,16 +13,17 @@ export default function SettingsSectionCard({
   status,
   onOpen,
 }: SettingsSectionCardProps) {
-  const statusClass =
-    status === "Live"
-      ? "bg-emerald-100 text-emerald-800"
-      : "bg-slate-100 text-slate-700";
-
   return (
     <Card variant="outlined" className="h-full">
       <CardHeader
         title={title}
-        action={<span className={`rounded-full px-2 py-1 text-xs font-medium ${statusClass}`}>{status}</span>}
+        action={
+          status ? (
+            <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-800">
+              {status}
+            </span>
+          ) : null
+        }
       />
       <CardContent className="space-y-4">
         <p className="text-sm text-text-secondary">{description}</p>

@@ -20,11 +20,6 @@ import {
 import { useSettingsUiStore } from "../stores/useSettingsUiStore";
 
 const defaultValues: GeneralSettingsFormValues = {
-  organization_name: "",
-  support_email: "",
-  support_phone: "",
-  address: "",
-  logo_url: "",
   maintenance_mode: false,
 };
 
@@ -45,11 +40,6 @@ export default function GeneralSettingsPage() {
   useEffect(() => {
     if (query.data) {
       form.reset({
-        organization_name: query.data.organization_name,
-        support_email: query.data.support_email,
-        support_phone: query.data.support_phone,
-        address: query.data.address,
-        logo_url: query.data.logo_url,
         maintenance_mode: query.data.maintenance_mode,
       });
     }

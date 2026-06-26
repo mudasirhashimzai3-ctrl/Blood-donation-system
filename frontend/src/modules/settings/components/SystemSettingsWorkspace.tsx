@@ -64,18 +64,7 @@ const sectionItems: Array<{ key: SystemSettingsSection; label: string }> = [
   { key: "backup_restore", label: "Backup & Restore" },
 ];
 
-const plannedItems = [
-  "Emergency Alerts",
-  "Blood Request Rules",
-  "Donor Eligibility",
-];
-
 const generalDefaults: GeneralSettingsFormValues = {
-  organization_name: "",
-  support_email: "",
-  support_phone: "",
-  address: "",
-  logo_url: "",
   maintenance_mode: false,
 };
 
@@ -104,8 +93,6 @@ const autoMatchingDefaults: AutoMatchingSettingsFormValues = {
 };
 
 const localizationDefaults: LocalizationSettingsFormValues = {
-  default_language: "en",
-  supported_languages: ["en", "da", "pa"],
   default_timezone: "UTC",
   date_format: "yyyy-MM-dd",
   time_format_24h: true,
@@ -136,7 +123,9 @@ function GeneralSection({ canEdit }: { canEdit: boolean }) {
 
   useEffect(() => {
     if (query.data) {
-      form.reset(query.data);
+      form.reset({
+        maintenance_mode: query.data.maintenance_mode,
+      });
     }
   }, [form, query.data]);
 
@@ -416,22 +405,6 @@ export default function SystemSettingsWorkspace({
       {section === "localization" ? <LocalizationSection canEdit={canEdit} /> : null}
       {section === "security" ? <SecuritySection canEdit={canEdit} /> : null}
       {section === "backup_restore" ? <BackupRestoreSettingsPanel canEdit={canEdit} /> : null}
-
-      <Card>
-        <CardContent className="space-y-2">
-          <p className="text-sm font-medium text-text-primary">Planned Sections</p>
-          <div className="flex flex-wrap gap-2">
-            {plannedItems.map((item) => (
-              <span
-                key={item}
-                className="rounded-full border border-border px-3 py-1 text-xs text-text-secondary"
-              >
-                {item} (Planned)
-              </span>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

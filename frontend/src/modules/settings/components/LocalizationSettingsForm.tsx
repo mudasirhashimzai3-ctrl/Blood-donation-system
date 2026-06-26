@@ -2,7 +2,7 @@ import type { UseFormReturn } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
-import { Checkbox, Input, Select, Switch } from "@components/ui";
+import { Input, Select, Switch } from "@components/ui";
 import type { LocalizationSettingsFormValues } from "../schemas/localizationSettings.schema";
 import SettingsSaveBar from "./SettingsSaveBar";
 
@@ -13,12 +13,6 @@ interface LocalizationSettingsFormProps {
   loading?: boolean;
   readOnly?: boolean;
 }
-
-const languageOptions = [
-  { value: "en", label: "English" },
-  { value: "da", label: "Dari" },
-  { value: "pa", label: "Pashto" },
-] as const;
 
 const weekOptions = [
   { value: "monday", label: "Monday" },
@@ -41,63 +35,19 @@ export default function LocalizationSettingsForm({
   const {
     register,
     control,
-    watch,
-    setValue,
     handleSubmit,
     formState: { errors, isDirty },
   } = form;
 
-  const selectedLanguages = watch("supported_languages");
-
-  const toggleLanguage = (code: "en" | "da" | "pa", checked: boolean) => {
-    const current = new Set(selectedLanguages);
-    if (checked) current.add(code);
-    else current.delete(code);
-    setValue("supported_languages", Array.from(current) as Array<"en" | "da" | "pa">, {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
-  };
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2">
-        <Select
-          label={t("settings.localization.defaultLanguage", "Default Language")}
-          disabled={readOnly}
-          error={errors.default_language?.message}
-          options={languageOptions.map((item) => ({
-            value: item.value,
-            label: t(`language.${item.value === "en" ? "english" : item.value === "da" ? "dari" : "pashto"}`, item.label),
-          }))}
-          {...register("default_language")}
-        />
         <Input
           label={t("settings.localization.defaultTimezone", "Default Timezone")}
           disabled={readOnly}
           error={errors.default_timezone?.message}
           {...register("default_timezone")}
         />
-      </div>
-
-      <div className="rounded-lg border border-border p-4">
-        <p className="mb-2 text-sm font-medium text-text-primary">
-          {t("settings.localization.supportedLanguages", "Supported Languages")}
-        </p>
-        <div className="grid gap-2 md:grid-cols-3">
-          {languageOptions.map((language) => (
-            <Checkbox
-              key={language.value}
-              disabled={readOnly}
-              label={t(`language.${language.value === "en" ? "english" : language.value === "da" ? "dari" : "pashto"}`, language.label)}
-              checked={selectedLanguages.includes(language.value)}
-              onChange={(event) => toggleLanguage(language.value, event.target.checked)}
-            />
-          ))}
-        </div>
-        {errors.supported_languages?.message ? (
-          <p className="mt-2 text-sm text-error">{errors.supported_languages.message}</p>
-        ) : null}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">

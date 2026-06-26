@@ -26,11 +26,6 @@ export type SystemSettingsSection =
 export type RoleName = "admin" | "recipient" | "donor";
 
 export interface GeneralSettings {
-  organization_name: string;
-  support_email: string;
-  support_phone: string;
-  address: string;
-  logo_url: string;
   maintenance_mode: boolean;
 }
 
@@ -56,19 +51,10 @@ export interface NotificationSettings {
 }
 
 export interface LocalizationSettings {
-  default_language: "en" | "da" | "pa";
-  supported_languages: Array<"en" | "da" | "pa">;
   default_timezone: string;
   date_format: string;
   time_format_24h: boolean;
-  first_day_of_week:
-    | "monday"
-    | "tuesday"
-    | "wednesday"
-    | "thursday"
-    | "friday"
-    | "saturday"
-    | "sunday";
+  first_day_of_week: "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
 }
 
 export interface SecuritySettings {

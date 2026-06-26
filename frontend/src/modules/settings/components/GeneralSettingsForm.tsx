@@ -1,7 +1,7 @@
 import type { UseFormReturn } from "react-hook-form";
 import { Controller } from "react-hook-form";
 
-import { Input, Switch, Textarea } from "@components/ui";
+import { Switch } from "@components/ui";
 import type { GeneralSettingsFormValues } from "../schemas/generalSettings.schema";
 import SettingsSaveBar from "./SettingsSaveBar";
 
@@ -21,57 +21,13 @@ export default function GeneralSettingsForm({
   readOnly = false,
 }: GeneralSettingsFormProps) {
   const {
-    register,
     control,
     handleSubmit,
-    formState: { errors, isDirty },
+    formState: { isDirty },
   } = form;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <Input
-        label="Organization Name"
-        disabled={readOnly}
-        error={errors.organization_name?.message}
-        {...register("organization_name")}
-      />
-      <div className="grid gap-4 md:grid-cols-2">
-        <Input
-          label="Support Email"
-          type="email"
-          disabled={readOnly}
-          error={errors.support_email?.message}
-          {...register("support_email")}
-        />
-        <Input
-          type="tel"
-          inputMode="numeric"
-          maxLength={10}
-          pattern="[0-9]{10}"
-          label="Support Phone"
-          disabled={readOnly}
-          error={errors.support_phone?.message}
-          onInput={(event) => {
-            const input = event.currentTarget;
-            input.value = input.value.replace(/\D/g, "").slice(0, 10);
-          }}
-          {...register("support_phone")}
-        />
-      </div>
-      <Textarea
-        label="Address"
-        rows={3}
-        disabled={readOnly}
-        error={errors.address?.message}
-        {...register("address")}
-      />
-      <Input
-        label="Logo URL"
-        disabled={readOnly}
-        error={errors.logo_url?.message}
-        {...register("logo_url")}
-      />
-
       <Controller
         name="maintenance_mode"
         control={control}

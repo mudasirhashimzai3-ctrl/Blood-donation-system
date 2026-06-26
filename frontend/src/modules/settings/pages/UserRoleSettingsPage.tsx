@@ -1,7 +1,6 @@
 import { PageHeader } from "@/components";
 import { Card, CardContent } from "@components/ui";
 
-import PlannedSectionPanel from "../components/PlannedSectionPanel";
 import SettingsSectionNav from "../components/SettingsSectionNav";
 import { useSettingsSectionAccess } from "../hooks/useSettingsSectionAccess";
 
@@ -25,10 +24,6 @@ export default function UserRoleSettingsPage() {
         subtitle="Policy-level controls for user and role workflows"
       />
       <SettingsSectionNav />
-      <PlannedSectionPanel
-        title="User & Role Management Settings"
-        description="This section is scaffolded in phase 1. Operational user CRUD remains in the users module."
-      />
     </div>
   );
 }

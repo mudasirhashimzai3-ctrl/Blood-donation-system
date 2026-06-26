@@ -64,7 +64,7 @@ export default function SettingsOverviewPage() {
             key={section.section}
             title={section.title}
             description={descriptions[section.section]}
-            status={section.implemented ? "Live" : "Planned"}
+            status={section.implemented ? "Live" : undefined}
             onOpen={() => navigateTo(pathBySection[section.section] || "/settings")}
           />
         ))}

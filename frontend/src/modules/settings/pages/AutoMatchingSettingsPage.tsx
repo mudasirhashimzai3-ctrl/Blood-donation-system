@@ -1,7 +1,6 @@
 import { PageHeader } from "@/components";
 import { Card, CardContent } from "@components/ui";
 
-import PlannedSectionPanel from "../components/PlannedSectionPanel";
 import SettingsSectionNav from "../components/SettingsSectionNav";
 import { useSettingsSectionAccess } from "../hooks/useSettingsSectionAccess";
 
@@ -25,7 +24,6 @@ export default function AutoMatchingSettingsPage() {
         subtitle="Automatic donor candidate matching controls"
       />
       <SettingsSectionNav />
-      <PlannedSectionPanel title="Auto Matching Settings" />
     </div>
   );
 }

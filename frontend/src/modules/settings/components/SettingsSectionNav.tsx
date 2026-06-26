@@ -21,10 +21,9 @@ export default function SettingsSectionNav() {
                   ? "bg-primary text-white"
                   : "bg-surface text-text-secondary hover:text-text-primary"
               }`}
-            >
-              {item.label}
-              {!item.live ? " (Planned)" : ""}
-            </button>
+              >
+                {item.label}
+              </button>
           );
         })}
       </div>

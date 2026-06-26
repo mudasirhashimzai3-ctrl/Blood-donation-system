@@ -20,8 +20,6 @@ import {
 import { useSettingsUiStore } from "../stores/useSettingsUiStore";
 
 const defaultValues: LocalizationSettingsFormValues = {
-  default_language: "en",
-  supported_languages: ["en", "da", "pa"],
   default_timezone: "UTC",
   date_format: "yyyy-MM-dd",
   time_format_24h: true,
