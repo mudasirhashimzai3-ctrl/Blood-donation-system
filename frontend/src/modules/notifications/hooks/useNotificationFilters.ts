@@ -4,12 +4,14 @@ import { useNotificationUiStore } from "../stores/useNotificationUiStore";
 
 export const useNotificationFilters = () => {
   const {
+    search,
     status,
     type,
     sentVia,
     page,
     pageSize,
     ordering,
+    setSearch,
     setStatus,
     setType,
     setSentVia,
@@ -23,21 +25,24 @@ export const useNotificationFilters = () => {
     () => ({
       page,
       page_size: pageSize,
+      search: search || undefined,
       status: status || undefined,
       type: type || undefined,
       sent_via: sentVia || undefined,
       ordering: ordering || undefined,
     }),
-    [ordering, page, pageSize, sentVia, status, type]
+    [ordering, page, pageSize, search, sentVia, status, type]
   );
 
   return {
+    search,
     status,
     type,
     sentVia,
     page,
     pageSize,
     ordering,
+    setSearch,
     setStatus,
     setType,
     setSentVia,

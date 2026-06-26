@@ -4,12 +4,14 @@ import { persist } from "zustand/middleware";
 import type { NotificationChannel, NotificationStatus, NotificationType } from "../types/notification.types";
 
 interface NotificationUiState {
+  search: string;
   status: NotificationStatus | "";
   type: NotificationType | "";
   sentVia: NotificationChannel | "";
   page: number;
   pageSize: number;
   ordering: string;
+  setSearch: (value: string) => void;
   setStatus: (value: NotificationStatus | "") => void;
   setType: (value: NotificationType | "") => void;
   setSentVia: (value: NotificationChannel | "") => void;
@@ -22,12 +24,14 @@ interface NotificationUiState {
 export const useNotificationUiStore = create<NotificationUiState>()(
   persist(
     (set) => ({
+      search: "",
       status: "",
       type: "",
       sentVia: "",
       page: 1,
       pageSize: 10,
       ordering: "-created_at",
+      setSearch: (search) => set({ search, page: 1 }),
       setStatus: (status) => set({ status, page: 1 }),
       setType: (type) => set({ type, page: 1 }),
       setSentVia: (sentVia) => set({ sentVia, page: 1 }),
@@ -36,6 +40,7 @@ export const useNotificationUiStore = create<NotificationUiState>()(
       setOrdering: (ordering) => set({ ordering, page: 1 }),
       resetFilters: () =>
         set({
+          search: "",
           status: "",
           type: "",
           sentVia: "",
@@ -46,6 +51,7 @@ export const useNotificationUiStore = create<NotificationUiState>()(
     {
       name: "notification-ui-state",
       partialize: (state) => ({
+        search: state.search,
         status: state.status,
         type: state.type,
         sentVia: state.sentVia,

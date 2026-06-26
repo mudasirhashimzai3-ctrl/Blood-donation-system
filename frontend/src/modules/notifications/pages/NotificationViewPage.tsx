@@ -12,6 +12,38 @@ import NotificationStatusBadge from "../components/NotificationStatusBadge";
 import NotificationTypeBadge from "../components/NotificationTypeBadge";
 import { useDeleteNotification, useNotification, useSetNotificationRead } from "../queries/useNotificationQueries";
 
+const HIDDEN_METADATA_KEYS = new Set(["status", "language", "request_type"]);
+
+const formatMetadataLabel = (key: string) =>
+  key
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+
+const formatMetadataValue = (value: unknown) => {
+  if (value === null || value === undefined || value === "") {
+    return "-";
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "Yes" : "No";
+  }
+
+  if (typeof value === "string" || typeof value === "number") {
+    return String(value);
+  }
+
+  return JSON.stringify(value);
+};
+
+const getVisibleMetadataEntries = (metadata: Record<string, unknown>) =>
+  Object.entries(metadata).filter(([key, value]) => {
+    if (HIDDEN_METADATA_KEYS.has(key)) {
+      return false;
+    }
+
+    return value !== null && value !== undefined && value !== "";
+  });
+
 export default function NotificationViewPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -63,6 +95,8 @@ export default function NotificationViewPage() {
       </Card>
     );
   }
+
+  const visibleMetadataEntries = getVisibleMetadataEntries(notification.metadata || {});
 
   return (
     <div className="space-y-6">
@@ -122,14 +156,23 @@ export default function NotificationViewPage() {
             </div>
           </div>
 
-          {Object.keys(notification.metadata || {}).length > 0 ? (
+          {visibleMetadataEntries.length > 0 ? (
             <div>
               <p className="mb-2 text-xs uppercase text-text-secondary">
-                {t("notifications.fields.metadata", "Metadata")}
+                {t("notifications.fields.context", "Context")}
               </p>
-              <pre className="overflow-x-auto rounded-lg border border-border bg-surface p-3 text-xs text-text-primary">
-                {JSON.stringify(notification.metadata, null, 2)}
-              </pre>
+              <div className="grid gap-3 rounded-lg border border-border bg-surface p-4 sm:grid-cols-2">
+                {visibleMetadataEntries.map(([key, value]) => (
+                  <div key={key}>
+                    <p className="text-xs uppercase text-text-secondary">
+                      {t(`notifications.metadata.${key}`, formatMetadataLabel(key))}
+                    </p>
+                    <p className="break-words text-sm text-text-primary">
+                      {formatMetadataValue(value)}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : null}
 
