@@ -115,6 +115,7 @@ export default function LoginPage() {
         "auth.footerCopyright",
         "© 2026 Blood Donation Network. All rights reserved."
       )}
+      backgroundImageUrl="/images/login/login-bg-hd.jpg"
     >
       <div className="mb-6 text-center">
         <h2 className="text-xl font-semibold text-text-primary">
