@@ -22,14 +22,12 @@ describe("ReportsFilterBar", () => {
         city=""
         bloodGroup=""
         requestType=""
-        emergencyOnly={false}
         onDateFromChange={vi.fn()}
         onDateToChange={vi.fn()}
         onGroupByChange={vi.fn()}
         onCityChange={vi.fn()}
         onBloodGroupChange={vi.fn()}
         onRequestTypeChange={vi.fn()}
-        onEmergencyOnlyChange={vi.fn()}
         onReset={onReset}
         onRefresh={onRefresh}
         activeTab="requests"
@@ -43,7 +41,7 @@ describe("ReportsFilterBar", () => {
     expect(screen.getByLabelText(/City/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Blood Group/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Request Type/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Emergency only/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Emergency only/i)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Refresh/i }));
     fireEvent.click(screen.getByRole("button", { name: /Reset/i }));

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import type { ReportGroupBy, ReportTab } from "../types/report.types";
+import { REPORT_TABS, type ReportGroupBy, type ReportTab } from "../types/report.types";
 
 const formatDate = (date: Date) => date.toISOString().slice(0, 10);
 const now = new Date();
@@ -16,7 +16,6 @@ interface ReportsUiState {
   city: string;
   bloodGroup: string;
   requestType: string;
-  emergencyOnly: boolean;
   search: string;
   ordering: string;
   page: number;
@@ -30,7 +29,6 @@ interface ReportsUiState {
   setCity: (value: string) => void;
   setBloodGroup: (value: string) => void;
   setRequestType: (value: string) => void;
-  setEmergencyOnly: (value: boolean) => void;
   setSearch: (value: string) => void;
   setOrdering: (value: string) => void;
   setPage: (value: number) => void;
@@ -38,6 +36,20 @@ interface ReportsUiState {
   setCompareMode: (value: boolean) => void;
   resetFilters: () => void;
 }
+
+type ReportsPersistedState = Pick<
+  ReportsUiState,
+  | "activeTab"
+  | "dateFrom"
+  | "dateTo"
+  | "groupBy"
+  | "hospitalId"
+  | "city"
+  | "bloodGroup"
+  | "requestType"
+  | "pageSize"
+  | "compareMode"
+>;
 
 const defaultFilters = {
   dateFrom: formatDate(thirtyDaysAgo),
@@ -47,12 +59,17 @@ const defaultFilters = {
   city: "",
   bloodGroup: "",
   requestType: "",
-  emergencyOnly: false,
   search: "",
   ordering: "",
   page: 1,
   pageSize: 25,
 };
+
+const isReportTab = (value: unknown): value is ReportTab =>
+  typeof value === "string" && REPORT_TABS.includes(value as ReportTab);
+
+const isReportGroupBy = (value: unknown): value is ReportGroupBy =>
+  value === "day" || value === "week" || value === "month";
 
 export const useReportsUiStore = create<ReportsUiState>()(
   persist(
@@ -68,7 +85,6 @@ export const useReportsUiStore = create<ReportsUiState>()(
       setCity: (city) => set({ city, page: 1 }),
       setBloodGroup: (bloodGroup) => set({ bloodGroup, page: 1 }),
       setRequestType: (requestType) => set({ requestType, page: 1 }),
-      setEmergencyOnly: (emergencyOnly) => set({ emergencyOnly, page: 1 }),
       setSearch: (search) => set({ search, page: 1 }),
       setOrdering: (ordering) => set({ ordering, page: 1 }),
       setPage: (page) => set({ page }),
@@ -78,6 +94,22 @@ export const useReportsUiStore = create<ReportsUiState>()(
     }),
     {
       name: "reports-ui-state",
+      version: 1,
+      migrate: (persistedState) => {
+        const state = persistedState as Partial<ReportsPersistedState>;
+        return {
+          dateFrom: state.dateFrom ?? defaultFilters.dateFrom,
+          dateTo: state.dateTo ?? defaultFilters.dateTo,
+          groupBy: isReportGroupBy(state.groupBy) ? state.groupBy : defaultFilters.groupBy,
+          hospitalId: state.hospitalId ?? defaultFilters.hospitalId,
+          city: state.city ?? defaultFilters.city,
+          bloodGroup: state.bloodGroup ?? defaultFilters.bloodGroup,
+          requestType: state.requestType ?? defaultFilters.requestType,
+          pageSize: state.pageSize ?? defaultFilters.pageSize,
+          compareMode: state.compareMode ?? false,
+          activeTab: isReportTab(state.activeTab) ? state.activeTab : "requests",
+        };
+      },
       partialize: (state) => ({
         activeTab: state.activeTab,
         dateFrom: state.dateFrom,
@@ -87,7 +119,6 @@ export const useReportsUiStore = create<ReportsUiState>()(
         city: state.city,
         bloodGroup: state.bloodGroup,
         requestType: state.requestType,
-        emergencyOnly: state.emergencyOnly,
         pageSize: state.pageSize,
         compareMode: state.compareMode,
       }),

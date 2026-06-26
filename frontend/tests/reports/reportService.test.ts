@@ -24,7 +24,6 @@ describe("reportService", () => {
       city: "Kabul",
       blood_group: "O+",
       request_type: "urgent",
-      emergency_only: true,
     });
 
     expect(apiGetMock).toHaveBeenCalledWith("/reports/request-analytics/", {
@@ -33,7 +32,6 @@ describe("reportService", () => {
         city: "Kabul",
         blood_group: "O+",
         request_type: "urgent",
-        emergency_only: true,
         cache: "false",
       },
     });

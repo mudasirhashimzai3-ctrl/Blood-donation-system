@@ -1,7 +1,7 @@
 import { CalendarDays, RefreshCw, RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { Button, Input, Select, Switch } from "@/components/ui";
+import { Button, Input, Select } from "@/components/ui";
 import { BLOOD_GROUP_OPTIONS, REQUEST_TYPE_OPTIONS } from "@/modules/blood-requests/types/bloodRequest.types";
 import type { ReportGroupBy, ReportsFilterParams, ReportTab } from "../types/report.types";
 
@@ -12,14 +12,12 @@ interface ReportsFilterBarProps {
   city: string;
   bloodGroup: string;
   requestType: string;
-  emergencyOnly: boolean;
   onDateFromChange: (value: string) => void;
   onDateToChange: (value: string) => void;
   onGroupByChange: (value: "day" | "week" | "month") => void;
   onCityChange: (value: string) => void;
   onBloodGroupChange: (value: string) => void;
   onRequestTypeChange: (value: string) => void;
-  onEmergencyOnlyChange: (value: boolean) => void;
   onReset: () => void;
   onRefresh?: () => void;
   isRefreshing?: boolean;
@@ -40,14 +38,12 @@ export default function ReportsFilterBar({
   city,
   bloodGroup,
   requestType,
-  emergencyOnly,
   onDateFromChange,
   onDateToChange,
   onGroupByChange,
   onCityChange,
   onBloodGroupChange,
   onRequestTypeChange,
-  onEmergencyOnlyChange,
   onReset,
   onRefresh,
   isRefreshing = false,
@@ -60,7 +56,6 @@ export default function ReportsFilterBar({
     filters?.city,
     filters?.blood_group,
     filters?.request_type,
-    filters?.emergency_only,
   ].filter(Boolean).length;
 
   return (
@@ -143,14 +138,6 @@ export default function ReportsFilterBar({
           ]}
           onChange={(event) => onRequestTypeChange(event.target.value)}
         />
-        <div className="flex items-end">
-          <Switch
-            label={t("reports.filters.emergencyOnly", "Emergency only")}
-            description={t("reports.filters.emergencyOnlyDescription", "Urgent and critical requests")}
-            checked={emergencyOnly}
-            onChange={(event) => onEmergencyOnlyChange(event.target.checked)}
-          />
-        </div>
       </div>
     </div>
   );

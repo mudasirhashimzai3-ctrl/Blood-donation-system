@@ -18,7 +18,6 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui";
 import type {
   DonationAnalyticsResponse,
-  EmergencyAnalysisResponse,
   GeographicDistanceResponse,
   HospitalPerformanceResponse,
   RequestAnalyticsResponse,
@@ -36,7 +35,6 @@ interface ReportsTabPanelsProps {
   request: { data?: RequestAnalyticsResponse; isLoading: boolean; error: unknown; refetch: () => void };
   donation: { data?: DonationAnalyticsResponse; isLoading: boolean; error: unknown; refetch: () => void };
   hospital: { data?: HospitalPerformanceResponse; isLoading: boolean; error: unknown; refetch: () => void };
-  emergency: { data?: EmergencyAnalysisResponse; isLoading: boolean; error: unknown; refetch: () => void };
   geography: { data?: GeographicDistanceResponse; isLoading: boolean; error: unknown; refetch: () => void };
   system: { data?: SystemPerformanceResponse; isLoading: boolean; error: unknown; refetch: () => void };
   onResetFilters: () => void;
@@ -89,7 +87,6 @@ export default function ReportsTabPanels({
   request,
   donation,
   hospital,
-  emergency,
   geography,
   system,
   onResetFilters,
@@ -211,27 +208,6 @@ export default function ReportsTabPanels({
         </div>
       ) : (
         <ReportEmptyState message={t("reports.empty.hospitals", "No hospital performance records found.")} onReset={onResetFilters} />
-      ),
-      errorMessage
-    );
-  }
-
-  if (activeTab === "emergency") {
-    return renderState(
-      emergency,
-      emergency.data ? (
-        <div className="space-y-4">
-           <ReportsKpiGrid
-             items={[
-               { label: t("reports.kpi.emergencyRequests", "Emergency Requests"), value: emergency.data.summary.total_emergency_requests },
-               { label: t("reports.kpi.critical", "Critical"), value: emergency.data.summary.critical_requests },
-               { label: t("reports.kpi.completion", "Completion"), value: `${emergency.data.summary.completion_rate}%` },
-               { label: t("reports.kpi.overdue", "Overdue"), value: emergency.data.summary.overdue_pending_count },
-             ]}
-           />
-        </div>
-      ) : (
-        <ReportEmptyState message={t("reports.empty.emergency", "No emergency analytics found.")} onReset={onResetFilters} />
       ),
       errorMessage
     );

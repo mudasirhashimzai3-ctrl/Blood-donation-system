@@ -9,7 +9,6 @@ import { useReportFilters } from "../hooks/useReportFilters";
 import { useReportTabs } from "../hooks/useReportTabs";
 import {
   useDonationAnalytics,
-  useEmergencyAnalysis,
   useGeographicDistance,
   useHospitalPerformance,
   useRequestAnalytics,
@@ -21,7 +20,6 @@ const tabConfig: Array<{ id: ReportTab; labelKey: string; fallback: string }> = 
   { id: "requests", labelKey: "reports.tabs.requests", fallback: "Requests" },
   { id: "donations", labelKey: "reports.tabs.donations", fallback: "Donations" },
   { id: "hospitals", labelKey: "reports.tabs.hospitals", fallback: "Hospitals" },
-  { id: "emergency", labelKey: "reports.tabs.emergency", fallback: "Emergency" },
   { id: "geography", labelKey: "reports.tabs.geography", fallback: "Geography" },
   { id: "system", labelKey: "reports.tabs.system", fallback: "System" },
 ];
@@ -38,14 +36,12 @@ export default function ReportsWorkspacePage() {
     city,
     bloodGroup,
     requestType,
-    emergencyOnly,
     setDateFrom,
     setDateTo,
     setGroupBy,
     setCity,
     setBloodGroup,
     setRequestType,
-    setEmergencyOnly,
     resetFilters,
     queryParams,
   } = useReportFilters();
@@ -53,14 +49,12 @@ export default function ReportsWorkspacePage() {
   const requestQuery = useRequestAnalytics(queryParams, { enabled: activeTab === "requests" && can("reports") });
   const donationQuery = useDonationAnalytics(queryParams, { enabled: activeTab === "donations" && can("reports") });
   const hospitalQuery = useHospitalPerformance(queryParams, { enabled: activeTab === "hospitals" && can("reports") });
-  const emergencyQuery = useEmergencyAnalysis(queryParams, { enabled: activeTab === "emergency" && can("reports") });
   const geographyQuery = useGeographicDistance(queryParams, { enabled: activeTab === "geography" && can("reports") });
   const systemQuery = useSystemPerformance(queryParams, { enabled: activeTab === "system" && can("reports") });
   const activeReportQuery = {
     requests: requestQuery,
     donations: donationQuery,
     hospitals: hospitalQuery,
-    emergency: emergencyQuery,
     geography: geographyQuery,
     system: systemQuery,
   }[activeTab];
@@ -92,14 +86,12 @@ export default function ReportsWorkspacePage() {
         city={city}
         bloodGroup={bloodGroup}
         requestType={requestType}
-        emergencyOnly={emergencyOnly}
         onDateFromChange={setDateFrom}
         onDateToChange={setDateTo}
         onGroupByChange={setGroupBy}
         onCityChange={setCity}
         onBloodGroupChange={setBloodGroup}
         onRequestTypeChange={setRequestType}
-        onEmergencyOnlyChange={setEmergencyOnly}
         onReset={resetFilters}
         onRefresh={() => {
           void activeReportQuery.refetch();
@@ -141,12 +133,6 @@ export default function ReportsWorkspacePage() {
                     isLoading: hospitalQuery.isLoading,
                     error: hospitalQuery.error,
                     refetch: hospitalQuery.refetch,
-                  }}
-                  emergency={{
-                    data: emergencyQuery.data,
-                    isLoading: emergencyQuery.isLoading,
-                    error: emergencyQuery.error,
-                    refetch: emergencyQuery.refetch,
                   }}
                   geography={{
                     data: geographyQuery.data,

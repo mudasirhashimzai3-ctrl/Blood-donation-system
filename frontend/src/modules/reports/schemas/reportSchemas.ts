@@ -14,7 +14,6 @@ const reportFiltersBaseSchema = z.object({
     city: optionalTrimmedString,
     blood_group: optionalTrimmedString,
     request_type: optionalTrimmedString,
-    emergency_only: z.boolean().optional(),
     status: optionalTrimmedString,
     search: optionalTrimmedString,
     ordering: optionalTrimmedString,

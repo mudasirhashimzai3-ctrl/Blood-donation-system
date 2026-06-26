@@ -2,7 +2,6 @@ export const REPORT_TABS = [
   "requests",
   "donations",
   "hospitals",
-  "emergency",
   "geography",
   "system",
 ] as const;
@@ -19,7 +18,6 @@ export interface ReportsFilterParams {
   city?: string;
   blood_group?: string;
   request_type?: string;
-  emergency_only?: boolean;
   status?: string;
   search?: string;
   ordering?: string;
