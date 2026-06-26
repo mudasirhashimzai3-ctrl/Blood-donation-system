@@ -6,11 +6,19 @@ import { reportService } from "../services/reportService";
 import type { ReportsFilterParams } from "../types/report.types";
 import { reportKeys } from "./reportKeys";
 
+const freshReportQueryOptions = {
+  staleTime: 0,
+  gcTime: 0,
+  refetchOnMount: "always" as const,
+  refetchOnWindowFocus: true,
+};
+
 export const useRequestAnalytics = (params: ReportsFilterParams, options?: { enabled?: boolean }) =>
   useQuery({
     queryKey: reportKeys.requestAnalytics(params),
     queryFn: () => reportService.getRequestAnalytics(params).then((res) => res.data),
     enabled: options?.enabled ?? true,
+    ...freshReportQueryOptions,
   });
 
 export const useDonationAnalytics = (params: ReportsFilterParams, options?: { enabled?: boolean }) =>
@@ -18,6 +26,7 @@ export const useDonationAnalytics = (params: ReportsFilterParams, options?: { en
     queryKey: reportKeys.donationAnalytics(params),
     queryFn: () => reportService.getDonationAnalytics(params).then((res) => res.data),
     enabled: options?.enabled ?? true,
+    ...freshReportQueryOptions,
   });
 
 export const useHospitalPerformance = (params: ReportsFilterParams, options?: { enabled?: boolean }) =>
@@ -25,6 +34,7 @@ export const useHospitalPerformance = (params: ReportsFilterParams, options?: { 
     queryKey: reportKeys.hospitalPerformance(params),
     queryFn: () => reportService.getHospitalPerformance(params).then((res) => res.data),
     enabled: options?.enabled ?? true,
+    ...freshReportQueryOptions,
   });
 
 export const useEmergencyAnalysis = (params: ReportsFilterParams, options?: { enabled?: boolean }) =>
@@ -32,6 +42,7 @@ export const useEmergencyAnalysis = (params: ReportsFilterParams, options?: { en
     queryKey: reportKeys.emergencyAnalysis(params),
     queryFn: () => reportService.getEmergencyAnalysis(params).then((res) => res.data),
     enabled: options?.enabled ?? true,
+    ...freshReportQueryOptions,
   });
 
 export const useGeographicDistance = (params: ReportsFilterParams, options?: { enabled?: boolean }) =>
@@ -39,6 +50,7 @@ export const useGeographicDistance = (params: ReportsFilterParams, options?: { e
     queryKey: reportKeys.geographicDistance(params),
     queryFn: () => reportService.getGeographicDistance(params).then((res) => res.data),
     enabled: options?.enabled ?? true,
+    ...freshReportQueryOptions,
   });
 
 export const useSystemPerformance = (params: ReportsFilterParams, options?: { enabled?: boolean }) =>
@@ -46,6 +58,7 @@ export const useSystemPerformance = (params: ReportsFilterParams, options?: { en
     queryKey: reportKeys.systemPerformance(params),
     queryFn: () => reportService.getSystemPerformance(params).then((res) => res.data),
     enabled: options?.enabled ?? true,
+    ...freshReportQueryOptions,
   });
 
 export const useDownloadManagementReportPdf = () =>

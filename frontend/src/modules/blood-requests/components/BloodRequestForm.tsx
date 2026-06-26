@@ -13,7 +13,7 @@ import type { Province } from "@/modules/hospitals";
 import { Button, Input, Select, Switch } from "@components/ui";
 import { type BloodRequestFormValues } from "../schemas/bloodRequestSchemas";
 import { useBloodRequestRecipientsList } from "../queries/useBloodRequestQueries";
-import { BLOOD_GROUP_OPTIONS, REQUEST_TYPE_OPTIONS } from "../types/bloodRequest.types";
+import { BLOOD_GROUP_OPTIONS, BLOOD_REQUEST_UNIT_OPTIONS, REQUEST_TYPE_OPTIONS } from "../types/bloodRequest.types";
 
 interface BloodRequestFormProps {
   form: UseFormReturn<BloodRequestFormValues>;
@@ -193,11 +193,14 @@ export default function BloodRequestForm({
             options={BLOOD_GROUP_OPTIONS.map((group) => ({ value: group, label: group }))}
             {...register("blood_group")}
           />
-          <Input
-            type="number"
+          <Select
             label={t("bloodRequests.form.unitsNeeded", "Units Needed")}
             error={errors.units_needed?.message}
-            {...register("units_needed", { valueAsNumber: true })}
+            options={BLOOD_REQUEST_UNIT_OPTIONS.map((value) => ({
+              value: String(value),
+              label: value === 1 ? "1 unit" : `${value} units`,
+            }))}
+            {...register("units_needed")}
           />
           <Select
             label={t("bloodRequests.form.requestType", "Urgency Status")}

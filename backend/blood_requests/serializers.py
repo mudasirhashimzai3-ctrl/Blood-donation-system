@@ -6,10 +6,11 @@ from rest_framework import serializers
 from accounts.models import normalize_role_name
 from recipients.models import Recipient
 
-from .models import BloodRequest, BloodRequestNotification
+from .models import ALLOWED_UNITS_NEEDED, BloodRequest, BloodRequestNotification
 
 
 class BloodRequestListSerializer(serializers.ModelSerializer):
+    units_needed = serializers.DecimalField(max_digits=2, decimal_places=1, coerce_to_string=False)
     recipient_name = serializers.CharField(source="recipient.full_name", read_only=True)
     hospital_name = serializers.CharField(source="hospital.name", read_only=True)
     assigned_donor_name = serializers.SerializerMethodField()
@@ -87,6 +88,7 @@ class BloodRequestListSerializer(serializers.ModelSerializer):
 
 
 class BloodRequestDetailSerializer(serializers.ModelSerializer):
+    units_needed = serializers.DecimalField(max_digits=2, decimal_places=1, coerce_to_string=False)
     recipient_name = serializers.CharField(source="recipient.full_name", read_only=True)
     recipient_phone = serializers.CharField(source="recipient.phone", read_only=True)
     hospital_name = serializers.CharField(source="hospital.name", read_only=True)
@@ -233,6 +235,7 @@ class BloodRequestDetailSerializer(serializers.ModelSerializer):
 
 
 class BloodRequestWriteSerializer(serializers.ModelSerializer):
+    units_needed = serializers.DecimalField(max_digits=2, decimal_places=1, coerce_to_string=False)
     recipient = serializers.PrimaryKeyRelatedField(
         queryset=Recipient.objects.filter(deleted_at__isnull=True),
         required=False,
@@ -270,8 +273,8 @@ class BloodRequestWriteSerializer(serializers.ModelSerializer):
         }
 
     def validate_units_needed(self, value):
-        if value < 1:
-            raise serializers.ValidationError("Units needed must be at least 1.")
+        if value not in ALLOWED_UNITS_NEEDED:
+            raise serializers.ValidationError("Units needed must be 1, 1.5, or 2.")
         return value
 
     def validate(self, attrs):

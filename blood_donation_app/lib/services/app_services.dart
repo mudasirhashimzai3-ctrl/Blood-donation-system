@@ -201,10 +201,9 @@ class DonorService {
     final nearby = ((data['nearby_requests'] as List?) ?? const [])
         .map((e) => BloodRequestItem.fromJson(e as Map<String, dynamic>))
         .toList(growable: false);
-    final donationRequests =
-        ((data['donation_requests'] as List?) ?? const [])
-            .map((e) => DonationItem.fromJson(e as Map<String, dynamic>))
-            .toList(growable: false);
+    final donationRequests = ((data['donation_requests'] as List?) ?? const [])
+        .map((e) => DonationItem.fromJson(e as Map<String, dynamic>))
+        .toList(growable: false);
     final emergency = ((data['emergency_requests'] as List?) ?? const [])
         .map((e) => BloodRequestItem.fromJson(e as Map<String, dynamic>))
         .toList(growable: false);
@@ -420,7 +419,7 @@ class RecipientService {
   Future<void> createRequest({
     required int hospitalId,
     required String bloodGroup,
-    required int units,
+    required double units,
     required String emergencyLevel,
   }) async {
     final cleanedBloodGroup = bloodGroup.trim();

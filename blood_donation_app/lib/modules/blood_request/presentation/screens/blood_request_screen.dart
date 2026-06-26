@@ -4,9 +4,9 @@ import 'package:blood_donation_app/core/theme/app_dimensions.dart';
 import 'package:blood_donation_app/core/widgets/buttons/app_button.dart';
 import 'package:blood_donation_app/core/widgets/cards/app_card.dart';
 import 'package:blood_donation_app/core/widgets/fields/app_dropdown_field.dart';
-import 'package:blood_donation_app/core/widgets/fields/app_text_field.dart';
 import 'package:blood_donation_app/core/widgets/layouts/app_scaffold.dart';
 import 'package:blood_donation_app/core/widgets/loaders/app_loading_indicator.dart';
+import 'package:blood_donation_app/models/app_models.dart';
 import 'package:blood_donation_app/modules/blood_bank/data/models/blood_bank_model.dart';
 import 'package:blood_donation_app/modules/blood_request/data/models/blood_request_model.dart';
 import 'package:blood_donation_app/modules/blood_request/data/services/blood_request_service.dart';
@@ -26,9 +26,7 @@ class _BloodRequestScreenState extends State<BloodRequestScreen> {
   String? _selectedHospitalId;
   String? _selectedBloodGroup;
   String _requestType = 'normal';
-  final TextEditingController _unitsController = TextEditingController(
-    text: '1',
-  );
+  double _selectedUnits = 1;
   bool _submitting = false;
 
   @override
@@ -37,12 +35,6 @@ class _BloodRequestScreenState extends State<BloodRequestScreen> {
     _service = BloodRequestService(getIt());
     _future = _service.getRequests();
     _loadHospitals();
-  }
-
-  @override
-  void dispose() {
-    _unitsController.dispose();
-    super.dispose();
   }
 
   Future<void> _loadHospitals() async {
@@ -70,24 +62,16 @@ class _BloodRequestScreenState extends State<BloodRequestScreen> {
       return;
     }
 
-    final units = int.tryParse(_unitsController.text.trim());
-    if (units == null || units < 1) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Units must be at least 1')));
-      return;
-    }
-
     setState(() => _submitting = true);
     try {
       await _service.createRequest(
         hospitalId: _selectedHospitalId!,
         bloodGroup: _selectedBloodGroup!,
-        units: units,
+        units: _selectedUnits,
         requestType: _requestType,
       );
       if (!mounted) return;
-      _unitsController.text = '1';
+      setState(() => _selectedUnits = 1);
       await _refresh();
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -174,10 +158,24 @@ class _BloodRequestScreenState extends State<BloodRequestScreen> {
                     },
                   ),
                   const SizedBox(height: AppDimensions.sm),
-                  AppTextField(
-                    controller: _unitsController,
+                  AppDropdownField<double>(
+                    value: _selectedUnits,
                     label: 'Units Needed',
-                    keyboardType: TextInputType.number,
+                    items: allowedBloodRequestUnits
+                        .map(
+                          (value) => DropdownMenuItem<double>(
+                            value: value,
+                            child: Text(
+                              '${formatBloodRequestUnits(value)} unit${value == 1 ? '' : 's'}',
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _selectedUnits = value);
+                      }
+                    },
                   ),
                   const SizedBox(height: AppDimensions.sm),
                   AppButton(
@@ -221,7 +219,9 @@ class _BloodRequestScreenState extends State<BloodRequestScreen> {
                               children: [
                                 Text('Hospital: ${item.hospitalName ?? 'N/A'}'),
                                 Text('Blood: ${item.bloodGroup}'),
-                                Text('Units: ${item.unitsNeeded}'),
+                                Text(
+                                  'Units: ${formatBloodRequestUnits(item.unitsNeeded)}',
+                                ),
                                 Text('Type: ${item.requestType}'),
                                 Text('Status: ${item.status}'),
                               ],

@@ -56,6 +56,14 @@ export default function ReportsWorkspacePage() {
   const emergencyQuery = useEmergencyAnalysis(queryParams, { enabled: activeTab === "emergency" && can("reports") });
   const geographyQuery = useGeographicDistance(queryParams, { enabled: activeTab === "geography" && can("reports") });
   const systemQuery = useSystemPerformance(queryParams, { enabled: activeTab === "system" && can("reports") });
+  const activeReportQuery = {
+    requests: requestQuery,
+    donations: donationQuery,
+    hospitals: hospitalQuery,
+    emergency: emergencyQuery,
+    geography: geographyQuery,
+    system: systemQuery,
+  }[activeTab];
 
   if (!can("reports")) {
     return (
@@ -93,6 +101,12 @@ export default function ReportsWorkspacePage() {
         onRequestTypeChange={setRequestType}
         onEmergencyOnlyChange={setEmergencyOnly}
         onReset={resetFilters}
+        onRefresh={() => {
+          void activeReportQuery.refetch();
+        }}
+        isRefreshing={activeReportQuery.isFetching}
+        activeTab={activeTab}
+        filters={queryParams}
       />
 
       <Card>

@@ -99,9 +99,9 @@ class AuthGlassCard extends StatelessWidget {
         child: Container(
           padding: padding,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.86),
+            color: Colors.white.withValues(alpha: 0.86),
             borderRadius: BorderRadius.circular(borderRadius),
-            border: Border.all(color: Colors.white.withOpacity(0.8)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.8)),
             boxShadow: const [
               BoxShadow(
                 color: Color(0x220E1438),

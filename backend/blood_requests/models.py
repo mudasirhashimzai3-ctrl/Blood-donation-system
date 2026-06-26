@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 from django.db.models import Q
 
@@ -13,7 +15,11 @@ from .image_path import (
 )
 
 
+ALLOWED_UNITS_NEEDED = [Decimal("1.0"), Decimal("1.5"), Decimal("2.0")]
+
+
 class BloodRequest(BaseModel):
+    ALLOWED_UNITS_NEEDED = ALLOWED_UNITS_NEEDED
     BLOOD_GROUP_CHOICES = [
         ("A+", "A+"),
         ("A-", "A-"),
@@ -46,7 +52,7 @@ class BloodRequest(BaseModel):
     recipient = models.ForeignKey(Recipient, on_delete=models.PROTECT, related_name="blood_requests")
     hospital = models.ForeignKey(Hospital, on_delete=models.PROTECT, related_name="blood_requests")
     blood_group = models.CharField(max_length=3, choices=BLOOD_GROUP_CHOICES)
-    units_needed = models.PositiveSmallIntegerField()
+    units_needed = models.DecimalField(max_digits=2, decimal_places=1)
     request_type = models.CharField(max_length=20, choices=REQUEST_TYPE_CHOICES, default="normal")
     estimated_time_to_fulfill = models.PositiveIntegerField(null=True, blank=True)
     nearby_donors_count = models.PositiveIntegerField(default=0)
@@ -89,7 +95,13 @@ class BloodRequest(BaseModel):
             models.Index(fields=["assigned_donor"]),
             models.Index(fields=["status", "is_active", "response_deadline"], name="blood_req_stat_dead_idx"),
         ]
-       
+        constraints = [
+            models.CheckConstraint(
+                check=Q(units_needed__in=ALLOWED_UNITS_NEEDED),
+                name="blood_request_units_allowed",
+            ),
+        ]
+
 
     def __str__(self):
         return f"BloodRequest #{self.pk} ({self.blood_group}, {self.status})"

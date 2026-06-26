@@ -10,24 +10,29 @@ import type {
   SystemPerformanceResponse,
 } from "../types/report.types";
 
+const withFreshReportParams = (params?: ReportsFilterParams): ReportsFilterParams => ({
+  ...params,
+  cache: "false",
+});
+
 export const reportService = {
   getRequestAnalytics: (params?: ReportsFilterParams) =>
-    apiClient.get<RequestAnalyticsResponse>("/reports/request-analytics/", { params }),
+    apiClient.get<RequestAnalyticsResponse>("/reports/request-analytics/", { params: withFreshReportParams(params) }),
 
   getDonationAnalytics: (params?: ReportsFilterParams) =>
-    apiClient.get<DonationAnalyticsResponse>("/reports/donation-analytics/", { params }),
+    apiClient.get<DonationAnalyticsResponse>("/reports/donation-analytics/", { params: withFreshReportParams(params) }),
 
   getHospitalPerformance: (params?: ReportsFilterParams) =>
-    apiClient.get<HospitalPerformanceResponse>("/reports/hospital-performance/", { params }),
+    apiClient.get<HospitalPerformanceResponse>("/reports/hospital-performance/", { params: withFreshReportParams(params) }),
 
   getEmergencyAnalysis: (params?: ReportsFilterParams) =>
-    apiClient.get<EmergencyAnalysisResponse>("/reports/emergency-analysis/", { params }),
+    apiClient.get<EmergencyAnalysisResponse>("/reports/emergency-analysis/", { params: withFreshReportParams(params) }),
 
   getGeographicDistance: (params?: ReportsFilterParams) =>
-    apiClient.get<GeographicDistanceResponse>("/reports/geographic-distance/", { params }),
+    apiClient.get<GeographicDistanceResponse>("/reports/geographic-distance/", { params: withFreshReportParams(params) }),
 
   getSystemPerformance: (params?: ReportsFilterParams) =>
-    apiClient.get<SystemPerformanceResponse>("/reports/system-performance/", { params }),
+    apiClient.get<SystemPerformanceResponse>("/reports/system-performance/", { params: withFreshReportParams(params) }),
 
   downloadManagementReportPdf: () =>
     apiClient.get<Blob>("/reports/management-summary/pdf/", {

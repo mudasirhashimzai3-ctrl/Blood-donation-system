@@ -207,6 +207,40 @@ class BloodRequestApiTests(APITestCase):
         self.assertEqual(str(obj.location_lon), "69.207500")
         self.assertEqual(obj.request_type, "urgent")
 
+    def test_create_accepts_only_supported_unit_choices(self):
+        for units in [1, 1.5, 2]:
+            with self.subTest(units=units):
+                response = self.client.post(
+                    self.base_url,
+                    {
+                        "hospital": self.hospital.id,
+                        "blood_group": "O+",
+                        "units_needed": units,
+                        "request_type": "urgent",
+                    },
+                    format="json",
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+                self.assertEqual(Decimal(str(response.data["units_needed"])), Decimal(str(units)))
+
+    def test_create_rejects_unsupported_unit_choices(self):
+        for units in [0, 3, 1.2]:
+            with self.subTest(units=units):
+                response = self.client.post(
+                    self.base_url,
+                    {
+                        "hospital": self.hospital.id,
+                        "blood_group": "O+",
+                        "units_needed": units,
+                        "request_type": "urgent",
+                    },
+                    format="json",
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertIn("units_needed", response.data)
+
     def test_create_rejects_client_supplied_recipient_field(self):
         other_user = User.objects.create_user(
             username="recipient-other",

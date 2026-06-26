@@ -18,11 +18,13 @@ export const BLOOD_REQUEST_STATUS_OPTIONS = [
 
 export const REQUEST_TYPE_OPTIONS = ["normal", "urgent", "critical"] as const;
 export const CANCELLED_BY_OPTIONS = ["admin", "recipient"] as const;
+export const BLOOD_REQUEST_UNIT_OPTIONS = [1, 1.5, 2] as const;
 
 export type BloodGroup = (typeof BLOOD_GROUP_OPTIONS)[number];
 export type BloodRequestStatus = (typeof BLOOD_REQUEST_STATUS_OPTIONS)[number];
 export type RequestType = (typeof REQUEST_TYPE_OPTIONS)[number];
 export type CancelledBy = (typeof CANCELLED_BY_OPTIONS)[number];
+export type BloodRequestUnitsNeeded = (typeof BLOOD_REQUEST_UNIT_OPTIONS)[number];
 
 export interface BloodRequestAttachment {
   type: "medical_report" | "prescription_image" | "emergency_proof";
@@ -38,7 +40,7 @@ export interface BloodRequest {
   hospital_name: string;
   hospital_city: string;
   blood_group: BloodGroup;
-  units_needed: number;
+  units_needed: BloodRequestUnitsNeeded;
   request_type: RequestType;
   estimated_time_to_fulfill: number | null;
   nearby_donors_count: number;
@@ -94,7 +96,7 @@ export interface BloodRequestPayload {
   recipient?: number;
   hospital: number;
   blood_group: BloodGroup;
-  units_needed: number;
+  units_needed: BloodRequestUnitsNeeded;
   request_type: RequestType;
   auto_match_enabled?: boolean;
   location_lat?: string;

@@ -8,6 +8,12 @@ const validateDateTime = (value?: string) => {
 };
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const unitsNeededSchema = z.preprocess(
+  (value) => (value === "" || value === null || value === undefined ? value : Number(value)),
+  z.union([z.literal(1), z.literal(1.5), z.literal(2)], {
+    errorMap: () => ({ message: "Units needed must be 1, 1.5, or 2" }),
+  })
+);
 
 const fileFieldSchema = z
   .any()
@@ -24,7 +30,7 @@ export const bloodRequestFormSchema = z.object({
   recipient: z.coerce.number().int().positive().optional(),
   hospital: z.coerce.number().int().positive("Hospital is required"),
   blood_group: z.enum(BLOOD_GROUP_OPTIONS),
-  units_needed: z.coerce.number().int().min(1, "Units needed must be at least 1"),
+  units_needed: unitsNeededSchema,
   request_type: z.enum(REQUEST_TYPE_OPTIONS),
   auto_match_enabled: z.boolean(),
   location_lat: z

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:blood_donation_app/auth/widgets/auth_entry_primitives.dart';
 import 'package:blood_donation_app/models/app_models.dart';
 import 'package:blood_donation_app/shared/app_routes.dart';
@@ -10,7 +12,7 @@ class RoleSelectionScreen extends StatelessWidget {
   Future<void> _selectRole(BuildContext context, AppRole role) async {
     await AppSession.setSelectedRole(role);
     if (!context.mounted) return;
-    Navigator.pushNamed(context, AppRoutes.login);
+    unawaited(Navigator.pushNamed(context, AppRoutes.login));
   }
 
   @override
@@ -177,7 +179,7 @@ class _RoleHeroCard extends StatelessWidget {
                     width: compact ? 56 : 72,
                     height: compact ? 56 : 72,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.22),
+                      color: Colors.white.withValues(alpha: 0.22),
                       borderRadius: BorderRadius.circular(compact ? 18 : 22),
                     ),
                     child: Icon(icon,

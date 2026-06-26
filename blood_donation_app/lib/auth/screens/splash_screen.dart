@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:blood_donation_app/auth/widgets/auth_entry_primitives.dart';
 import 'package:blood_donation_app/core/di/injection.dart';
 import 'package:blood_donation_app/models/app_models.dart';
@@ -45,7 +47,7 @@ class _AppSplashScreenState extends State<AppSplashScreen>
     if (!mounted) return;
 
     if (!AppSession.isOnboardingDone()) {
-      Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
+      unawaited(Navigator.pushReplacementNamed(context, AppRoutes.onboarding));
       return;
     }
 
@@ -54,7 +56,8 @@ class _AppSplashScreenState extends State<AppSplashScreen>
         : await AuthService(getIt()).getCurrentUser();
     if (!mounted) return;
     if (user == null) {
-      Navigator.pushReplacementNamed(context, AppRoutes.roleSelection);
+      unawaited(
+          Navigator.pushReplacementNamed(context, AppRoutes.roleSelection));
       return;
     }
     _goDashboard(user.role);
@@ -62,10 +65,12 @@ class _AppSplashScreenState extends State<AppSplashScreen>
 
   void _goDashboard(AppRole role) {
     if (role == AppRole.recipient) {
-      Navigator.pushReplacementNamed(context, AppRoutes.recipientDashboard);
+      unawaited(Navigator.pushReplacementNamed(
+          context, AppRoutes.recipientDashboard));
       return;
     }
-    Navigator.pushReplacementNamed(context, AppRoutes.donorDashboard);
+    unawaited(
+        Navigator.pushReplacementNamed(context, AppRoutes.donorDashboard));
   }
 
   @override

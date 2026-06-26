@@ -15,6 +15,7 @@ const Switch = forwardRef<HTMLInputElement, SwitchProps>(
             ref={ref}
             type="checkbox"
             className="toggle-input"
+            aria-label={props["aria-label"] ?? label}
             {...props}
           />
           <div className="toggle-switch">

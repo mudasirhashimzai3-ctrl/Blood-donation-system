@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 
 import {
   bloodRequestFormSchema,
@@ -72,7 +72,7 @@ export const normalizeBloodRequestPayload = (
 
 export const useBloodRequestForm = (bloodRequest?: Partial<BloodRequest>) => {
   return useForm<BloodRequestFormValues>({
-    resolver: zodResolver(bloodRequestFormSchema),
+    resolver: zodResolver(bloodRequestFormSchema) as Resolver<BloodRequestFormValues>,
     defaultValues: mapBloodRequestToFormValues(bloodRequest),
   });
 };

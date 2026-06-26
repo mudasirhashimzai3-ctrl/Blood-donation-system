@@ -27,7 +27,7 @@ class BloodRequestService {
   Future<void> createRequest({
     required String hospitalId,
     required String bloodGroup,
-    required int units,
+    required double units,
     required String requestType,
   }) async {
     await _apiClient.post(

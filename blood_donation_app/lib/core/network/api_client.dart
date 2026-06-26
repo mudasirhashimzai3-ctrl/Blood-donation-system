@@ -1,12 +1,11 @@
-import 'package:dio/dio.dart';
-import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:blood_donation_app/core/config/app_config.dart';
 import 'package:blood_donation_app/core/constants/app_constants.dart';
 import 'package:blood_donation_app/core/errors/exceptions.dart';
 import 'package:blood_donation_app/core/storage/secure_storage.dart';
+import 'package:dio/dio.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 class ApiClient {
-
   ApiClient(this._secureStorage) {
     final options = BaseOptions(
       baseUrl: AppConfig.baseUrl,
@@ -209,7 +208,6 @@ class ApiClient {
 }
 
 class _AuthInterceptor extends Interceptor {
-
   _AuthInterceptor({
     required this.secureStorage,
     required this.dio,

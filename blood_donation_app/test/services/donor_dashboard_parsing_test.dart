@@ -15,7 +15,7 @@ void main() {
         {
           'id': 11,
           'blood_group': 'O+',
-          'units_needed': 1,
+          'units_needed': 1.5,
           'request_type': 'urgent',
           'status': 'pending',
           'is_emergency': true,
@@ -52,6 +52,33 @@ void main() {
     expect(requests.single.condition, 'critical');
     expect(requests.single.requestBloodGroup, 'O+');
     expect(requests.single.requestType, 'urgent');
-    expect(dashboard['nearbyRequests'], isA<List<BloodRequestItem>>());
+    final nearbyRequests =
+        dashboard['nearbyRequests'] as List<BloodRequestItem>;
+    expect(nearbyRequests.single.unitsNeeded, 1.5);
+    expect(formatBloodRequestUnits(nearbyRequests.single.unitsNeeded), '1.5');
+  });
+
+  test('parses blood request units from numeric and string JSON', () {
+    final numeric = BloodRequestItem.fromJson({
+      'id': 11,
+      'blood_group': 'O+',
+      'units_needed': 1.5,
+      'request_type': 'urgent',
+      'status': 'pending',
+      'is_emergency': true,
+    });
+    final stringValue = BloodRequestItem.fromJson({
+      'id': 12,
+      'blood_group': 'A+',
+      'units_needed': '2.0',
+      'request_type': 'normal',
+      'status': 'pending',
+      'is_emergency': false,
+    });
+
+    expect(numeric.unitsNeeded, 1.5);
+    expect(formatBloodRequestUnits(numeric.unitsNeeded), '1.5');
+    expect(stringValue.unitsNeeded, 2);
+    expect(formatBloodRequestUnits(stringValue.unitsNeeded), '2');
   });
 }

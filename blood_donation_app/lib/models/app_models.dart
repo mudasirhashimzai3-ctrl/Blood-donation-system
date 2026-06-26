@@ -1,5 +1,17 @@
 enum AppRole { donor, recipient, admin, unknown }
 
+const allowedBloodRequestUnits = <double>[1, 1.5, 2];
+
+double parseBloodRequestUnits(dynamic value, {double fallback = 0}) {
+  if (value is num) return value.toDouble();
+  return double.tryParse(value?.toString() ?? '') ?? fallback;
+}
+
+String formatBloodRequestUnits(double value) {
+  if (value % 1 == 0) return value.toInt().toString();
+  return value.toStringAsFixed(1);
+}
+
 class AppUser {
   factory AppUser.fromJson(Map<String, dynamic> json) {
     final rawRole = ((json['role'] ?? json['role_name']) ?? '').toString();
@@ -91,7 +103,7 @@ class BloodRequestItem {
     return BloodRequestItem(
       id: json['id'].toString(),
       bloodGroup: (json['blood_group'] ?? '').toString(),
-      unitsNeeded: (json['units_needed'] as num?)?.toInt() ?? 0,
+      unitsNeeded: parseBloodRequestUnits(json['units_needed']),
       requestType: (json['request_type'] ?? '').toString(),
       status: (json['status'] ?? '').toString(),
       isEmergency: json['is_emergency'] == true,
@@ -118,7 +130,7 @@ class BloodRequestItem {
 
   final String id;
   final String bloodGroup;
-  final int unitsNeeded;
+  final double unitsNeeded;
   final String requestType;
   final String status;
   final bool isEmergency;

@@ -269,7 +269,7 @@ class _CreateRequestScreen extends StatefulWidget {
 }
 
 class _CreateRequestScreenState extends State<_CreateRequestScreen> {
-  final _unitsController = TextEditingController(text: '1');
+  double _selectedUnits = 1;
   String _bloodGroup = AppConstants.bloodTypes.first;
   String _level = 'normal';
   bool _loading = false;
@@ -313,14 +313,7 @@ class _CreateRequestScreenState extends State<_CreateRequestScreen> {
     }
   }
 
-  @override
-  void dispose() {
-    _unitsController.dispose();
-    super.dispose();
-  }
-
   Future<void> _create() async {
-    final units = int.tryParse(_unitsController.text.trim()) ?? 1;
     if (_selectedHospitalId == null) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Select a hospital')));
@@ -337,7 +330,7 @@ class _CreateRequestScreenState extends State<_CreateRequestScreen> {
       await RecipientService(getIt()).createRequest(
         hospitalId: _selectedHospitalId!,
         bloodGroup: _bloodGroup,
-        units: units,
+        units: _selectedUnits,
         emergencyLevel: _level,
       );
       if (!mounted) return;
@@ -377,9 +370,7 @@ class _CreateRequestScreenState extends State<_CreateRequestScreen> {
                 icon: Icons.water_drop_rounded,
               ),
               StatItem(
-                value: _unitsController.text.trim().isEmpty
-                    ? '1'
-                    : _unitsController.text.trim(),
+                value: formatBloodRequestUnits(_selectedUnits),
                 label: 'Units',
                 icon: Icons.inventory_2_rounded,
               ),
@@ -441,10 +432,20 @@ class _CreateRequestScreenState extends State<_CreateRequestScreen> {
                   ),
                 ),
                 const SizedBox(height: 14),
-                TextField(
-                  controller: _unitsController,
-                  keyboardType: TextInputType.number,
-                  onChanged: (_) => setState(() {}),
+                DropdownButtonFormField<double>(
+                  initialValue: _selectedUnits,
+                  items: allowedBloodRequestUnits
+                      .map(
+                        (value) => DropdownMenuItem<double>(
+                          value: value,
+                          child: Text(
+                            '${formatBloodRequestUnits(value)} unit${value == 1 ? '' : 's'}',
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) =>
+                      setState(() => _selectedUnits = value ?? 1),
                   decoration: const InputDecoration(
                     labelText: 'Units',
                     prefixIcon: Icon(Icons.inventory_2_rounded),

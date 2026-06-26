@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:blood_donation_app/auth/widgets/auth_entry_primitives.dart';
 import 'package:blood_donation_app/shared/app_routes.dart';
 import 'package:blood_donation_app/shared/app_session.dart';
@@ -55,7 +57,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Future<void> _complete() async {
     await AppSession.setOnboardingDone();
     if (!mounted) return;
-    Navigator.pushReplacementNamed(context, AppRoutes.roleSelection);
+    unawaited(Navigator.pushReplacementNamed(context, AppRoutes.roleSelection));
   }
 
   Future<void> _skip() async {

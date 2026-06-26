@@ -10,7 +10,7 @@ describe("useBloodRequestForm helpers", () => {
     const values = mapBloodRequestToFormValues({
       hospital: 11,
       blood_group: "A+",
-      units_needed: 3,
+      units_needed: 1.5,
       request_type: "critical",
       auto_match_enabled: true,
       location_lat: "34.555300",

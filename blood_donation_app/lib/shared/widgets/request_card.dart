@@ -104,7 +104,7 @@ class RequestCard extends StatelessWidget {
                   child: _RequestMeta(
                     icon: Icons.inventory_2_rounded,
                     label: 'Units',
-                    value: '${item.unitsNeeded}',
+                    value: formatBloodRequestUnits(item.unitsNeeded),
                   ),
                 ),
                 const SizedBox(width: 10),
