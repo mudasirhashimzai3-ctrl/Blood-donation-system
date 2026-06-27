@@ -1,5 +1,3 @@
-import threading
-
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Q
@@ -52,33 +50,12 @@ def _run_request_automation_safely(request_id: int):
         return
 
 
-def _queue_request_automation_or_fallback(request_id: int):
-    try:
-        delay = getattr(run_request_automation, "delay", None)
-        if callable(delay):
-            delay(request_id)
-            return
-    except Exception:
-        pass
-
-    _run_request_automation_safely(request_id)
-
-
-def _start_request_automation_worker(request_id: int):
-    thread = threading.Thread(
-        target=_queue_request_automation_or_fallback,
-        args=(request_id,),
-        daemon=True,
-    )
-    thread.start()
-
-
 def _enqueue_request_automation(request_id: int):
     if getattr(settings, "CELERY_TASK_ALWAYS_EAGER", False):
         _run_request_automation_safely(request_id)
         return
 
-    transaction.on_commit(lambda: _start_request_automation_worker(request_id))
+    transaction.on_commit(lambda: _run_request_automation_safely(request_id))
 
 
 def _ensure_recipient_profile_for_user(user):
@@ -203,6 +180,7 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
             },
             sent_via=["in_app"],
             role_names=["admin", "receptionist"],
+            user_ids=[recipient_profile.user_id] if recipient_profile.user_id else None,
             request_id=instance.id,
             metadata={"status": instance.status, "request_type": instance.request_type},
         )

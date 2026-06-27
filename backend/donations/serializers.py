@@ -2,6 +2,7 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from donations.models import Donation
+from donations.services.actionable import get_donation_actionability_failure
 from donations.services.metrics import build_distance_eta_snapshot
 from donations.services.sync import sync_candidate_notification_for_donation
 from donations.services.transitions import can_transition, is_terminal_status
@@ -21,6 +22,8 @@ class DonationListSerializer(serializers.ModelSerializer):
     nearby_donors_count_dynamic = serializers.SerializerMethodField()
     estimated_time_dynamic = serializers.SerializerMethodField()
     distance_dynamic = serializers.SerializerMethodField()
+    can_accept_response = serializers.SerializerMethodField()
+    accept_response_unavailable_reason = serializers.SerializerMethodField()
 
     class Meta:
         model = Donation
@@ -48,6 +51,8 @@ class DonationListSerializer(serializers.ModelSerializer):
             "nearby_donors_count_dynamic",
             "estimated_time_dynamic",
             "distance_dynamic",
+            "can_accept_response",
+            "accept_response_unavailable_reason",
             "created_at",
             "updated_at",
         ]
@@ -83,6 +88,18 @@ class DonationListSerializer(serializers.ModelSerializer):
             .first()
         )
         return closest.distance_km if closest else None
+
+    def _get_accept_response_failure(self, obj):
+        if obj.status != "pending":
+            return "Only pending donations can be accepted."
+        failure, _snapshot = get_donation_actionability_failure(obj)
+        return failure
+
+    def get_can_accept_response(self, obj):
+        return self._get_accept_response_failure(obj) is None
+
+    def get_accept_response_unavailable_reason(self, obj):
+        return self._get_accept_response_failure(obj)
 
 
 class DonationDetailSerializer(DonationListSerializer):
@@ -155,6 +172,17 @@ class DonationEstimateRefreshSerializer(serializers.Serializer):
 
 class DonationRespondSerializer(serializers.Serializer):
     action = serializers.ChoiceField(choices=[("accept", "accept"), ("decline", "decline")])
+
+    def to_internal_value(self, data):
+        if isinstance(data, dict):
+            data = data.copy()
+            if "action" not in data and "status" in data:
+                data["action"] = data["status"]
+            if data.get("action") == "accepted":
+                data["action"] = "accept"
+            elif data.get("action") == "declined":
+                data["action"] = "decline"
+        return super().to_internal_value(data)
 
 
 def apply_status_update(donation: Donation, *, status_value: str, notes=None, cancellation_reason=None):

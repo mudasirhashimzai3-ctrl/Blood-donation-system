@@ -20,6 +20,8 @@ class NotificationsSocketService {
     final token = await _secureStorage.read(AppConstants.accessTokenKey);
     if (token == null || token.isEmpty) return;
 
+    await disconnect();
+
     final socketUrl =
         '${AppConfig.websocketBaseUrl}/ws/notifications/?token=$token';
     _channel = WebSocketChannel.connect(Uri.parse(socketUrl));

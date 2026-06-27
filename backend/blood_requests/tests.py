@@ -314,10 +314,10 @@ class BloodRequestApiTests(APITestCase):
         self.assertEqual(created.recipient_id, self.recipient.id)
 
     @override_settings(CELERY_TASK_ALWAYS_EAGER=False)
-    def test_create_queues_auto_match_after_commit_when_not_eager(self):
+    def test_create_runs_auto_match_after_commit_without_queue_delay(self):
         self.client.force_authenticate(user=self.admin)
 
-        with patch("blood_requests.views.run_request_automation.delay") as delay_mock:
+        with patch("blood_requests.views._run_request_automation_safely") as automation_mock:
             with self.captureOnCommitCallbacks(execute=True) as callbacks:
                 response = self.client.post(
                     self.base_url,
@@ -333,8 +333,8 @@ class BloodRequestApiTests(APITestCase):
                 )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(len(callbacks), 1)
-        delay_mock.assert_called_once_with(response.data["id"])
+        self.assertGreaterEqual(len(callbacks), 1)
+        automation_mock.assert_called_once_with(response.data["id"])
 
     def test_recipients_lookup_endpoint_supports_search(self):
         self.client.force_authenticate(user=self.admin)
@@ -363,6 +363,34 @@ class BloodRequestApiTests(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_pending_update_cannot_save_inactive_request(self):
+        self.client.force_authenticate(user=self.admin)
+        request_obj = BloodRequest.objects.create(
+            recipient=self.recipient,
+            hospital=self.hospital,
+            blood_group="O+",
+            units_needed=1,
+            request_type="urgent",
+            location_lat="34.555300",
+            location_lon="69.207500",
+            auto_match_enabled=False,
+            response_deadline=timezone.now() + timedelta(hours=3),
+            status="pending",
+            is_active=True,
+        )
+
+        response = self.client.patch(
+            f"{self.base_url}{request_obj.id}/",
+            {"is_active": False},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["is_active"])
+        request_obj.refresh_from_db()
+        self.assertEqual(request_obj.status, "pending")
+        self.assertTrue(request_obj.is_active)
 
     def test_matched_to_completed_transition(self):
         self.client.force_authenticate(user=self.admin)

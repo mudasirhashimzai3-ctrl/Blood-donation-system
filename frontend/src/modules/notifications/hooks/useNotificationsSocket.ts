@@ -3,6 +3,10 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { getAccessToken } from "@/lib/api";
 import { useUserStore } from "@/modules/auth/stores/useUserStore";
+import { bloodRequestKeys } from "@/modules/blood-requests/queries/bloodRequestKeys";
+import { dashboardKeys } from "@/modules/dashboard/queries/dashboardKeys";
+import { donationKeys } from "@/modules/donations/queries/donationKeys";
+import { roleAccessKeys } from "@/modules/role-access/queries/useRoleAccessQueries";
 import { notificationKeys } from "../queries/notificationKeys";
 
 const DEFAULT_API_BASE_URL = "http://localhost:8000/api";
@@ -71,6 +75,11 @@ export const useNotificationsSocket = (enabled = true) => {
         };
         const eventType = payload.event;
         if (!eventType) return;
+        const data = payload.data ?? {};
+        const eventKey = String(data.event_key ?? "");
+        const notificationType = String(data.type ?? "");
+        const requestId = Number(data.request_id);
+        const donationId = Number(data.donation_id);
 
         if (
           eventType === "notification.created" ||
@@ -82,7 +91,36 @@ export const useNotificationsSocket = (enabled = true) => {
         }
 
         if (eventType === "notification.unread_count") {
-          queryClient.invalidateQueries({ queryKey: notificationKeys.unreadCount() });
+          const count = Number(data.count);
+          if (Number.isFinite(count)) {
+            queryClient.setQueryData(notificationKeys.unreadCount(), { count });
+          } else {
+            queryClient.invalidateQueries({ queryKey: notificationKeys.unreadCount() });
+          }
+        }
+
+        const shouldRefreshDomainData =
+          eventType === "notification.deleted" ||
+          notificationType === "request_update" ||
+          notificationType === "donation_update" ||
+          eventKey.startsWith("blood_request_") ||
+          eventKey.startsWith("donation_");
+
+        if (shouldRefreshDomainData) {
+          queryClient.invalidateQueries({ queryKey: bloodRequestKeys.lists() });
+          queryClient.invalidateQueries({ queryKey: donationKeys.lists() });
+          queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
+          queryClient.invalidateQueries({ queryKey: roleAccessKeys.donorDashboard });
+          queryClient.invalidateQueries({ queryKey: roleAccessKeys.recipientDashboard });
+          queryClient.invalidateQueries({ queryKey: roleAccessKeys.recipientDonorResponses });
+
+          if (Number.isFinite(requestId)) {
+            queryClient.invalidateQueries({ queryKey: bloodRequestKeys.detail(requestId) });
+            queryClient.invalidateQueries({ queryKey: bloodRequestKeys.notifications(requestId) });
+          }
+          if (Number.isFinite(donationId)) {
+            queryClient.invalidateQueries({ queryKey: donationKeys.detail(donationId) });
+          }
         }
       } catch {
         // Ignore malformed socket payloads.
@@ -91,7 +129,7 @@ export const useNotificationsSocket = (enabled = true) => {
 
     return () => {
       didUnmount = true;
-      if (ws.readyState === WebSocket.OPEN) {
+      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
         ws.close();
       }
     };

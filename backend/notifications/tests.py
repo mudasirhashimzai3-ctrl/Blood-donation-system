@@ -209,18 +209,21 @@ class NotificationApiTests(APITestCase):
 
     @patch("notifications.services.factory._dispatch_async")
     def test_create_notifications_dispatches_after_transaction_commit(self, mock_dispatch):
-        with transaction.atomic():
-            rows = create_notifications(
-                event_key="system_alert",
-                type="system",
-                title="Committed Alert",
-                message="Dispatch after commit",
-                sent_via=["in_app"],
-                user_ids=[self.admin.id],
-            )
-            self.assertEqual(len(rows), 1)
-            self.assertEqual(mock_dispatch.call_count, 0)
+        with self.settings(CELERY_TASK_ALWAYS_EAGER=False):
+            with self.captureOnCommitCallbacks(execute=True) as callbacks:
+                with transaction.atomic():
+                    rows = create_notifications(
+                        event_key="system_alert",
+                        type="system",
+                        title="Committed Alert",
+                        message="Dispatch after commit",
+                        sent_via=["in_app"],
+                        user_ids=[self.admin.id],
+                    )
+                    self.assertEqual(len(rows), 1)
+                    self.assertEqual(mock_dispatch.call_count, 0)
 
+        self.assertEqual(len(callbacks), 1)
         self.assertEqual(mock_dispatch.call_count, 1)
 
     @patch("notifications.services.dispatch.publish_unread_count")

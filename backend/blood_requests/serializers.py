@@ -296,6 +296,9 @@ class BloodRequestWriteSerializer(serializers.ModelSerializer):
         attrs.pop("is_verified", None)
         attrs["is_verified"] = True
 
+        target_status = attrs.get("status", getattr(self.instance, "status", "pending"))
+        attrs["is_active"] = target_status in {"pending", "matched"}
+
         latitude = attrs.get("location_lat", getattr(self.instance, "location_lat", None))
         longitude = attrs.get("location_lon", getattr(self.instance, "location_lon", None))
         response_deadline = attrs.get("response_deadline", getattr(self.instance, "response_deadline", None))

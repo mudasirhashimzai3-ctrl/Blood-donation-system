@@ -49,12 +49,36 @@ export default function DonationActionsPanel({
   const [status, setStatus] = useState<DonationStatus>(donation.status);
   const [notes, setNotes] = useState(donation.notes ?? "");
   const [isReminderOpen, setIsReminderOpen] = useState(false);
+  const [respondingAction, setRespondingAction] = useState<DonationRespondPayload["action"] | null>(null);
 
   const isTerminal = useMemo(
     () => ["completed", "expired"].includes(donation.status),
     [donation.status]
   );
   const isDonorUser = userRole === "donor";
+  const isResponding = loadingStates?.respond || respondingAction !== null;
+  const canDecline = donation.status === "pending" && Boolean(onRespond) && !isResponding;
+  const canAccept =
+    donation.status === "pending" &&
+    donation.can_accept_response &&
+    Boolean(onRespond) &&
+    !isResponding;
+  const acceptUnavailableReason =
+    isDonorUser && donation.status === "pending" && !donation.can_accept_response
+      ? donation.accept_response_unavailable_reason
+      : null;
+
+  const handleRespond = async (action: DonationRespondPayload["action"]) => {
+    if (!onRespond || respondingAction !== null) return;
+    setRespondingAction(action);
+    try {
+      await onRespond({ action });
+    } catch {
+      // The mutation hook already shows the API validation message as a toast.
+    } finally {
+      setRespondingAction(null);
+    }
+  };
 
   return (
     <>
@@ -100,26 +124,23 @@ export default function DonationActionsPanel({
               <>
                 <Button
                   variant="primary"
-                  loading={loadingStates?.respond}
-                  disabled={donation.status !== "pending" || !onRespond}
-                  onClick={async () => {
-                    if (!onRespond) return;
-                    await onRespond({ action: "accept" });
-                  }}
+                  loading={respondingAction === "accept"}
+                  disabled={!canAccept}
+                  onClick={() => void handleRespond("accept")}
                 >
                   {t("donations.actions.acceptRequest", "Accept Request")}
                 </Button>
                 <Button
                   variant="outline"
-                  loading={loadingStates?.respond}
-                  disabled={donation.status !== "pending" || !onRespond}
-                  onClick={async () => {
-                    if (!onRespond) return;
-                    await onRespond({ action: "decline" });
-                  }}
+                  loading={respondingAction === "decline"}
+                  disabled={!canDecline}
+                  onClick={() => void handleRespond("decline")}
                 >
                   {t("donations.actions.declineRequest", "Decline")}
                 </Button>
+                {acceptUnavailableReason ? (
+                  <p className="basis-full text-xs text-text-secondary">{acceptUnavailableReason}</p>
+                ) : null}
               </>
             ) : (
               <>

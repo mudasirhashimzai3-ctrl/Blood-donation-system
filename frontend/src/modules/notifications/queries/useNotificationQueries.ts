@@ -30,7 +30,6 @@ export const useUnreadCount = (options?: { enabled?: boolean }) =>
     queryKey: notificationKeys.unreadCount(),
     queryFn: () => notificationService.getUnreadCount().then((res) => res.data),
     enabled: options?.enabled ?? true,
-    refetchInterval: 30000,
   });
 
 export const useRecentNotifications = () =>
@@ -40,7 +39,6 @@ export const useRecentNotifications = () =>
       notificationService
         .getNotifications({ page: 1, page_size: 6, ordering: "-created_at" })
         .then((res) => res.data),
-    refetchInterval: 30000,
   });
 
 export const useSetNotificationRead = () => {

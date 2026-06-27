@@ -175,9 +175,6 @@ class _RecipientHomeContent extends StatelessWidget {
     final profile = Map<String, dynamic>.from((data['profile'] as Map?) ?? {});
     final active =
         (data['activeRequests'] as List?)?.cast<BloodRequestItem>() ?? const [];
-    final emergency =
-        (data['emergencyRequests'] as List?)?.cast<BloodRequestItem>() ??
-            const [];
     final unread = (data['unreadNotifications'] as int?) ?? 0;
     final name = (profile['full_name'] ?? '').toString().trim();
     final requiredBlood = (profile['required_blood_group'] ?? '-').toString();
@@ -233,18 +230,6 @@ class _RecipientHomeContent extends StatelessWidget {
             )
           else
             ...active.take(4).map((item) => RequestCard(item: item)),
-          const SectionTitle(
-            title: 'Emergency Requests',
-            subtitle: 'Critical requests remain visible here',
-          ),
-          if (emergency.isEmpty)
-            const EmptyDashboardCard(
-              icon: Icons.health_and_safety_rounded,
-              title: 'No emergency requests',
-              message: 'Critical requests will be highlighted immediately.',
-            )
-          else
-            ...emergency.take(3).map((item) => RequestCard(item: item)),
           if (unread > 0) ...[
             const SizedBox(height: 4),
             QuickActionCard(

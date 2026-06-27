@@ -1,5 +1,3 @@
-import threading
-
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.db import IntegrityError, connection, transaction
@@ -24,28 +22,32 @@ def _dispatch_async(notification_id: int):
         except Exception:
             return None
 
-    def _runner():
-        if dispatch_notification_task is not None:
-            try:
-                if hasattr(dispatch_notification_task, "delay"):
-                    dispatch_notification_task.delay(notification_id)
-                    return
-                dispatch_notification_task(notification_id)
-                return
-            except Exception:
-                # Broker issues must never block or break request-response flows.
-                pass
-
+    if not getattr(settings, "NOTIFICATIONS_USE_CELERY", False):
         try:
-            dispatch_notification(notification_id)
+            return dispatch_notification(notification_id)
         except Exception:
             return None
 
-    threading.Thread(target=_runner, daemon=True).start()
-    return None
+    if dispatch_notification_task is not None:
+        try:
+            if hasattr(dispatch_notification_task, "delay"):
+                dispatch_notification_task.delay(notification_id)
+                return None
+            return dispatch_notification_task(notification_id)
+        except Exception:
+            # Broker issues must never block or break request-response flows.
+            pass
+
+    try:
+        return dispatch_notification(notification_id)
+    except Exception:
+        return None
 
 
 def _dispatch_after_commit(notification_id: int):
+    if getattr(settings, "CELERY_TASK_ALWAYS_EAGER", False):
+        return _dispatch_async(notification_id)
+
     if connection.in_atomic_block:
         transaction.on_commit(lambda: _dispatch_async(notification_id))
         return None

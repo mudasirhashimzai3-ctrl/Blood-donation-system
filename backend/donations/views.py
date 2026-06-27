@@ -249,6 +249,7 @@ class DonationViewSet(PermissionMixin, viewsets.ModelViewSet):
         if role_name != "donor":
             raise PermissionDenied("Only donor users can respond to donation requests.")
 
+        notification_event = None
         with transaction.atomic():
             locked_donation = (
                 Donation.objects.select_for_update()
@@ -271,94 +272,127 @@ class DonationViewSet(PermissionMixin, viewsets.ModelViewSet):
                 raise ValidationError({"detail": "Blood request not found."})
 
             if response_action == "decline":
+                if locked_donation.status == "declined":
+                    output = DonationDetailSerializer(locked_donation, context={"request": request})
+                    return Response(output.data, status=status.HTTP_200_OK)
                 if locked_donation.status != "pending":
                     raise ValidationError({"detail": "Only pending donations can be declined."})
                 locked_donation = apply_status_update(locked_donation, status_value="declined")
-                output = DonationDetailSerializer(locked_donation, context={"request": request})
-                return Response(output.data, status=status.HTTP_200_OK)
+                notification_event = "declined"
+            else:
+                if (
+                    locked_donation.status == "accepted"
+                    and blood_request.assigned_donor_id == locked_donation.donor_id
+                ):
+                    output = DonationDetailSerializer(locked_donation, context={"request": request})
+                    return Response(output.data, status=status.HTTP_200_OK)
 
-            if blood_request.status in {"matched", "completed", "cancelled"} or blood_request.assigned_donor_id:
-                raise ValidationError({"detail": "This request has already been accepted by another donor."})
-            if locked_donation.status != "pending":
-                raise ValidationError({"detail": "Only pending donations can be accepted."})
+                if blood_request.status in {"matched", "completed", "cancelled"} or blood_request.assigned_donor_id:
+                    raise ValidationError({"detail": "This request has already been accepted by another donor."})
+                if locked_donation.status != "pending":
+                    raise ValidationError({"detail": "Only pending donations can be accepted."})
 
-            failure, snapshot = get_donation_actionability_failure(locked_donation)
-            if failure:
-                raise ValidationError({"detail": failure})
+                failure, snapshot = get_donation_actionability_failure(locked_donation)
+                if failure:
+                    raise ValidationError({"detail": failure})
 
-            now = timezone.now()
-            if snapshot is not None:
-                locked_donation.distance_km, locked_donation.estimated_arrival_time = snapshot
-            locked_donation.status = "accepted"
-            locked_donation.is_primary = True
-            locked_donation.responded_at = locked_donation.responded_at or now
-            if locked_donation.notified_at:
-                delta = locked_donation.responded_at - locked_donation.notified_at
-                locked_donation.response_time = max(0, int(delta.total_seconds() // 60))
-            locked_donation.save(
-                update_fields=[
-                    "status",
-                    "is_primary",
-                    "distance_km",
-                    "estimated_arrival_time",
-                    "responded_at",
-                    "response_time",
-                    "updated_at",
-                ]
-            )
-            sync_candidate_notification_for_donation(locked_donation)
-
-            blood_request.assigned_donor = locked_donation.donor
-            blood_request.status = "matched"
-            blood_request.matched_at = now
-            blood_request.save(update_fields=["assigned_donor", "status", "matched_at", "updated_at"])
-
-            sibling_rows = Donation.objects.select_for_update().filter(
-                request=blood_request,
-                deleted_at__isnull=True,
-            ).exclude(pk=locked_donation.pk)
-            for sibling in sibling_rows:
-                was_pending_like = sibling.status in Donation.PRIMARY_ACTIVE_STATUSES
-                sibling.is_primary = False
-                if was_pending_like:
-                    sibling.status = "expired"
-                    sibling.responded_at = sibling.responded_at or now
-                    if sibling.notified_at and sibling.response_time is None:
-                        delta = sibling.responded_at - sibling.notified_at
-                        sibling.response_time = max(0, int(delta.total_seconds() // 60))
-                sibling.save(
-                    update_fields=["is_primary", "status", "responded_at", "response_time", "updated_at"]
+                now = timezone.now()
+                if snapshot is not None:
+                    locked_donation.distance_km, locked_donation.estimated_arrival_time = snapshot
+                locked_donation.status = "accepted"
+                locked_donation.is_primary = True
+                locked_donation.responded_at = locked_donation.responded_at or now
+                if locked_donation.notified_at:
+                    delta = locked_donation.responded_at - locked_donation.notified_at
+                    locked_donation.response_time = max(0, int(delta.total_seconds() // 60))
+                locked_donation.save(
+                    update_fields=[
+                        "status",
+                        "is_primary",
+                        "distance_km",
+                        "estimated_arrival_time",
+                        "responded_at",
+                        "response_time",
+                        "updated_at",
+                    ]
                 )
-                sync_candidate_notification_for_donation(sibling)
+                sync_candidate_notification_for_donation(locked_donation)
 
-            BloodRequestNotification.objects.filter(
+                blood_request.assigned_donor = locked_donation.donor
+                blood_request.status = "matched"
+                blood_request.matched_at = now
+                blood_request.save(update_fields=["assigned_donor", "status", "matched_at", "updated_at"])
+
+                sibling_rows = Donation.objects.select_for_update().filter(
+                    request=blood_request,
+                    deleted_at__isnull=True,
+                ).exclude(pk=locked_donation.pk)
+                for sibling in sibling_rows:
+                    was_pending_like = sibling.status in Donation.PRIMARY_ACTIVE_STATUSES
+                    sibling.is_primary = False
+                    if was_pending_like:
+                        sibling.status = "expired"
+                        sibling.responded_at = sibling.responded_at or now
+                        if sibling.notified_at and sibling.response_time is None:
+                            delta = sibling.responded_at - sibling.notified_at
+                            sibling.response_time = max(0, int(delta.total_seconds() // 60))
+                    sibling.save(
+                        update_fields=["is_primary", "status", "responded_at", "response_time", "updated_at"]
+                    )
+                    sync_candidate_notification_for_donation(sibling)
+
+                BloodRequestNotification.objects.filter(
+                    blood_request=blood_request,
+                    channel="in_app",
+                    response_status="pending",
+                ).exclude(donor=locked_donation.donor).update(response_status="expired", responded_at=now, updated_at=now)
+                notification_event = "accepted"
+
+        response_user_ids = []
+        if blood_request.recipient.user_id:
+            response_user_ids.append(blood_request.recipient.user_id)
+        if locked_donation.donor.user_id:
+            response_user_ids.append(locked_donation.donor.user_id)
+
+        if notification_event == "accepted":
+            _create_system_notifications(
+                event_key="blood_request_assigned",
+                type="request_update",
+                title=f"Donor accepted request #{blood_request.id}",
+                message=f"Donor {locked_donation.donor} accepted blood request #{blood_request.id}.",
+                title_key="notification.request_assigned.title",
+                message_key="notification.request_assigned.message",
+                template_params={
+                    "request_id": blood_request.id,
+                    "donor_name": str(locked_donation.donor),
+                },
+                sent_via=["in_app"],
+                role_names=["admin", "receptionist"],
+                user_ids=response_user_ids,
+                request_id=blood_request.id,
+                donation_id=locked_donation.id,
+                metadata={"status": blood_request.status, "donor_id": locked_donation.donor_id},
+            )
+            notify_request_fulfilled_to_other_donors(
                 blood_request=blood_request,
-                channel="in_app",
-                response_status="pending",
-            ).exclude(donor=locked_donation.donor).update(response_status="expired", responded_at=now, updated_at=now)
-
-        _create_system_notifications(
-            event_key="blood_request_assigned",
-            type="request_update",
-            title=f"Donor accepted request #{blood_request.id}",
-            message=f"Donor {locked_donation.donor} accepted blood request #{blood_request.id}.",
-            title_key="notification.request_assigned.title",
-            message_key="notification.request_assigned.message",
-            template_params={
-                "request_id": blood_request.id,
-                "donor_name": str(locked_donation.donor),
-            },
-            sent_via=["in_app"],
-            role_names=["admin", "receptionist"],
-            user_ids=[blood_request.recipient.user_id] if blood_request.recipient.user_id else None,
-            request_id=blood_request.id,
-            donation_id=locked_donation.id,
-            metadata={"status": blood_request.status, "donor_id": locked_donation.donor_id},
-        )
-        notify_request_fulfilled_to_other_donors(
-            blood_request=blood_request,
-            winning_donor_id=locked_donation.donor_id,
-        )
+                winning_donor_id=locked_donation.donor_id,
+            )
+        elif notification_event == "declined":
+            _create_system_notifications(
+                event_key="donation_status_updated",
+                type="donation_update",
+                title=f"Donor declined request #{blood_request.id}",
+                message=f"Donor {locked_donation.donor} declined blood request #{blood_request.id}.",
+                title_key="notification.donation_status_updated.title",
+                message_key="notification.donation_status_updated.message",
+                template_params={"donation_id": locked_donation.id, "status": locked_donation.status},
+                sent_via=["in_app"],
+                role_names=["admin", "receptionist"],
+                user_ids=response_user_ids,
+                request_id=blood_request.id,
+                donation_id=locked_donation.id,
+                metadata={"status": locked_donation.status, "donor_id": locked_donation.donor_id},
+            )
 
         output = DonationDetailSerializer(locked_donation, context={"request": request})
         return Response(output.data, status=status.HTTP_200_OK)

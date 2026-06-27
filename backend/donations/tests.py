@@ -293,6 +293,11 @@ class DonationApiTests(APITestCase):
         self.assertEqual(list_response.status_code, status.HTTP_200_OK)
         self.assertEqual(list_response.data["results"], [])
 
+        detail_response = self.client.get(f"{self.base_url}{donation.id}/")
+        self.assertEqual(detail_response.status_code, status.HTTP_200_OK)
+        self.assertFalse(detail_response.data["can_accept_response"])
+        self.assertIn("no longer open", detail_response.data["accept_response_unavailable_reason"])
+
         response = self.client.post(
             f"{self.base_url}{donation.id}/respond/",
             {"action": "accept"},

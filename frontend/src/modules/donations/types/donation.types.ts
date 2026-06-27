@@ -28,6 +28,8 @@ export interface Donation {
   nearby_donors_count_dynamic: number;
   estimated_time_dynamic: number | null;
   distance_dynamic: string | null;
+  can_accept_response: boolean;
+  accept_response_unavailable_reason: string | null;
   cancellation_reason: string | null;
   notes: string | null;
   responded_at: string | null;
@@ -60,6 +62,8 @@ export type DonationListItem = Pick<
   | "nearby_donors_count_dynamic"
   | "estimated_time_dynamic"
   | "distance_dynamic"
+  | "can_accept_response"
+  | "accept_response_unavailable_reason"
   | "created_at"
   | "updated_at"
 >;
