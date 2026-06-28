@@ -485,6 +485,7 @@ class _MyRequestsScreen extends StatefulWidget {
 
 class _MyRequestsScreenState extends State<_MyRequestsScreen> {
   late Future<List<BloodRequestItem>> _future;
+  final Set<String> _busyRequestIds = <String>{};
 
   @override
   void initState() {
@@ -507,21 +508,100 @@ class _MyRequestsScreenState extends State<_MyRequestsScreen> {
     await _future;
   }
 
+  Future<bool> _confirmRequestAction({
+    required String title,
+    required String message,
+    required String confirmLabel,
+  }) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(confirmLabel),
+          ),
+        ],
+      ),
+    );
+    return confirmed == true;
+  }
+
+  Future<void> _deleteRequest(BloodRequestItem item) async {
+    if (_busyRequestIds.contains(item.id)) return;
+    final confirmed = await _confirmRequestAction(
+      title: 'Delete request',
+      message: 'Delete request #${item.id}? This removes it from your list.',
+      confirmLabel: 'Delete',
+    );
+    if (!confirmed || !mounted) return;
+
+    setState(() => _busyRequestIds.add(item.id));
+    try {
+      await RecipientService(getIt()).deleteRequest(item.id);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Request deleted')),
+      );
+      await _refresh();
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(toUserMessage(error))),
+      );
+    } finally {
+      if (mounted) setState(() => _busyRequestIds.remove(item.id));
+    }
+  }
+
+  Widget _buildRequestActions(BloodRequestItem item) {
+    final busy = _busyRequestIds.contains(item.id);
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: [
+        OutlinedButton.icon(
+          onPressed: busy ? null : () => _deleteRequest(item),
+          icon: const Icon(Icons.delete_outline_rounded),
+          label: const Text('Delete'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppStyle.redPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MobileDashboardScaffold(
       title: 'My Requests',
-      subtitle: 'Follow pending, accepted, and completed requests.',
+      subtitle: 'Follow all requests created by you.',
       icon: Icons.assignment_rounded,
       child: FutureBuilder<List<BloodRequestItem>>(
         future: _future,
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const _LoadingView();
           final items = snapshot.data ?? const [];
-          final pending = items.where((e) => e.status == 'pending').toList();
           final accepted = items.where((e) => e.status == 'matched').toList();
           final completed =
               items.where((e) => e.status == 'completed').toList();
+          final cancelled =
+              items.where((e) => e.status == 'cancelled').toList();
+          final other = items
+              .where((e) => !{
+                    'pending',
+                    'matched',
+                    'completed',
+                    'cancelled',
+                  }.contains(e.status))
+              .toList();
           return RefreshIndicator(
             color: AppStyle.redPrimary,
             onRefresh: _refresh,
@@ -535,9 +615,9 @@ class _MyRequestsScreenState extends State<_MyRequestsScreen> {
                   icon: Icons.fact_check_rounded,
                   stats: [
                     StatItem(
-                      value: '${pending.length}',
-                      label: 'Pending',
-                      icon: Icons.schedule_rounded,
+                      value: '${items.length}',
+                      label: 'All Requests',
+                      icon: Icons.assignment_rounded,
                     ),
                     StatItem(
                       value: '${accepted.length}',
@@ -552,20 +632,36 @@ class _MyRequestsScreenState extends State<_MyRequestsScreen> {
                   ],
                 ),
                 _RequestGroup(
-                  title: 'Pending',
-                  items: pending,
-                  emptyMessage: 'No pending requests right now.',
+                  title: 'All Requests',
+                  items: items,
+                  emptyMessage: 'No requests created yet.',
+                  actionBuilder: _buildRequestActions,
                 ),
                 _RequestGroup(
                   title: 'Accepted',
                   items: accepted,
                   emptyMessage: 'Matched requests will appear here.',
+                  actionBuilder: _buildRequestActions,
                 ),
                 _RequestGroup(
                   title: 'Completed',
                   items: completed,
                   emptyMessage: 'Completed requests will appear here.',
+                  actionBuilder: _buildRequestActions,
                 ),
+                _RequestGroup(
+                  title: 'Cancelled',
+                  items: cancelled,
+                  emptyMessage: 'Cancelled requests will appear here.',
+                  actionBuilder: _buildRequestActions,
+                ),
+                if (other.isNotEmpty)
+                  _RequestGroup(
+                    title: 'Other',
+                    items: other,
+                    emptyMessage: 'Other requests will appear here.',
+                    actionBuilder: _buildRequestActions,
+                  ),
               ],
             ),
           );
@@ -1070,11 +1166,13 @@ class _RequestGroup extends StatelessWidget {
     required this.title,
     required this.items,
     required this.emptyMessage,
+    this.actionBuilder,
   });
 
   final String title;
   final List<BloodRequestItem> items;
   final String emptyMessage;
+  final Widget Function(BloodRequestItem item)? actionBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -1089,7 +1187,12 @@ class _RequestGroup extends StatelessWidget {
             message: emptyMessage,
           )
         else
-          ...items.map((item) => RequestCard(item: item)),
+          ...items.map(
+            (item) => RequestCard(
+              item: item,
+              trailing: actionBuilder?.call(item),
+            ),
+          ),
       ],
     );
   }

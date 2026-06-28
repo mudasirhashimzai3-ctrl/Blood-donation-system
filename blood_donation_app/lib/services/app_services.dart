@@ -306,6 +306,7 @@ class RecipientService {
     final data = response.data ?? <String, dynamic>{};
     final active = ((data['active_requests'] as List?) ?? const [])
         .map((e) => BloodRequestItem.fromJson(e as Map<String, dynamic>))
+        .where((item) => item.isActive)
         .toList(growable: false);
     final emergency = ((data['emergency_requests'] as List?) ?? const [])
         .map((e) => BloodRequestItem.fromJson(e as Map<String, dynamic>))
@@ -331,6 +332,14 @@ class RecipientService {
     return items
         .map((e) => BloodRequestItem.fromJson(e as Map<String, dynamic>))
         .toList(growable: false);
+  }
+
+  Future<void> deleteRequest(String requestId) async {
+    await _apiClient.delete('/blood-requests/$requestId/');
+  }
+
+  Future<void> completeRequest(String requestId) async {
+    await _apiClient.patch('/blood-requests/$requestId/complete/', data: {});
   }
 
   Future<List<Map<String, dynamic>>> getDonorResponses() async {

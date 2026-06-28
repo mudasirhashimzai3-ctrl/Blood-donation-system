@@ -148,6 +148,9 @@ class RolePermissionSyncCommandTests(APITestCase):
             },
             format="json",
         )
+        recipient_delete_request = self.client.delete(
+            f"/api/blood-requests/{self.request.id}/"
+        )
 
         self.assertEqual(recipient_me.status_code, status.HTTP_200_OK)
         self.assertEqual(recipient_dashboard.status_code, status.HTTP_200_OK)
@@ -155,3 +158,4 @@ class RolePermissionSyncCommandTests(APITestCase):
         self.assertEqual(recipient_notifications.status_code, status.HTTP_200_OK)
         self.assertEqual(recipient_mark_all_read.status_code, status.HTTP_200_OK)
         self.assertEqual(recipient_create_request.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(recipient_delete_request.status_code, status.HTTP_204_NO_CONTENT)

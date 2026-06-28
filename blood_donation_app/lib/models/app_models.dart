@@ -100,12 +100,17 @@ class BloodRequestItem {
       return DateTime.tryParse(value.toString());
     }
 
+    final status = (json['status'] ?? '').toString();
     return BloodRequestItem(
       id: json['id'].toString(),
       bloodGroup: (json['blood_group'] ?? '').toString(),
       unitsNeeded: parseBloodRequestUnits(json['units_needed']),
       requestType: (json['request_type'] ?? '').toString(),
-      status: (json['status'] ?? '').toString(),
+      status: status,
+      isActive: json['is_active'] == true ||
+          (json['is_active'] == null &&
+              status != 'completed' &&
+              status != 'cancelled'),
       isEmergency: json['is_emergency'] == true,
       hospitalName: json['hospital_name']?.toString(),
       recipientName: json['recipient_name']?.toString(),
@@ -120,6 +125,7 @@ class BloodRequestItem {
     required this.unitsNeeded,
     required this.requestType,
     required this.status,
+    required this.isActive,
     required this.isEmergency,
     this.hospitalName,
     this.recipientName,
@@ -133,6 +139,7 @@ class BloodRequestItem {
   final double unitsNeeded;
   final String requestType;
   final String status;
+  final bool isActive;
   final bool isEmergency;
   final String? hospitalName;
   final String? recipientName;

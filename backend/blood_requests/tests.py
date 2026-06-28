@@ -76,7 +76,7 @@ class BloodRequestApiTests(APITestCase):
 
         for action in actions:
             RolePermission.objects.get_or_create(role_name="admin", permission=permissions[action])
-        for action in ["view", "add", "change"]:
+        for action in ["view", "add", "change", "delete"]:
             RolePermission.objects.get_or_create(role_name="recipient", permission=permissions[action])
         for action in ["view", "add", "change"]:
             RolePermission.objects.get_or_create(role_name="donor", permission=permissions[action])
@@ -423,6 +423,34 @@ class BloodRequestApiTests(APITestCase):
         self.assertEqual(donor.last_donation_date, timezone.localdate())
         self.assertEqual(donor.status, "inactive")
 
+    def test_recipient_can_mark_own_matched_request_completed(self):
+        self.client.force_authenticate(user=self.recipient_user)
+        donor = self._create_donor(phone="0700333334")
+        request_obj = BloodRequest.objects.create(
+            recipient=self.recipient,
+            hospital=self.hospital,
+            blood_group="O+",
+            units_needed=1,
+            request_type="urgent",
+            location_lat="34.555300",
+            location_lon="69.207500",
+            auto_match_enabled=False,
+            response_deadline=timezone.now() + timedelta(hours=3),
+            status="matched",
+            assigned_donor=donor,
+            matched_at=timezone.now(),
+        )
+
+        complete_response = self.client.patch(
+            f"{self.base_url}{request_obj.id}/complete/",
+            {},
+            format="json",
+        )
+
+        self.assertEqual(complete_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(complete_response.data["status"], "completed")
+        self.assertFalse(complete_response.data["is_active"])
+
     def test_cancel_sets_terminal_state(self):
         self.client.force_authenticate(user=self.admin)
         request_obj = BloodRequest.objects.create(
@@ -692,3 +720,57 @@ class BloodRequestApiTests(APITestCase):
         self.assertEqual(delete_response.status_code, status.HTTP_204_NO_CONTENT)
         request_obj.refresh_from_db()
         self.assertIsNotNone(request_obj.deleted_at)
+
+    def test_recipient_can_delete_own_request(self):
+        self.client.force_authenticate(user=self.recipient_user)
+        request_obj = BloodRequest.objects.create(
+            recipient=self.recipient,
+            hospital=self.hospital,
+            blood_group="O+",
+            units_needed=1,
+            request_type="normal",
+            location_lat="34.555300",
+            location_lon="69.207500",
+            auto_match_enabled=False,
+            response_deadline=timezone.now() + timedelta(hours=8),
+        )
+
+        delete_response = self.client.delete(f"{self.base_url}{request_obj.id}/")
+
+        self.assertEqual(delete_response.status_code, status.HTTP_204_NO_CONTENT)
+        request_obj.refresh_from_db()
+        self.assertIsNotNone(request_obj.deleted_at)
+
+    def test_recipient_cannot_delete_another_recipients_request(self):
+        other_user = User.objects.create_user(
+            username="other-recipient-owner",
+            password="StrongPass123!",
+            role_name="recipient",
+            phone="0700000022",
+        )
+        other_recipient = Recipient.objects.create(
+            user=other_user,
+            full_name="Other Recipient",
+            phone="0700000022",
+            required_blood_group="A+",
+            hospital=self.hospital,
+            emergency_level="normal",
+        )
+        request_obj = BloodRequest.objects.create(
+            recipient=other_recipient,
+            hospital=self.hospital,
+            blood_group="A+",
+            units_needed=1,
+            request_type="normal",
+            location_lat="34.555300",
+            location_lon="69.207500",
+            auto_match_enabled=False,
+            response_deadline=timezone.now() + timedelta(hours=8),
+        )
+
+        self.client.force_authenticate(user=self.recipient_user)
+        delete_response = self.client.delete(f"{self.base_url}{request_obj.id}/")
+
+        self.assertEqual(delete_response.status_code, status.HTTP_404_NOT_FOUND)
+        request_obj.refresh_from_db()
+        self.assertIsNone(request_obj.deleted_at)

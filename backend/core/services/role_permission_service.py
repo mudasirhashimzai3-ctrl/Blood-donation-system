@@ -130,7 +130,7 @@ DEFAULT_ROLE_PERMISSION_ACTIONS = {
     },
     "recipient": {
         "recipients": {"view", "change"},
-        "blood_requests": {"view", "add", "change"},
+        "blood_requests": {"view", "add", "change", "delete"},
         "notifications": {"view", "add", "change"},
         "hospitals": {"view"},
         "donations": {"view"},
