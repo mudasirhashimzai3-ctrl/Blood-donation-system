@@ -73,6 +73,9 @@ def notify_request_fulfilled_to_other_donors(*, blood_request, winning_donor_id:
 
 
 def sync_donations_for_matches(*, blood_request, selected_candidates):
+    if blood_request.status != "pending" or blood_request.assigned_donor_id:
+        return []
+
     now = timezone.now()
     selected_by_donor_id = {donor.id: (donor, distance_km) for donor, distance_km in selected_candidates}
     selected_donor_ids = list(selected_by_donor_id.keys())

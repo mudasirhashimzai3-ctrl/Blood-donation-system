@@ -34,7 +34,9 @@ class _DonationDetailScreenState extends State<DonationDetailScreen> {
     try {
       await getIt<DonationRepository>().cancelDonation(widget.donationId);
       if (!mounted) return;
-      setState(() => _future = _load());
+      setState(() {
+        _future = _load();
+      });
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(

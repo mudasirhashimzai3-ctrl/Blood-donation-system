@@ -34,6 +34,22 @@ void main() {
           'request_blood_group': 'O+',
           'request_type': 'urgent',
           'condition': 'urgent',
+          'can_accept_response': true,
+          'accept_response_unavailable_reason': null,
+        },
+        {
+          'id': 43,
+          'request': 12,
+          'status': 'accepted',
+          'distance_dynamic': '1.25',
+          'estimated_time_dynamic': '8',
+          'hospital_name': 'City Hospital',
+          'recipient_name': 'Zahra Patient',
+          'request_blood_group': 'O+',
+          'request_type': 'urgent',
+          'can_accept_response': false,
+          'accept_response_unavailable_reason':
+              'Only pending donations can be accepted.',
         },
       ],
       'history_count': 3,
@@ -52,6 +68,8 @@ void main() {
     expect(requests.single.condition, 'critical');
     expect(requests.single.requestBloodGroup, 'O+');
     expect(requests.single.requestType, 'urgent');
+    expect(requests.single.canAccept, isTrue);
+    expect(requests.single.canAcceptResponse, isTrue);
     final nearbyRequests =
         dashboard['nearbyRequests'] as List<BloodRequestItem>;
     expect(nearbyRequests.single.unitsNeeded, 1.5);

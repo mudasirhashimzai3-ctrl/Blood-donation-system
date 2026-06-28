@@ -30,7 +30,9 @@ class _DonationHistoryScreenState extends State<DonationHistoryScreen> {
   }
 
   Future<void> _refresh() async {
-    setState(() => _future = _loadDonations());
+    setState(() {
+      _future = _loadDonations();
+    });
     await _future;
   }
 

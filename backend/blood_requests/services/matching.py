@@ -99,6 +99,9 @@ def apply_request_defaults(blood_request: BloodRequest):
 def auto_match_blood_request(blood_request: BloodRequest, *, max_notifications: int = 50):
     apply_request_defaults(blood_request)
 
+    if blood_request.status != "pending" or blood_request.assigned_donor_id:
+        return []
+
     if not blood_request.auto_match_enabled:
         blood_request.nearby_donors_count = 0
         blood_request.save(update_fields=["nearby_donors_count", "updated_at"])
@@ -151,7 +154,13 @@ def auto_match_blood_request(blood_request: BloodRequest, *, max_notifications: 
     )
 
     created_or_updated = []
+    newly_queued_candidates = []
     for donor, distance_km in selected_candidates:
+        existing_notification = BloodRequestNotification.objects.filter(
+            blood_request=blood_request,
+            donor=donor,
+            channel="in_app",
+        ).first()
         notification, _ = BloodRequestNotification.objects.update_or_create(
             blood_request=blood_request,
             donor=donor,
@@ -166,6 +175,8 @@ def auto_match_blood_request(blood_request: BloodRequest, *, max_notifications: 
             },
         )
         created_or_updated.append(notification)
+        if existing_notification is None or existing_notification.response_status != "pending":
+            newly_queued_candidates.append((donor, distance_km))
 
     sync_donations_for_matches(
         blood_request=blood_request,
@@ -185,7 +196,7 @@ def auto_match_blood_request(blood_request: BloodRequest, *, max_notifications: 
 
     _notify_matched_donor_users(
         blood_request=blood_request,
-        selected_candidates=selected_candidates,
+        selected_candidates=newly_queued_candidates,
     )
 
     return created_or_updated

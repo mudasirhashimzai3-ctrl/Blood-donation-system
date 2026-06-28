@@ -122,7 +122,9 @@ class _RecipientHomeScreenState extends State<_RecipientHomeScreen> {
   }
 
   Future<void> _refresh() async {
-    setState(() => _future = RecipientService(getIt()).getDashboard());
+    setState(() {
+      _future = RecipientService(getIt()).getDashboard();
+    });
     await _future;
   }
 
@@ -499,7 +501,9 @@ class _MyRequestsScreenState extends State<_MyRequestsScreen> {
   }
 
   Future<void> _refresh() async {
-    setState(() => _future = RecipientService(getIt()).getMyRequests());
+    setState(() {
+      _future = RecipientService(getIt()).getMyRequests();
+    });
     await _future;
   }
 

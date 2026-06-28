@@ -203,6 +203,7 @@ class DonorService {
         .toList(growable: false);
     final donationRequests = ((data['donation_requests'] as List?) ?? const [])
         .map((e) => DonationItem.fromJson(e as Map<String, dynamic>))
+        .where((item) => item.canAccept)
         .toList(growable: false);
     final emergency = ((data['emergency_requests'] as List?) ?? const [])
         .map((e) => BloodRequestItem.fromJson(e as Map<String, dynamic>))
@@ -231,6 +232,7 @@ class DonorService {
     final items = (response.data?['results'] as List?) ?? const [];
     return items
         .map((e) => DonationItem.fromJson(e as Map<String, dynamic>))
+        .where((item) => item.canAccept)
         .toList(growable: false);
   }
 

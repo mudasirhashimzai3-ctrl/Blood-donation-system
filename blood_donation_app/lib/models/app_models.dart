@@ -251,6 +251,9 @@ class DonationItem {
           ? null
           : DateTime.tryParse(json['responded_at'].toString()),
       isPrimary: json['is_primary'] == true,
+      canAcceptResponse: json['can_accept_response'] == true,
+      acceptResponseUnavailableReason:
+          json['accept_response_unavailable_reason']?.toString(),
     );
   }
   const DonationItem({
@@ -268,6 +271,8 @@ class DonationItem {
     this.condition,
     this.respondedAt,
     this.isPrimary = false,
+    this.canAcceptResponse = false,
+    this.acceptResponseUnavailableReason,
   });
 
   final String id;
@@ -284,8 +289,11 @@ class DonationItem {
   final String? condition;
   final DateTime? respondedAt;
   final bool isPrimary;
+  final bool canAcceptResponse;
+  final String? acceptResponseUnavailableReason;
 
   bool get isPending => status == 'pending';
+  bool get canAccept => isPending && canAcceptResponse;
 }
 
 class NotificationItem {

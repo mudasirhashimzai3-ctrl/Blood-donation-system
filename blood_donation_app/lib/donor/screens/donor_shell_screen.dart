@@ -112,25 +112,66 @@ class _DonorHomeScreenState extends State<_DonorHomeScreen> {
   }
 
   Future<void> _refresh() async {
-    setState(() => _future = _loadHomeData());
+    setState(() {
+      _future = _loadHomeData();
+    });
     await _future;
   }
 
   Future<void> _respond(DonationItem item, String action) async {
+    if (action == 'accept' && !item.canAccept) {
+      final reason = _presentValue(
+        item.acceptResponseUnavailableReason,
+        fallback: 'This request is no longer available.',
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(reason)),
+      );
+      try {
+        await _refresh();
+      } catch (_) {}
+      return;
+    }
+
     setState(() => _respondingDonationId = item.id);
+    var responded = false;
     try {
       await DonorService(getIt()).respondToDonation(
         donationId: item.id,
         action: action,
       );
+      responded = true;
       if (!mounted) return;
-      await _refresh();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            action == 'accept'
+                ? 'Donation request accepted.'
+                : 'Donation request declined.',
+          ),
+        ),
+      );
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(toUserMessage(error))),
       );
     } finally {
+      if (mounted) {
+        try {
+          await _refresh();
+        } catch (error) {
+          if (responded && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Response saved, but the dashboard could not refresh: ${toUserMessage(error)}',
+                ),
+              ),
+            );
+          }
+        }
+      }
       if (mounted) {
         setState(() => _respondingDonationId = null);
       }
@@ -286,7 +327,9 @@ class _DonorHistoryScreenState extends State<_DonorHistoryScreen> {
   }
 
   Future<void> _refresh() async {
-    setState(() => _future = DonorService(getIt()).getDonationHistory());
+    setState(() {
+      _future = DonorService(getIt()).getDonationHistory();
+    });
     await _future;
   }
 
@@ -727,6 +770,9 @@ class _DonationRequestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final canAccept = item.canAccept && !isResponding;
+    final canReject = item.isPending && !isResponding;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -807,7 +853,7 @@ class _DonationRequestCard extends StatelessWidget {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: isResponding ? null : onReject,
+                  onPressed: canReject ? onReject : null,
                   icon: isResponding
                       ? const SizedBox(
                           width: 18,
@@ -821,7 +867,7 @@ class _DonationRequestCard extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: FilledButton.icon(
-                  onPressed: isResponding ? null : onAccept,
+                  onPressed: canAccept ? onAccept : null,
                   icon: isResponding
                       ? const SizedBox(
                           width: 18,
@@ -834,6 +880,20 @@ class _DonationRequestCard extends StatelessWidget {
               ),
             ],
           ),
+          if (item.isPending && !item.canAccept) ...[
+            const SizedBox(height: 8),
+            Text(
+              _presentValue(
+                item.acceptResponseUnavailableReason,
+                fallback: 'This request is no longer available.',
+              ),
+              style: const TextStyle(
+                color: AppStyle.textMuted,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ],
       ),
     );

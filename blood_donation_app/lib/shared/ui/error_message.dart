@@ -34,7 +34,12 @@ String toUserMessage(Object error) {
         : 'Server error. Please try again.';
   }
   if (error is AppException) {
-    return error.message.isNotEmpty ? error.message : 'Something went wrong.';
+    return error.message.isNotEmpty
+        ? error.message
+        : 'Unable to complete the request. Please try again.';
   }
-  return 'Something went wrong. Please try again.';
+  final message = error.toString().trim();
+  return message.isNotEmpty
+      ? message
+      : 'Unable to complete the request. Please try again.';
 }

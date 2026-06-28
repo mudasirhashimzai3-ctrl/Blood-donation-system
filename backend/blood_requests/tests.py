@@ -27,6 +27,7 @@ from recipients.models import Recipient
 from donations.models import Donation
 
 from .models import BloodRequest, BloodRequestNotification
+from .tasks import run_request_automation
 
 
 def sample_pdf(name="report.pdf"):
@@ -580,6 +581,92 @@ class BloodRequestApiTests(APITestCase):
         )
         self.assertIn(near_donor.id, notified_ids)
         self.assertNotIn(outside_radius.id, notified_ids)
+
+    def test_rerunning_auto_match_does_not_duplicate_donor_alerts(self):
+        donor = self._create_donor(phone="0700777711")
+        request_obj = BloodRequest.objects.create(
+            recipient=self.recipient,
+            hospital=self.hospital,
+            blood_group="O+",
+            units_needed=1,
+            request_type="urgent",
+            auto_match_enabled=True,
+            location_lat="34.555300",
+            location_lon="69.207500",
+            response_deadline=timezone.now() + timedelta(hours=3),
+        )
+
+        first = run_request_automation(request_obj.id)
+        second = run_request_automation(request_obj.id)
+
+        self.assertEqual(first["status"], "ok")
+        self.assertEqual(second["status"], "ok")
+        self.assertEqual(BloodRequestNotification.objects.filter(blood_request=request_obj, donor=donor).count(), 1)
+        self.assertEqual(
+            Notification.objects.filter(
+                user=donor.user,
+                event_key="blood_request_created",
+                request=request_obj,
+                hidden_at__isnull=True,
+                deleted_at__isnull=True,
+            ).count(),
+            1,
+        )
+
+    def test_auto_match_after_request_is_matched_does_not_requeue_donors(self):
+        donor_a = self._create_donor(phone="0700888811")
+        donor_b = self._create_donor(phone="0700888812", latitude=Decimal("34.557000"))
+        request_obj = BloodRequest.objects.create(
+            recipient=self.recipient,
+            hospital=self.hospital,
+            blood_group="O+",
+            units_needed=1,
+            request_type="urgent",
+            auto_match_enabled=True,
+            location_lat="34.555300",
+            location_lon="69.207500",
+            response_deadline=timezone.now() + timedelta(hours=3),
+            status="matched",
+            assigned_donor=donor_a,
+        )
+        accepted = Donation.objects.create(
+            request=request_obj,
+            donor=donor_a,
+            status="accepted",
+            distance_km=Decimal("0.10"),
+            estimated_arrival_time=5,
+            notified_at=timezone.now() - timedelta(minutes=4),
+            responded_at=timezone.now() - timedelta(minutes=1),
+            is_primary=True,
+        )
+        expired = Donation.objects.create(
+            request=request_obj,
+            donor=donor_b,
+            status="expired",
+            distance_km=Decimal("0.20"),
+            estimated_arrival_time=8,
+            notified_at=timezone.now() - timedelta(minutes=4),
+            responded_at=timezone.now() - timedelta(minutes=1),
+        )
+
+        result = run_request_automation(request_obj.id)
+
+        self.assertEqual(result["status"], "closed")
+        accepted.refresh_from_db()
+        expired.refresh_from_db()
+        request_obj.refresh_from_db()
+        self.assertEqual(request_obj.assigned_donor_id, donor_a.id)
+        self.assertEqual(accepted.status, "accepted")
+        self.assertTrue(accepted.is_primary)
+        self.assertEqual(expired.status, "expired")
+        self.assertFalse(expired.is_primary)
+        self.assertFalse(
+            BloodRequestNotification.objects.filter(
+                blood_request=request_obj,
+                donor=donor_b,
+                response_status="pending",
+            ).exists()
+        )
 
     def test_viewer_cannot_mutate(self):
         permission = Permission.objects.get(module="blood_requests", action="add")

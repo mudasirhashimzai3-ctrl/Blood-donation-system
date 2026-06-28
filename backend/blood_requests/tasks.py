@@ -29,8 +29,8 @@ def run_request_automation(request_id: int):
     if blood_request is None:
         return {"status": "not_found"}
 
-    if blood_request.status in {"completed", "cancelled"}:
-        return {"status": "terminal"}
+    if blood_request.status != "pending" or blood_request.assigned_donor_id:
+        return {"status": "closed"}
 
     with transaction.atomic():
         locked = (
@@ -39,8 +39,8 @@ def run_request_automation(request_id: int):
             .filter(pk=request_id, deleted_at__isnull=True)
             .first()
         )
-        if locked is None or locked.status in {"completed", "cancelled"}:
-            return {"status": "terminal"}
+        if locked is None or locked.status != "pending" or locked.assigned_donor_id:
+            return {"status": "closed"}
 
         notifications = auto_match_blood_request(
             locked,

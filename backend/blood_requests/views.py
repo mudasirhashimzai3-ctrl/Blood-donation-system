@@ -233,8 +233,8 @@ class BloodRequestViewSet(PermissionMixin, viewsets.ModelViewSet):
     @action(detail=True, methods=["post"], url_path="run-auto-match")
     def run_auto_match(self, request, pk=None):
         blood_request = self.get_object()
-        if blood_request.status in {"completed", "cancelled"}:
-            raise ValidationError({"detail": "Cannot run auto-match for a completed or cancelled request."})
+        if blood_request.status != "pending" or blood_request.assigned_donor_id:
+            raise ValidationError({"detail": "Cannot run auto-match for a request that is no longer pending."})
 
         result = run_request_automation(blood_request.id)
         blood_request.refresh_from_db()

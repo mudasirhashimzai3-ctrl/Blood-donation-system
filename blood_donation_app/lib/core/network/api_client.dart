@@ -183,8 +183,26 @@ class ApiClient {
       if (message != null && message.isNotEmpty) return message;
       final error = data['error']?.toString();
       if (error != null && error.isNotEmpty) return error;
+      final fieldMessage = _firstFieldErrorMessage(data);
+      if (fieldMessage != null && fieldMessage.isNotEmpty) return fieldMessage;
     }
     return 'Server error';
+  }
+
+  String? _firstFieldErrorMessage(Map data) {
+    for (final entry in data.entries) {
+      final key = entry.key.toString();
+      if (key == 'detail' || key == 'message' || key == 'error') continue;
+
+      final value = entry.value;
+      if (value is List && value.isNotEmpty) {
+        final first = value.first?.toString().trim();
+        if (first != null && first.isNotEmpty) return first;
+      }
+      final text = value?.toString().trim();
+      if (text != null && text.isNotEmpty) return text;
+    }
+    return null;
   }
 
   Map<String, List<String>>? _extractFieldErrors(dynamic data) {
