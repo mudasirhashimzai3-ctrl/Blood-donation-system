@@ -54,6 +54,7 @@ export default function AdminDashboardPage() {
           "No pending blood requests are available for donor search."
         )}
         showSettingsButton
+        showBloodRequestFilter={false}
         onSettingsClick={() => navigate("/settings?tab=system_settings&section=auto_matching")}
       />
     </div>
